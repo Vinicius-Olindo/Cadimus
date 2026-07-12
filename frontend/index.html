@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CADIMUS - Controle Financeiro</title>
+    <meta name="description" content="Caderno de contas para a casa e para o seu bolso." />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="css/variables.css" />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <main class="app-container">
+      <!-- SEÇÃO LOGIN -->
+      <section id="login-section">
+        <div class="login-box">
+          <h1>Cadimus</h1>
+          <span class="subtitulo">Caderno de contas</span>
+          <form id="login-form">
+            <input type="text" id="usuario" placeholder="Usuário" autocomplete="username" required />
+            <input type="password" id="senha" placeholder="Senha" autocomplete="current-password" required />
+            <button type="submit">Entrar</button>
+          </form>
+        </div>
+      </section>
+
+      <!-- SEÇÃO DASHBOARD -->
+      <section id="dashboard-section" style="display: none">
+        <header class="top-bar">
+          <div class="top-bar-linha1">
+            <h2>Cadimus</h2>
+            <div class="acoes-topo">
+              <button id="btn-admin" style="display: none" title="Configurações">⚙️</button>
+              <button id="btn-logout">Sair</button>
+            </div>
+          </div>
+          <div class="top-bar-linha2">
+            <div class="carteira-tabs" id="carteira-tabs" role="tablist" aria-label="Selecionar carteira"></div>
+            <input type="hidden" id="seletor-carteira" value="" />
+            <input type="month" id="filtro-mes" aria-label="Filtrar por mês" />
+          </div>
+        </header>
+
+        <div class="resumo-cards">
+          <div class="card">
+            <span id="saldo-total">R$ 0,00</span>
+          </div>
+        </div>
+        <div class="lista-lancamentos" id="lista-lancamentos"></div>
+        <footer class="atalhos-container">
+          <button id="btn-novo-gasto">+ Novo lançamento</button>
+        </footer>
+      </section>
+
+      <!-- SEÇÃO ADMIN / CONFIGURAÇÕES -->
+      <section id="admin-section" style="display: none">
+        <header class="top-bar">
+          <div class="top-bar-linha1">
+            <h2>Configurações</h2>
+            <button id="btn-voltar-dashboard">Voltar</button>
+          </div>
+        </header>
+
+        <div class="admin-tabs">
+          <button type="button" class="tab-admin ativo" data-painel="painel-usuarios">Usuários</button>
+          <button type="button" class="tab-admin" data-painel="painel-categorias">Categorias</button>
+        </div>
+
+        <!-- PAINEL: USUÁRIOS -->
+        <div id="painel-usuarios" class="painel-admin">
+          <div class="card">
+            <h3 id="titulo-form-usuario">Novo usuário</h3>
+            <form id="form-novo-usuario">
+              <input type="hidden" id="usuario-editando-id" value="" />
+              <input type="text" id="novo-usuario" placeholder="Usuário" required />
+              <input type="password" id="nova-senha" placeholder="Senha" />
+              <span class="dica-campo" id="dica-senha" style="display: none">Deixe em branco para manter a senha atual.</span>
+              <select id="novo-perfil">
+                <option value="comum">Comum</option>
+                <option value="superadmin">Admin</option>
+              </select>
+              <div class="form-usuario-acoes">
+                <button type="submit" id="btn-salvar-usuario">Criar</button>
+                <button type="button" id="btn-cancelar-edicao" style="display: none">Cancelar edição</button>
+              </div>
+            </form>
+          </div>
+          <div class="lista-lancamentos" id="lista-usuarios"></div>
+        </div>
+
+        <!-- PAINEL: CATEGORIAS -->
+        <div id="painel-categorias" class="painel-admin" style="display: none">
+          <div class="card">
+            <h3>Nova categoria</h3>
+            <form id="form-nova-categoria">
+              <input type="text" id="nome-nova-categoria" placeholder="Ex: Assinaturas" required />
+              <button type="submit">Adicionar</button>
+            </form>
+          </div>
+          <div class="lista-lancamentos" id="lista-categorias"></div>
+        </div>
+      </section>
+    </main>
+
+    <!-- MODAL: NOVO LANÇAMENTO -->
+    <div id="modal-lancamento" class="modal-overlay" style="display: none">
+      <div class="modal-content">
+        <h3>Novo lançamento</h3>
+        <form id="form-lancamento">
+          <div class="campo">
+            <label for="tipo-gasto">Tipo</label>
+            <select id="tipo-gasto">
+              <option value="despesa">Despesa</option>
+              <option value="receita">Receita</option>
+            </select>
+          </div>
+
+          <div class="campo">
+            <label for="descricao">Descrição</label>
+            <input type="text" id="descricao" placeholder="Ex: Mercado, Salário..." required />
+          </div>
+
+          <div class="linha-form-dupla">
+            <div class="campo">
+              <label for="valor">Valor</label>
+              <input type="number" id="valor" step="0.01" placeholder="0,00" required />
+            </div>
+            <div class="campo">
+              <label for="data-compra">Data</label>
+              <input type="date" id="data-compra" required />
+            </div>
+          </div>
+
+          <div class="campo">
+            <label for="categoria">Categoria</label>
+            <select id="categoria" required>
+              <option value="" disabled selected>Escolher</option>
+              <option value="__nova__">+ Nova categoria…</option>
+            </select>
+            <input type="text" id="categoria-nova" class="campo-condicional" placeholder="Nome da nova categoria" style="display: none; margin-top: 8px" />
+          </div>
+
+          <div class="linha-form-dupla">
+            <div class="campo">
+              <label for="meio-pagamento">Meio de pagamento</label>
+              <select id="meio-pagamento" required>
+                <option value="" disabled selected>Escolher</option>
+                <option value="dinheiro">Dinheiro</option>
+                <option value="pix">Pix</option>
+                <option value="debito">Débito</option>
+                <option value="credito">Crédito</option>
+              </select>
+            </div>
+            <div class="campo">
+              <label for="status-pagamento">Status</label>
+              <select id="status-pagamento" required>
+                <option value="pago">Pago</option>
+                <option value="pendente">Pendente</option>
+              </select>
+            </div>
+          </div>
+
+          <button type="submit" id="btn-salvar-lancamento">Salvar</button>
+          <button type="button" id="btn-fechar-modal">Cancelar</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL: NOVA CARTEIRA -->
+    <div id="modal-carteira" class="modal-overlay" style="display: none">
+      <div class="modal-content">
+        <h3>Nova carteira</h3>
+        <form id="form-carteira">
+          <div class="campo">
+            <label for="nome-carteira">Nome</label>
+            <input type="text" id="nome-carteira" placeholder="Ex: Viagem, Cartão de crédito" required />
+          </div>
+          <div class="campo">
+            <label for="tipo-carteira">Tipo</label>
+            <select id="tipo-carteira">
+              <option value="individual">Só minha</option>
+              <option value="compartilhada">Compartilhada com a casa</option>
+            </select>
+          </div>
+          <button type="submit" id="btn-salvar-carteira">Criar carteira</button>
+          <button type="button" id="btn-fechar-modal-carteira">Cancelar</button>
+        </form>
+      </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/main.js"></script>
+  </body>
+</html>

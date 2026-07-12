@@ -1,0 +1,17 @@
+# Nome do seu projeto na Cloudflare
+name = "cadimus-backend"
+
+# Onde o Worker começa a rodar
+main = "src/index.js"
+
+# Data de compatibilidade (mantém o seu Worker usando a versão mais estável da infraestrutura)
+compatibility_date = "2024-03-20"
+
+# ==========================================
+# CONEXÃO COM O BANCO DE DADOS D1
+# ==========================================
+[[d1_databases]]
+binding = "DB" # É com essa sigla que o seu JavaScript vai chamar o banco de dados
+database_name = "cadimus-db"
+database_id = "410fe09f-6bdb-43b6-9dc9-f542d85537ca"
+migrations_dir = "../database/migrations"

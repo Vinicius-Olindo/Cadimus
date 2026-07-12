@@ -1,0 +1,64 @@
+/* ==========================================
+   CADIMUS — Tokens visuais
+   Direção: caderno de contas — papel pautado, tinta e carimbo de latão.
+   Modo padrão = "papel" (claro). Classe .dark-mode = "tinta" (escuro).
+   ========================================== */
+
+:root {
+  /* --- Tipografia --- */
+  --fonte-display: "Instrument Serif", Georgia, serif;
+  --fonte-corpo: "IBM Plex Sans", system-ui, sans-serif;
+  --fonte-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+
+  /* --- Escala e forma --- */
+  --raio-sm: 4px;
+  --raio-md: 10px;
+  --raio-lg: 18px;
+  --borda: 1px;
+
+  /* --- Modo Papel (padrão) --- */
+  --cor-fundo: #e7e3d6;
+  --cor-superficie: #f8f6ee;
+  --cor-superficie-alta: #fffdf6;
+  --cor-texto: #1c2620;
+  --cor-texto-suave: #5f6c60;
+  --cor-pauta: #c9cdb9;
+  --cor-pauta-forte: #dfe3cc;
+  --cor-marca: #a97a2f;
+  --cor-marca-forte: #8c621f;
+  --cor-receita: #3f7d52;
+  --cor-despesa: #a23e3e;
+  --cor-pendente: #a97a2f;
+  --cor-sombra: rgba(28, 38, 32, 0.14);
+  --cor-overlay: rgba(20, 26, 20, 0.72);
+
+  /* --- Cores de autor (carimbo de quem lançou) --- */
+  --autor-a: #4f6f93;
+  --autor-b: #8a5fa3;
+  --autor-c: #3f8f88;
+  --autor-d: #9c7a3c;
+}
+
+.dark-mode {
+  /* --- Modo Tinta (escuro) --- */
+  --cor-fundo: #101b15;
+  --cor-superficie: #172519;
+  --cor-superficie-alta: #1c2c1e;
+  --cor-texto: #ece7d6;
+  --cor-texto-suave: #93a394;
+  --cor-pauta: #263524;
+  --cor-pauta-forte: #24361f;
+  --cor-marca: #d7ab5f;
+  --cor-marca-forte: #e8c07d;
+  --cor-receita: #6cbd8b;
+  --cor-despesa: #e0857a;
+  --cor-pendente: #d7ab5f;
+  --cor-sombra: rgba(0, 0, 0, 0.45);
+  --cor-overlay: rgba(6, 10, 7, 0.82);
+
+  /* --- Cores de autor (carimbo de quem lançou) --- */
+  --autor-a: #7fa2c7;
+  --autor-b: #bd93d1;
+  --autor-c: #74c2b8;
+  --autor-d: #d1ab6b;
+}

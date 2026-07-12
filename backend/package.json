@@ -1,0 +1,12 @@
+{
+  "name": "cadimus-backend",
+  "version": "1.0.0",
+  "description": "API para o Controle Financeiro CADIMUS",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "author": "",
+  "license": "ISC"
+}
