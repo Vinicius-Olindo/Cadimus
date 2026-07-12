@@ -6,6 +6,7 @@ import { processarLancamentos } from "./routes/lancamentos.js";
 import { processarUsuarios } from "./routes/usuarios.js";
 import { processarCategorias } from "./routes/categorias.js";
 import { processarCarteiras } from "./routes/carteiras.js";
+import { processarDespesasFixas } from "./routes/despesasFixas.js";
 
 export default {
   async fetch(request, env, ctx) {
@@ -90,6 +91,21 @@ export default {
         const respostaCarteiras = await processarCarteiras(request, env);
 
         const respostaComCors = new Response(respostaCarteiras.body, respostaCarteiras);
+        Object.keys(corsHeaders).forEach((chave) => {
+          respostaComCors.headers.set(chave, corsHeaders[chave]);
+        });
+        respostaComCors.headers.set("Content-Type", "application/json");
+
+        return respostaComCors;
+      }
+
+      // ==========================================
+      // ROTA 6: DESPESAS FIXAS
+      // ==========================================
+      if (url.pathname.startsWith("/api/despesas-fixas")) {
+        const respostaDespesasFixas = await processarDespesasFixas(request, env);
+
+        const respostaComCors = new Response(respostaDespesasFixas.body, respostaDespesasFixas);
         Object.keys(corsHeaders).forEach((chave) => {
           respostaComCors.headers.set(chave, corsHeaders[chave]);
         });

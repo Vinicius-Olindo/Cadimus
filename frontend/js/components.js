@@ -49,7 +49,7 @@ function criarLinhaLancamento(lancamento) {
             <div class="item-valores">
                 <span class="carimbo-autor" style="--cor-autor: ${corAutor}" title="Lançado por ${nomeAutor}">${inicialAutor}</span>
                 <span class="item-meio-pagamento">${lancamento.meio_pagamento}</span>
-                <span class="item-status ${classeStatus}">${textoStatus}</span>
+                <button type="button" class="item-status ${classeStatus}" onclick="alternarStatusLancamento(${lancamento.id}, '${lancamento.status}')" title="Clique para marcar como ${lancamento.status === "pago" ? "pendente" : "pago"}">${textoStatus}</button>
                 <span class="item-valor ${classeTipo}">${sinal} ${valorFormatado}</span>
                 <button class="btn-excluir" onclick="apagarLancamento(${lancamento.id})" title="Apagar registro">✕</button>
             </div>

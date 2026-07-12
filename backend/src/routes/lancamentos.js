@@ -3,6 +3,7 @@
 // ==========================================
 import { obterUsuarioDaSessao } from "../utils/sessao.js";
 import { obterCarteirasDoUsuario } from "../utils/carteiras.js";
+import { gerarLancamentosFixosDoMes } from "../utils/despesasFixas.js";
 
 export async function processarLancamentos(request, env) {
   const metodo = request.method;
@@ -32,6 +33,12 @@ export async function processarLancamentos(request, env) {
 
       if (carteirasPermitidas.length === 0) {
         return new Response(JSON.stringify([]), { status: 200 });
+      }
+
+      // Antes de listar, garante que as despesas fixas ativas já viraram lançamento neste mês
+      if (mes && ano) {
+        const carteirasAlvo = carteiraId ? [Number(carteiraId)] : carteirasPermitidas;
+        await gerarLancamentosFixosDoMes(env, carteirasAlvo, ano, mes);
       }
 
       let query = `
@@ -104,7 +111,59 @@ export async function processarLancamentos(request, env) {
   }
 
   // ==========================================
-  // 3. APAGAR LANÇAMENTO (DELETE)
+  // 3. EDITAR (hoje usado pra alternar pago/pendente, mas aceita qualquer campo)
+  // ==========================================
+  if (metodo === "PUT") {
+    try {
+      const id = url.searchParams.get("id");
+      if (!id) {
+        return new Response(JSON.stringify({ erro: "ID não fornecido." }), { status: 400 });
+      }
+
+      const { results: alvo } = await env.DB.prepare(`SELECT carteira_id FROM lancamentos WHERE id = ?`).bind(id).all();
+      if (alvo.length === 0) {
+        return new Response(JSON.stringify({ erro: "Lançamento não encontrado." }), { status: 404 });
+      }
+      if (!carteirasPermitidas.includes(alvo[0].carteira_id)) {
+        return new Response(JSON.stringify({ erro: "Acesso negado a esta carteira." }), { status: 403 });
+      }
+
+      const dados = await request.json();
+      const camposPermitidos = ["descricao", "valor", "data_compra", "tipo", "categoria", "meio_pagamento", "status"];
+      const campos = [];
+      const valores = [];
+
+      for (const campo of camposPermitidos) {
+        if (dados[campo] === undefined) continue;
+
+        if (campo === "status" && !["pago", "pendente"].includes(dados.status)) {
+          return new Response(JSON.stringify({ erro: "Status inválido." }), { status: 400 });
+        }
+        if (campo === "tipo" && !["despesa", "receita"].includes(dados.tipo)) {
+          return new Response(JSON.stringify({ erro: "Tipo inválido." }), { status: 400 });
+        }
+
+        campos.push(`${campo} = ?`);
+        valores.push(dados[campo]);
+      }
+
+      if (campos.length === 0) {
+        return new Response(JSON.stringify({ erro: "Nada para atualizar." }), { status: 400 });
+      }
+
+      valores.push(id);
+      await env.DB.prepare(`UPDATE lancamentos SET ${campos.join(", ")} WHERE id = ?`)
+        .bind(...valores)
+        .run();
+
+      return new Response(JSON.stringify({ mensagem: "Atualizado com sucesso." }), { status: 200 });
+    } catch (erro) {
+      return new Response(JSON.stringify({ erro: "Erro ao atualizar.", detalhe: erro.message }), { status: 500 });
+    }
+  }
+
+  // ==========================================
+  // 4. APAGAR LANÇAMENTO (DELETE)
   // ==========================================
   if (metodo === "DELETE") {
     try {

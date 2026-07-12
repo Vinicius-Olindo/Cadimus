@@ -95,6 +95,52 @@ button {
   flex-shrink: 0;
 }
 
+.seletor-mes {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--cor-superficie-alta);
+  border: var(--borda) solid var(--cor-pauta-forte);
+  border-radius: 999px;
+  padding: 3px 6px;
+  flex-shrink: 0;
+}
+
+.seletor-mes button {
+  background: transparent;
+  color: var(--cor-texto-suave);
+  border: none;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.seletor-mes button:hover {
+  background: color-mix(in srgb, var(--cor-marca) 16%, transparent);
+  color: var(--cor-marca-forte);
+  transform: none;
+}
+
+#rotulo-mes {
+  font-family: var(--fonte-mono);
+  font-size: 0.76rem;
+  min-width: 104px;
+  text-align: center;
+  color: var(--cor-texto);
+  cursor: pointer;
+  user-select: none;
+}
+
+#rotulo-mes:hover {
+  color: var(--cor-marca-forte);
+}
+
 /* ==========================================
    BOTÕES
    ========================================== */
@@ -125,8 +171,11 @@ button:active {
 #btn-logout,
 #btn-theme-toggle,
 #btn-admin,
+#btn-despesas-fixas,
 #btn-voltar-dashboard,
-#btn-fechar-modal {
+#btn-fechar-modal,
+#btn-fechar-modal-carteira,
+#btn-fechar-modal-fixas {
   background: transparent;
   color: var(--cor-texto-suave);
   border-color: var(--cor-pauta-forte);
@@ -135,8 +184,11 @@ button:active {
 #btn-logout:hover,
 #btn-theme-toggle:hover,
 #btn-admin:hover,
+#btn-despesas-fixas:hover,
 #btn-voltar-dashboard:hover,
-#btn-fechar-modal:hover {
+#btn-fechar-modal:hover,
+#btn-fechar-modal-carteira:hover,
+#btn-fechar-modal-fixas:hover {
   border-color: var(--cor-marca);
   color: var(--cor-marca-forte);
 }
@@ -233,16 +285,62 @@ button:active {
   background: color-mix(in srgb, var(--cor-marca) 12%, transparent);
 }
 
-#filtro-mes {
-  font-family: var(--fonte-mono);
-  font-size: 0.78rem;
+/* ==========================================
+   TRANSIÇÃO ENTRE MESES (efeito de virar a página)
+   ========================================== */
+@keyframes deslizar-frente {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes deslizar-tras {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes deslizar-agora {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+#conteudo-periodo.anim-frente {
+  animation: deslizar-frente 0.3s ease;
+}
+
+#conteudo-periodo.anim-tras {
+  animation: deslizar-tras 0.3s ease;
+}
+
+#conteudo-periodo.anim-agora {
+  animation: deslizar-agora 0.3s ease;
 }
 
 /* ==========================================
-   RESUMO / SALDO (carimbo)
+   RESUMO (receitas / despesas / saldo + categorias)
    ========================================== */
 .resumo-cards {
   margin-bottom: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .card {
@@ -252,29 +350,128 @@ button:active {
   border-radius: var(--raio-lg);
 }
 
-.resumo-cards .card {
-  position: relative;
+.resumo-principal {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.resumo-item {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  font-family: var(--fonte-corpo);
-  font-size: 0.72rem;
+}
+
+.resumo-rotulo {
+  font-size: 0.68rem;
   text-transform: uppercase;
-  letter-spacing: 1.4px;
+  letter-spacing: 1.2px;
   color: var(--cor-texto-suave);
 }
 
-.resumo-cards .card::before {
-  content: "Saldo do período";
+.resumo-valor {
+  font-family: var(--fonte-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+  color: var(--cor-texto);
+}
+
+.resumo-divisor {
+  width: 1px;
+  align-self: stretch;
+  background: var(--cor-pauta-forte);
+}
+
+.resumo-saldo-item {
+  margin-left: auto;
 }
 
 #saldo-total {
+  font-size: 1.9rem;
+  color: var(--cor-texto);
+  transition: color 0.3s ease;
+}
+
+/* Raio-x por categoria */
+.resumo-categorias {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.resumo-categorias-titulo {
+  font-family: var(--fonte-display);
+  font-style: italic;
+  font-size: 1.05rem;
+  color: var(--cor-texto);
+}
+
+.despesas-fixas-cabecalho {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.btn-link-adicionar {
+  background: transparent;
+  color: var(--cor-marca-forte);
+  border: none;
+  padding: 4px 8px;
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+
+.btn-link-adicionar:hover {
+  color: var(--cor-marca);
+  transform: none;
+  text-decoration: underline;
+}
+
+#lista-despesas-fixas-painel {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.categoria-barra-linha {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.categoria-barra-topo {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.76rem;
+  color: var(--cor-texto-suave);
+}
+
+.categoria-barra-topo strong {
+  color: var(--cor-texto);
+  font-weight: 600;
+}
+
+.categoria-barra-valor {
   font-family: var(--fonte-mono);
   font-variant-numeric: tabular-nums;
-  font-size: 2rem;
-  font-weight: 600;
-  letter-spacing: -0.5px;
-  color: var(--cor-texto);
+}
+
+.categoria-barra-trilho {
+  height: 7px;
+  border-radius: 999px;
+  background: var(--cor-pauta-forte);
+  overflow: hidden;
+}
+
+.categoria-barra-preenchimento {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--cor-marca);
+  width: 0%;
+  transition: width 0.7s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* ==========================================
@@ -379,6 +576,7 @@ button:active {
 }
 
 .item-status {
+  font-family: inherit;
   font-size: 0.66rem;
   font-weight: 600;
   padding: 3px 9px;
@@ -386,6 +584,20 @@ button:active {
   text-transform: uppercase;
   letter-spacing: 0.5px;
   white-space: nowrap;
+}
+
+button.item-status {
+  border: none;
+  cursor: pointer;
+}
+
+button.item-status:hover {
+  filter: brightness(0.92);
+  transform: none;
+}
+
+button.item-status:active {
+  transform: scale(0.96);
 }
 
 .carimbo-autor {
@@ -413,6 +625,7 @@ button:active {
 .status-pendente {
   background: color-mix(in srgb, var(--cor-pendente) 20%, transparent);
   color: var(--cor-pendente);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--cor-pendente) 35%, transparent);
 }
 
 .item-valor {
@@ -624,6 +837,19 @@ label {
   margin-bottom: 18px;
 }
 
+.modal-subtitulo {
+  font-size: 0.8rem;
+  color: var(--cor-texto-suave);
+  margin-top: -12px;
+  margin-bottom: 18px;
+}
+
+#lista-despesas-fixas {
+  margin: 18px 0;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
 .modal-content form {
   display: flex;
   flex-direction: column;
@@ -819,6 +1045,20 @@ label {
   .linha-usuario .item-valores {
     width: 100%;
     justify-content: flex-end;
+  }
+
+  .resumo-principal {
+    gap: 14px;
+  }
+
+  .resumo-saldo-item {
+    margin-left: 0;
+    width: 100%;
+    padding-top: 4px;
+  }
+
+  .resumo-divisor {
+    display: none;
   }
 }
 
