@@ -474,6 +474,126 @@ button:active {
   transition: width 0.7s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+.categoria-barra-preenchimento.barra-ok {
+  background: var(--cor-receita);
+}
+
+.categoria-barra-preenchimento.barra-atencao {
+  background: var(--cor-pendente);
+}
+
+.categoria-barra-preenchimento.barra-estourou {
+  background: var(--cor-despesa);
+}
+
+.categoria-barra-nome {
+  cursor: pointer;
+  border-bottom: 1px dotted var(--cor-pauta-forte);
+}
+
+.categoria-barra-nome:hover {
+  color: var(--cor-marca-forte);
+  border-bottom-color: var(--cor-marca);
+}
+
+.btn-remover-meta {
+  background: transparent;
+  color: var(--cor-despesa);
+  border: var(--borda) solid color-mix(in srgb, var(--cor-despesa) 40%, transparent);
+}
+
+.btn-remover-meta:hover {
+  background: color-mix(in srgb, var(--cor-despesa) 10%, transparent);
+}
+
+/* Comparação com o mês anterior */
+.comparacao-mes {
+  font-size: 0.66rem;
+  font-weight: 600;
+  padding: 1px 7px;
+  border-radius: 999px;
+  align-self: flex-start;
+  align-items: center;
+  gap: 2px;
+}
+
+.comparacao-pior {
+  background: color-mix(in srgb, var(--cor-despesa) 16%, transparent);
+  color: var(--cor-despesa);
+}
+
+.comparacao-melhor {
+  background: color-mix(in srgb, var(--cor-receita) 16%, transparent);
+  color: var(--cor-receita);
+}
+
+/* Gráfico de tendência (6 meses) */
+.tendencia-grafico {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  padding-top: 22px;
+}
+
+.tendencia-coluna {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.tendencia-valor {
+  font-family: var(--fonte-mono);
+  font-size: 0.6rem;
+  color: var(--cor-texto-suave);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.tendencia-barra-trilho {
+  width: 100%;
+  height: 70px;
+  display: flex;
+  align-items: flex-end;
+  background: var(--cor-pauta-forte);
+  border-radius: 4px 4px 0 0;
+  overflow: hidden;
+}
+
+.tendencia-barra {
+  width: 100%;
+  height: 0%;
+  background: var(--cor-texto-suave);
+  transition: height 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.tendencia-barra-atual {
+  background: var(--cor-marca);
+}
+
+.tendencia-rotulo {
+  font-size: 0.64rem;
+  color: var(--cor-texto-suave);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.busca-lancamentos {
+  margin-bottom: 14px;
+}
+
+.busca-lancamentos input {
+  width: 100%;
+}
+
+.busca-lancamentos input::-webkit-search-cancel-button {
+  cursor: pointer;
+}
+
 /* ==========================================
    LISTA DE LANÇAMENTOS (folha pautada)
    ========================================== */
@@ -658,6 +778,20 @@ button.item-status:active {
   background: color-mix(in srgb, var(--cor-despesa) 12%, transparent);
 }
 
+.btn-editar {
+  background: transparent;
+  padding: 4px 6px;
+  font-size: 0.85rem;
+  line-height: 1;
+  opacity: 0.55;
+}
+
+.btn-editar:hover {
+  opacity: 1;
+  background: color-mix(in srgb, var(--cor-marca) 14%, transparent);
+  color: var(--cor-marca-forte);
+}
+
 /* Estados de carregamento / lista vazia */
 .loading-container,
 .lista-vazia {
@@ -837,6 +971,57 @@ label {
   margin-bottom: 18px;
 }
 
+.modal-compacto {
+  max-width: 340px;
+  text-align: center;
+}
+
+.modal-aviso-texto {
+  font-size: 0.92rem;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.modal-compacto #btn-aviso-ok {
+  width: 100%;
+  background: var(--cor-marca);
+}
+
+.modal-compacto #btn-aviso-ok:hover {
+  background: var(--cor-marca-forte);
+}
+
+.modal-confirmacao-acoes {
+  display: flex;
+  gap: 10px;
+}
+
+.modal-confirmacao-acoes button {
+  flex: 1;
+}
+
+#btn-confirmacao-confirmar {
+  background: var(--cor-marca);
+}
+
+#btn-confirmacao-confirmar:hover {
+  background: var(--cor-marca-forte);
+}
+
+#btn-confirmacao-confirmar.confirmacao-perigo {
+  background: var(--cor-despesa);
+}
+
+#btn-confirmacao-confirmar.confirmacao-perigo:hover {
+  background: color-mix(in srgb, var(--cor-despesa) 85%, black);
+}
+
+#btn-confirmacao-cancelar {
+  background: transparent;
+  color: var(--cor-texto-suave);
+  border: var(--borda) solid var(--cor-pauta-forte);
+}
+
 .modal-subtitulo {
   font-size: 0.8rem;
   color: var(--cor-texto-suave);
@@ -1006,6 +1191,32 @@ label {
   box-shadow: none;
   cursor: not-allowed;
   transform: none;
+}
+
+/* Aviso de vencimento próximo nas despesas fixas */
+.linha-vencimento-proximo {
+  border-left: 3px solid var(--cor-pendente);
+  background: color-mix(in srgb, var(--cor-pendente) 7%, transparent);
+}
+
+.linha-vencimento-atrasado {
+  border-left: 3px solid var(--cor-despesa);
+  background: color-mix(in srgb, var(--cor-despesa) 8%, transparent);
+}
+
+.aviso-vencimento {
+  font-size: 0.66rem;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 999px;
+  white-space: nowrap;
+  background: color-mix(in srgb, var(--cor-pendente) 20%, transparent);
+  color: var(--cor-pendente);
+}
+
+.aviso-vencimento-atrasado {
+  background: color-mix(in srgb, var(--cor-despesa) 18%, transparent);
+  color: var(--cor-despesa);
 }
 
 /* ==========================================

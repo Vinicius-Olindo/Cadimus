@@ -36,6 +36,15 @@ function criarLinhaLancamento(lancamento) {
   const inicialAutor = nomeAutor.charAt(0).toUpperCase();
   const corAutor = corDoAutor(nomeAutor);
 
+  // Só quem criou o lançamento (ou um admin) pode editar/excluir — o backend também garante isso,
+  // aqui é só pra não mostrar botões que vão falhar ao clicar
+  const usuarioLogado = JSON.parse(localStorage.getItem("cadimus_usuario") || "{}");
+  const podeGerenciar = lancamento.criado_por === usuarioLogado.id || usuarioLogado.perfil === "superadmin";
+  const botoesGerenciar = podeGerenciar
+    ? `<button class="btn-editar" onclick="editarLancamento(${lancamento.id})" title="Editar registro">✎</button>
+       <button class="btn-excluir" onclick="apagarLancamento(${lancamento.id})" title="Apagar registro">✕</button>`
+    : "";
+
   // Monta a estrutura interna do componente:
   // régua de margem (dia do mês) + corpo do lançamento, como uma folha pautada
   div.innerHTML = `
@@ -51,7 +60,7 @@ function criarLinhaLancamento(lancamento) {
                 <span class="item-meio-pagamento">${lancamento.meio_pagamento}</span>
                 <button type="button" class="item-status ${classeStatus}" onclick="alternarStatusLancamento(${lancamento.id}, '${lancamento.status}')" title="Clique para marcar como ${lancamento.status === "pago" ? "pendente" : "pago"}">${textoStatus}</button>
                 <span class="item-valor ${classeTipo}">${sinal} ${valorFormatado}</span>
-                <button class="btn-excluir" onclick="apagarLancamento(${lancamento.id})" title="Apagar registro">✕</button>
+                ${botoesGerenciar}
             </div>
         </div>
   `;
@@ -90,13 +99,15 @@ function criarFeedbackCarregamento() {
 
 /**
  * Cria uma mensagem para quando o mês selecionado não possuir gastos cadastrados
+ * (ou quando uma busca não encontrar nada)
+ * @param {string} [mensagem] - Texto customizado (opcional)
  * @returns {HTMLElement} Elemento de lista vazia
  */
-function criarAvisoListaVazia() {
+function criarAvisoListaVazia(mensagem) {
   const div = document.createElement("div");
   div.classList.add("lista-vazia");
   div.innerHTML = `
-        <p>Página em branco por aqui. Nenhum lançamento neste período.</p>
+        <p>${mensagem || "Página em branco por aqui. Nenhum lançamento neste período."}</p>
     `;
   return div;
 }

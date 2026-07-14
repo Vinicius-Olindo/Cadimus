@@ -1,0 +1,17 @@
+{
+  "name": "Cadimus - Caderno de Contas",
+  "short_name": "Cadimus",
+  "description": "Caderno de contas para a casa e para o seu bolso.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#e7e3d6",
+  "theme_color": "#a97a2f",
+  "lang": "pt-BR",
+  "icons": [
+    { "src": "assets/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "assets/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "assets/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

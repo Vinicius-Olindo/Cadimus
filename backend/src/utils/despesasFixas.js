@@ -27,6 +27,10 @@ export async function gerarLancamentosFixosDoMes(env, carteiraIds, ano, mes) {
   const chaveMes = `${anoNum}-${String(mesNum).padStart(2, "0")}`;
 
   for (const fixa of fixas) {
+    // Nunca gera retroativo: se a regra foi criada em agosto, não pode aparecer em julho
+    const mesCriacao = String(fixa.criado_em).slice(0, 7);
+    if (chaveMes < mesCriacao) continue;
+
     const { results: existente } = await env.DB.prepare(`SELECT id FROM lancamentos WHERE despesa_fixa_id = ? AND strftime('%Y-%m', data_compra) = ?`)
       .bind(fixa.id, chaveMes)
       .all();

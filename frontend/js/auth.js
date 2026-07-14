@@ -39,7 +39,11 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("cadimus_usuario", JSON.stringify(d.usuario));
         alternarTelas(true);
       } else {
-        alert(d.erro);
+        if (typeof mostrarAviso === "function") {
+          await mostrarAviso(d.erro);
+        } else {
+          alert(d.erro); // segurança: se por algum motivo main.js não carregou ainda
+        }
       }
     });
   }

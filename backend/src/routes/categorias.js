@@ -47,6 +47,52 @@ export async function processarCategorias(request, env) {
     }
   }
 
+  // Renomear é restrito a admin — reescreve o nome em TODOS os lançamentos e despesas
+  // fixas que já usam o nome antigo (categoria é texto livre, não uma referência).
+  if (metodo === "PUT") {
+    if (usuarioLogado.perfil !== "superadmin") {
+      return new Response(JSON.stringify({ erro: "Acesso restrito a administradores." }), { status: 403 });
+    }
+    try {
+      const id = url.searchParams.get("id");
+      if (!id) {
+        return new Response(JSON.stringify({ erro: "ID não fornecido." }), { status: 400 });
+      }
+
+      const dados = await request.json();
+      const novoNome = (dados.nome || "").trim();
+
+      if (!novoNome) {
+        return new Response(JSON.stringify({ erro: "Informe um nome." }), { status: 400 });
+      }
+      if (novoNome.length > 40) {
+        return new Response(JSON.stringify({ erro: "Nome muito longo (máx. 40 caracteres)." }), { status: 400 });
+      }
+
+      const { results: atual } = await env.DB.prepare(`SELECT nome FROM categorias WHERE id = ?`).bind(id).all();
+      if (atual.length === 0) {
+        return new Response(JSON.stringify({ erro: "Categoria não encontrada." }), { status: 404 });
+      }
+      const nomeAntigo = atual[0].nome;
+
+      // Evita colidir com outra categoria já existente com esse nome
+      const { results: duplicado } = await env.DB.prepare(`SELECT id FROM categorias WHERE LOWER(nome) = LOWER(?) AND id != ?`).bind(novoNome, id).all();
+      if (duplicado.length > 0) {
+        return new Response(JSON.stringify({ erro: "Já existe uma categoria com esse nome." }), { status: 409 });
+      }
+
+      await env.DB.prepare(`UPDATE categorias SET nome = ? WHERE id = ?`).bind(novoNome, id).run();
+
+      // Aplica o novo nome em todo o histórico que usava o nome antigo
+      await env.DB.prepare(`UPDATE lancamentos SET categoria = ? WHERE categoria = ?`).bind(novoNome, nomeAntigo).run();
+      await env.DB.prepare(`UPDATE despesas_fixas SET categoria = ? WHERE categoria = ?`).bind(novoNome, nomeAntigo).run();
+
+      return new Response(JSON.stringify({ mensagem: "Categoria renomeada em todos os lançamentos existentes." }), { status: 200 });
+    } catch (erro) {
+      return new Response(JSON.stringify({ erro: "Erro ao renomear categoria.", detalhe: erro.message }), { status: 500 });
+    }
+  }
+
   // Excluir só pode quem administra — remover categoria em uso não afeta lançamentos já salvos
   // (a categoria do lançamento é um texto próprio, não depende desta tabela)
   if (metodo === "DELETE") {

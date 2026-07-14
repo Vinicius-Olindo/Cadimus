@@ -184,6 +184,10 @@ export async function processarDespesasFixas(request, env) {
         return new Response(JSON.stringify({ erro: "Acesso negado a esta carteira." }), { status: 403 });
       }
 
+      // Desvincula os lançamentos que essa regra já gerou (eles continuam existindo,
+      // só param de "pertencer" à regra) — sem isso, a chave estrangeira impede a exclusão
+      await env.DB.prepare(`UPDATE lancamentos SET despesa_fixa_id = NULL WHERE despesa_fixa_id = ?`).bind(id).run();
+
       await env.DB.prepare(`DELETE FROM despesas_fixas WHERE id = ?`).bind(id).run();
 
       return new Response(JSON.stringify({ mensagem: "Despesa fixa excluída." }), { status: 200 });

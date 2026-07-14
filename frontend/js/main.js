@@ -18,19 +18,94 @@ function tratarSessaoExpirada(resposta) {
   if (resposta.status === 401) {
     localStorage.clear();
     alternarTelas(false);
-    alert("Sua sessão expirou. Faça login novamente.");
+    mostrarAviso("Sua sessão expirou. Faça login novamente."); // não bloqueia: a função precisa continuar síncrona
     return true;
   }
   return false;
+}
+
+// ==========================================
+// AVISO E CONFIRMAÇÃO EM MODAL (no lugar de alert()/confirm() nativos)
+// ==========================================
+function mostrarAviso(mensagem) {
+  return new Promise((resolve) => {
+    const modal = document.getElementById("modal-aviso");
+    const texto = document.getElementById("aviso-texto");
+    const btnOk = document.getElementById("btn-aviso-ok");
+    if (!modal || !texto || !btnOk) {
+      resolve();
+      return;
+    }
+
+    texto.textContent = mensagem;
+    modal.style.display = "flex";
+
+    function aoFechar() {
+      modal.style.display = "none";
+      btnOk.removeEventListener("click", aoFechar);
+      resolve();
+    }
+
+    btnOk.addEventListener("click", aoFechar);
+  });
+}
+
+function pedirConfirmacao(mensagem, opcoes = {}) {
+  return new Promise((resolve) => {
+    const modal = document.getElementById("modal-confirmacao");
+    const texto = document.getElementById("confirmacao-texto");
+    const btnConfirmar = document.getElementById("btn-confirmacao-confirmar");
+    const btnCancelar = document.getElementById("btn-confirmacao-cancelar");
+    if (!modal || !texto || !btnConfirmar || !btnCancelar) {
+      resolve(false);
+      return;
+    }
+
+    texto.textContent = mensagem;
+    btnConfirmar.textContent = opcoes.textoConfirmar || "Confirmar";
+    btnConfirmar.classList.toggle("confirmacao-perigo", Boolean(opcoes.perigo));
+    modal.style.display = "flex";
+
+    function limpar() {
+      modal.style.display = "none";
+      btnConfirmar.removeEventListener("click", aoConfirmar);
+      btnCancelar.removeEventListener("click", aoCancelar);
+    }
+    function aoConfirmar() {
+      limpar();
+      resolve(true);
+    }
+    function aoCancelar() {
+      limpar();
+      resolve(false);
+    }
+
+    btnConfirmar.addEventListener("click", aoConfirmar);
+    btnCancelar.addEventListener("click", aoCancelar);
+  });
+}
+
+// ==========================================
+// PWA - Registro do Service Worker
+// ==========================================
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").catch((erro) => {
+      console.error("Erro ao registrar o service worker:", erro);
+    });
+  });
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   inicializarFiltroMes();
   inicializarDarkMode();
   configurarMonitoresDeFiltro();
+  configurarBuscaLancamentos();
   configurarModal();
   configurarModalCarteira();
   configurarModalDespesasFixas();
+  configurarModalMeta();
+  configurarModalRenomearCategoria();
   configurarPainelAdmin();
 });
 
@@ -264,11 +339,11 @@ function configurarModalCarteira() {
         selecionarCarteira(novaCarteira.id);
       } else {
         const erro = await resposta.json();
-        alert(`Erro ao criar carteira: ${erro.erro}`);
+        await mostrarAviso(`Erro ao criar carteira: ${erro.erro}`);
       }
     } catch (erro) {
       console.error(erro);
-      alert("Falha na comunicação com o servidor.");
+      await mostrarAviso("Falha na comunicação com o servidor.");
     } finally {
       btnSalvar.innerText = "Criar carteira";
       btnSalvar.disabled = false;
@@ -281,13 +356,13 @@ function configurarModalCarteira() {
 // ==========================================
 let despesasFixasCarregadas = [];
 
-function abrirModalDespesasFixas() {
+async function abrirModalDespesasFixas() {
   const modal = document.getElementById("modal-despesas-fixas");
   const carteiraId = document.getElementById("seletor-carteira").value;
   if (!modal) return;
 
   if (!carteiraId) {
-    alert("Aguarde suas carteiras carregarem antes de abrir as despesas fixas.");
+    await mostrarAviso("Aguarde suas carteiras carregarem antes de abrir as despesas fixas.");
     return;
   }
 
@@ -346,11 +421,11 @@ function configurarModalDespesasFixas() {
         carregarLancamentos(); // se o mês atual já bateu o vencimento, aparece na hora
       } else {
         const erro = await resposta.json();
-        alert(`Erro: ${erro.erro}`);
+        await mostrarAviso(`Erro: ${erro.erro}`);
       }
     } catch (erro) {
       console.error(erro);
-      alert("Erro de conexão ao cadastrar despesa fixa.");
+      await mostrarAviso("Erro de conexão ao cadastrar despesa fixa.");
     } finally {
       btnSalvar.disabled = false;
       btnSalvar.innerText = "Adicionar";
@@ -381,14 +456,20 @@ async function carregarPainelDespesasFixas() {
 
     despesasFixasCarregadas.forEach((fixa) => {
       const valorFormatado = formatadorBRL.format(fixa.valor);
+      const aviso = fixa.ativo ? calcularAvisoVencimento(fixa.dia_vencimento) : null;
+
+      const badgeAviso = aviso ? `<span class="aviso-vencimento ${aviso.atrasado ? "aviso-vencimento-atrasado" : ""}">${aviso.texto}</span>` : "";
+      const classeDestaque = aviso ? (aviso.atrasado ? "linha-vencimento-atrasado" : "linha-vencimento-proximo") : "";
+
       const div = document.createElement("div");
-      div.className = "linha-item linha-usuario";
+      div.className = `linha-item linha-usuario ${classeDestaque}`.trim();
       div.innerHTML = `
         <div class="item-info-principal linha-usuario-info">
           <span class="item-descricao">${fixa.descricao}</span>
           <span class="item-categoria">Todo dia ${fixa.dia_vencimento} · ${valorFormatado}</span>
         </div>
         <div class="item-valores">
+          ${badgeAviso}
           <span class="item-status ${fixa.ativo ? "status-pago" : "status-pendente"}">${fixa.ativo ? "Ativa" : "Pausada"}</span>
           <button type="button" class="btn-editar-usuario" data-id="${fixa.id}">${fixa.ativo ? "Pausar" : "Ativar"}</button>
           <button type="button" class="btn-excluir-conta" data-id="${fixa.id}">Excluir</button>
@@ -408,6 +489,25 @@ async function carregarPainelDespesasFixas() {
   }
 }
 
+// Calcula se o vencimento está próximo (até 3 dias), hoje, ou já passou (até 3 dias atrás)
+function calcularAvisoVencimento(diaVencimento) {
+  const hoje = new Date();
+  const diaAtual = hoje.getDate();
+  const diferenca = diaVencimento - diaAtual;
+
+  if (diferenca === 0) {
+    return { texto: "Vence hoje", atrasado: false };
+  }
+  if (diferenca > 0 && diferenca <= 3) {
+    return { texto: `Vence em ${diferenca} dia${diferenca > 1 ? "s" : ""}`, atrasado: false };
+  }
+  if (diferenca < 0 && diferenca >= -3) {
+    const diasAtraso = Math.abs(diferenca);
+    return { texto: `Venceu há ${diasAtraso} dia${diasAtraso > 1 ? "s" : ""}`, atrasado: true };
+  }
+  return null;
+}
+
 async function alternarDespesaFixa(id) {
   const alvo = despesasFixasCarregadas.find((f) => f.id === id);
   if (!alvo) return;
@@ -425,15 +525,15 @@ async function alternarDespesaFixa(id) {
       carregarPainelDespesasFixas();
     } else {
       const erro = await resposta.json();
-      alert(`Erro: ${erro.erro}`);
+      await mostrarAviso(`Erro: ${erro.erro}`);
     }
   } catch (erro) {
-    alert("Erro de conexão.");
+    await mostrarAviso("Erro de conexão.");
   }
 }
 
 async function excluirDespesaFixa(id) {
-  if (!confirm("Excluir esta despesa fixa? Ela para de gerar lançamentos novos, mas os que já foram criados continuam na lista.")) return;
+  if (!(await pedirConfirmacao("Excluir esta despesa fixa? Ela para de gerar lançamentos novos, mas os que já foram criados continuam na lista.", { textoConfirmar: "Excluir", perigo: true }))) return;
 
   try {
     const resposta = await fetch(`${API_URL}/api/despesas-fixas?id=${id}`, {
@@ -447,12 +547,123 @@ async function excluirDespesaFixa(id) {
       carregarPainelDespesasFixas();
     } else {
       const erro = await resposta.json();
-      alert(`Erro: ${erro.erro}`);
+      await mostrarAviso(`Erro: ${erro.erro}`);
     }
   } catch (erro) {
-    alert("Erro de conexão.");
+    await mostrarAviso("Erro de conexão.");
   }
 }
+
+// ==========================================
+// METAS POR CATEGORIA (orçamento)
+// ==========================================
+let metasCarregadas = [];
+
+async function carregarMetas() {
+  const carteiraId = document.getElementById("seletor-carteira").value;
+  if (!carteiraId) return;
+
+  try {
+    const resposta = await fetch(`${API_URL}/api/metas?carteira_id=${carteiraId}`, { headers: headersAutenticados(false) });
+    if (tratarSessaoExpirada(resposta)) return;
+    if (!resposta.ok) return;
+    metasCarregadas = await resposta.json();
+  } catch (erro) {
+    console.error("Erro ao carregar metas:", erro);
+  }
+}
+
+function obterMetaPorCategoria(categoria) {
+  return metasCarregadas.find((m) => m.categoria === categoria);
+}
+
+function abrirModalMeta(categoria, valorAtual) {
+  const modal = document.getElementById("modal-meta");
+  if (!modal) return;
+
+  document.getElementById("meta-categoria-nome").value = categoria;
+  document.getElementById("meta-categoria-label").textContent = `Categoria: ${categoria}`;
+  document.getElementById("meta-valor").value = valorAtual || "";
+  document.getElementById("btn-remover-meta").style.display = valorAtual ? "inline-block" : "none";
+  modal.style.display = "flex";
+}
+
+function configurarModalMeta() {
+  const modal = document.getElementById("modal-meta");
+  const form = document.getElementById("form-meta");
+  const btnFechar = document.getElementById("btn-fechar-modal-meta");
+  const btnRemover = document.getElementById("btn-remover-meta");
+
+  if (!modal || !form || !btnFechar || !btnRemover) return;
+
+  btnFechar.addEventListener("click", () => {
+    modal.style.display = "none";
+  });
+
+  form.addEventListener("submit", async (evento) => {
+    evento.preventDefault();
+
+    const carteiraId = document.getElementById("seletor-carteira").value;
+    const categoria = document.getElementById("meta-categoria-nome").value;
+    const valorLimite = parseFloat(document.getElementById("meta-valor").value);
+    const btnSalvar = document.getElementById("btn-salvar-meta");
+
+    btnSalvar.disabled = true;
+    btnSalvar.innerText = "Salvando...";
+
+    try {
+      const resposta = await fetch(`${API_URL}/api/metas`, {
+        method: "POST",
+        headers: headersAutenticados(),
+        body: JSON.stringify({ carteira_id: carteiraId, categoria, valor_limite: valorLimite }),
+      });
+
+      if (tratarSessaoExpirada(resposta)) return;
+
+      if (resposta.ok) {
+        modal.style.display = "none";
+        await carregarMetas();
+        carregarLancamentos();
+      } else {
+        const erro = await resposta.json();
+        await mostrarAviso(`Erro: ${erro.erro}`);
+      }
+    } catch (erro) {
+      await mostrarAviso("Erro de conexão ao salvar meta.");
+    } finally {
+      btnSalvar.disabled = false;
+      btnSalvar.innerText = "Salvar meta";
+    }
+  });
+
+  btnRemover.addEventListener("click", async () => {
+    const categoria = document.getElementById("meta-categoria-nome").value;
+    const meta = obterMetaPorCategoria(categoria);
+    if (!meta) return;
+    if (!(await pedirConfirmacao(`Remover a meta de "${categoria}"?`, { textoConfirmar: "Remover", perigo: true }))) return;
+
+    try {
+      const resposta = await fetch(`${API_URL}/api/metas?id=${meta.id}`, {
+        method: "DELETE",
+        headers: headersAutenticados(false),
+      });
+
+      if (tratarSessaoExpirada(resposta)) return;
+
+      if (resposta.ok) {
+        modal.style.display = "none";
+        await carregarMetas();
+        carregarLancamentos();
+      } else {
+        const erro = await resposta.json();
+        await mostrarAviso(`Erro: ${erro.erro}`);
+      }
+    } catch (erro) {
+      await mostrarAviso("Erro de conexão ao remover meta.");
+    }
+  });
+}
+
 
 // --- CATEGORIAS (carrega em qualquer select e permite cadastrar novas) ---
 async function popularSelectCategorias(select) {
@@ -499,6 +710,56 @@ function adicionarCategoriaAoSelect(nome) {
 }
 
 // --- CONTROLE DO MODAL DE LANÇAMENTO ---
+function fecharModalLancamento() {
+  const modal = document.getElementById("modal-lancamento");
+  const form = document.getElementById("form-lancamento");
+  const campoCategoriaNova = document.getElementById("categoria-nova");
+
+  modal.style.display = "none";
+  form.reset();
+  document.getElementById("lancamento-editando-id").value = "";
+  document.getElementById("titulo-modal-lancamento").innerText = "Novo lançamento";
+  document.getElementById("btn-salvar-lancamento").innerText = "Salvar";
+  campoCategoriaNova.style.display = "none";
+  campoCategoriaNova.required = false;
+}
+
+async function abrirModalNovoLancamento() {
+  const carteiraAtual = document.getElementById("seletor-carteira").value;
+  if (!carteiraAtual) {
+    await mostrarAviso("Aguarde suas carteiras carregarem antes de lançar algo.");
+    return;
+  }
+
+  carregarCategorias();
+  document.getElementById("lancamento-editando-id").value = "";
+  document.getElementById("titulo-modal-lancamento").innerText = "Novo lançamento";
+  document.getElementById("btn-salvar-lancamento").innerText = "Salvar";
+  document.getElementById("data-compra").valueAsDate = new Date();
+  document.getElementById("modal-lancamento").style.display = "flex";
+}
+
+async function editarLancamento(id) {
+  const lancamento = ultimoLoteLancamentos.find((l) => l.id === id);
+  if (!lancamento) return;
+
+  await popularSelectCategorias(document.getElementById("categoria"));
+  adicionarCategoriaAoSelect(lancamento.categoria);
+
+  document.getElementById("lancamento-editando-id").value = lancamento.id;
+  document.getElementById("tipo-gasto").value = lancamento.tipo;
+  document.getElementById("descricao").value = lancamento.descricao;
+  document.getElementById("valor").value = lancamento.valor;
+  document.getElementById("data-compra").value = String(lancamento.data_compra).slice(0, 10);
+  document.getElementById("categoria").value = lancamento.categoria;
+  document.getElementById("meio-pagamento").value = lancamento.meio_pagamento;
+  document.getElementById("status-pagamento").value = lancamento.status;
+
+  document.getElementById("titulo-modal-lancamento").innerText = "Editar lançamento";
+  document.getElementById("btn-salvar-lancamento").innerText = "Salvar edição";
+  document.getElementById("modal-lancamento").style.display = "flex";
+}
+
 function configurarModal() {
   const modal = document.getElementById("modal-lancamento");
   const btnNovo = document.getElementById("btn-novo-gasto");
@@ -516,29 +777,15 @@ function configurarModal() {
     if (escolheuNova) campoCategoriaNova.focus();
   });
 
-  btnNovo.addEventListener("click", () => {
-    const carteiraAtual = document.getElementById("seletor-carteira").value;
-    if (!carteiraAtual) {
-      alert("Aguarde suas carteiras carregarem antes de lançar algo.");
-      return;
-    }
-    carregarCategorias();
-    document.getElementById("data-compra").valueAsDate = new Date();
-    modal.style.display = "flex";
-  });
-
-  btnFechar.addEventListener("click", () => {
-    modal.style.display = "none";
-    form.reset();
-    campoCategoriaNova.style.display = "none";
-    campoCategoriaNova.required = false;
-  });
+  btnNovo.addEventListener("click", abrirModalNovoLancamento);
+  btnFechar.addEventListener("click", fecharModalLancamento);
 
   form.addEventListener("submit", async (evento) => {
     evento.preventDefault();
 
+    const idEdicao = document.getElementById("lancamento-editando-id").value;
     const btnSalvar = document.getElementById("btn-salvar-lancamento");
-    btnSalvar.innerText = "Salvando...";
+    btnSalvar.innerText = idEdicao ? "Salvando edição..." : "Salvando...";
     btnSalvar.disabled = true;
 
     try {
@@ -549,8 +796,8 @@ function configurarModal() {
       if (nomeCategoria === "__nova__") {
         nomeCategoria = campoCategoriaNova.value.trim();
         if (!nomeCategoria) {
-          alert("Digite o nome da nova categoria.");
-          btnSalvar.innerText = "Salvar";
+          await mostrarAviso("Digite o nome da nova categoria.");
+          btnSalvar.innerText = idEdicao ? "Salvar edição" : "Salvar";
           btnSalvar.disabled = false;
           return;
         }
@@ -565,8 +812,8 @@ function configurarModal() {
 
         if (!respostaCategoria.ok) {
           const erro = await respostaCategoria.json();
-          alert(`Erro ao cadastrar categoria: ${erro.erro}`);
-          btnSalvar.innerText = "Salvar";
+          await mostrarAviso(`Erro ao cadastrar categoria: ${erro.erro}`);
+          btnSalvar.innerText = idEdicao ? "Salvar edição" : "Salvar";
           btnSalvar.disabled = false;
           return;
         }
@@ -587,30 +834,32 @@ function configurarModal() {
         carteira_id: carteiraId,
       };
 
-      const resposta = await fetch(`${API_URL}/api/lancamentos`, {
-        method: "POST",
-        headers: headersAutenticados(),
-        body: JSON.stringify(pacoteDados),
-      });
+      const resposta = idEdicao
+        ? await fetch(`${API_URL}/api/lancamentos?id=${idEdicao}`, {
+            method: "PUT",
+            headers: headersAutenticados(),
+            body: JSON.stringify(pacoteDados),
+          })
+        : await fetch(`${API_URL}/api/lancamentos`, {
+            method: "POST",
+            headers: headersAutenticados(),
+            body: JSON.stringify(pacoteDados),
+          });
 
       if (tratarSessaoExpirada(resposta)) return;
 
       if (resposta.ok) {
-        modal.style.display = "none";
-        form.reset();
-        selectCategoria.value = "";
-        campoCategoriaNova.style.display = "none";
-        campoCategoriaNova.required = false;
+        fecharModalLancamento();
         carregarLancamentos();
       } else {
         const erro = await resposta.json();
-        alert(`Erro ao salvar: ${erro.erro}`);
+        await mostrarAviso(`Erro ao salvar: ${erro.erro}`);
       }
     } catch (erro) {
       console.error(erro);
-      alert("Falha na comunicação com o servidor.");
+      await mostrarAviso("Falha na comunicação com o servidor.");
     } finally {
-      btnSalvar.innerText = "Salvar";
+      btnSalvar.innerText = idEdicao ? "Salvar edição" : "Salvar";
       btnSalvar.disabled = false;
     }
   });
@@ -646,8 +895,40 @@ function animarValorMonetario(elemento, valorFinal) {
 }
 
 
+// --- RENDERIZA A LISTA (aplica o filtro de busca, se houver, sem afetar os totais do mês) ---
+function renderizarListaLancamentos() {
+  const container = document.getElementById("lista-lancamentos");
+  if (!container) return;
+
+  const termo = termoBuscaAtual.trim().toLowerCase();
+  const filtrados = termo
+    ? ultimoLoteLancamentos.filter((l) => l.descricao.toLowerCase().includes(termo) || l.categoria.toLowerCase().includes(termo))
+    : ultimoLoteLancamentos;
+
+  container.innerHTML = "";
+
+  if (filtrados.length === 0) {
+    container.appendChild(criarAvisoListaVazia(termo ? `Nada encontrado para "${termoBuscaAtual.trim()}".` : undefined));
+    return;
+  }
+
+  filtrados.forEach((lancamento) => container.appendChild(criarLinhaLancamento(lancamento)));
+}
+
+function configurarBuscaLancamentos() {
+  const campo = document.getElementById("busca-lancamento");
+  if (!campo) return;
+
+  campo.addEventListener("input", (evento) => {
+    termoBuscaAtual = evento.target.value;
+    renderizarListaLancamentos();
+  });
+}
+
 // --- COMUNICAÇÃO COM A API (BUSCA FILTRADA) ---
 let ultimaRequisicaoLancamentos = 0;
+let ultimoLoteLancamentos = [];
+let termoBuscaAtual = "";
 
 async function carregarLancamentos() {
   const container = document.getElementById("lista-lancamentos");
@@ -657,6 +938,7 @@ async function carregarLancamentos() {
   if (!carteiraId) return; // carteiras ainda carregando
 
   carregarPainelDespesasFixas();
+  const promiseMetas = carregarMetas();
 
   // Marca esta chamada como "a mais recente". Se outra começar antes dela terminar,
   // esta vira obsoleta e seu resultado é descartado (evita sobrescrever a tela com dado velho).
@@ -675,7 +957,7 @@ async function carregarLancamentos() {
       urlComFiltros += `&mes=${mes}&ano=${ano}`;
     }
 
-    const resposta = await fetch(urlComFiltros, { headers: headersAutenticados(false) });
+    const [resposta] = await Promise.all([fetch(urlComFiltros, { headers: headersAutenticados(false) }), promiseMetas]);
 
     // Chegou uma requisição mais nova enquanto esperávamos? Descarta esta resposta.
     if (idDestaRequisicao !== ultimaRequisicaoLancamentos) return;
@@ -688,6 +970,7 @@ async function carregarLancamentos() {
     container.innerHTML = "";
 
     if (dados.length === 0) {
+      ultimoLoteLancamentos = [];
       container.appendChild(criarAvisoListaVazia());
       animarValorMonetario(document.getElementById("total-receitas"), 0);
       animarValorMonetario(document.getElementById("total-despesas"), 0);
@@ -695,8 +978,13 @@ async function carregarLancamentos() {
       document.getElementById("saldo-total").style.color = "var(--cor-texto)";
       document.getElementById("resumo-categorias").style.display = "none";
       document.getElementById("resumo-pendente-item").style.display = "none";
+      renderizarResumoAutores([]);
+      carregarComparacaoMesAnterior(0);
+      carregarTendencia();
       return;
     }
+
+    ultimoLoteLancamentos = dados;
 
     let totalReceitas = 0;
     let totalDespesas = 0;
@@ -704,9 +992,6 @@ async function carregarLancamentos() {
     const totaisPorCategoria = {};
 
     dados.forEach((lancamento) => {
-      const linha = criarLinhaLancamento(lancamento);
-      container.appendChild(linha);
-
       // Pendente é um compromisso, não dinheiro que já entrou ou saiu — não conta no saldo nem nas categorias
       if (lancamento.status === "pendente") {
         if (lancamento.tipo === "despesa") {
@@ -722,6 +1007,8 @@ async function carregarLancamentos() {
         totaisPorCategoria[lancamento.categoria] = (totaisPorCategoria[lancamento.categoria] || 0) + lancamento.valor;
       }
     });
+
+    renderizarListaLancamentos();
 
     const saldoCalculado = totalReceitas - totalDespesas;
 
@@ -745,6 +1032,9 @@ async function carregarLancamentos() {
     }
 
     renderizarResumoCategorias(totaisPorCategoria);
+    renderizarResumoAutores(dados);
+    carregarComparacaoMesAnterior(totalDespesas);
+    carregarTendencia();
   } catch (erro) {
     if (idDestaRequisicao !== ultimaRequisicaoLancamentos) return;
     console.error("Erro:", erro);
@@ -776,21 +1066,40 @@ function renderizarResumoCategorias(totaisPorCategoria) {
   const linhas = restante > 0 ? [...principais, ["Outras", restante]] : principais;
 
   linhas.forEach(([categoria, valor]) => {
-    const percentual = Math.round((valor / maiorValor) * 100);
+    const meta = categoria !== "Outras" ? obterMetaPorCategoria(categoria) : null;
     const valorFormatado = formatadorBRL.format(valor);
+
+    let percentualLargura;
+    let classeCor = "";
+    let textoValor = valorFormatado;
+
+    if (meta) {
+      const percentualMeta = (valor / meta.valor_limite) * 100;
+      percentualLargura = Math.min(percentualMeta, 100);
+      classeCor = percentualMeta >= 100 ? "barra-estourou" : percentualMeta >= 80 ? "barra-atencao" : "barra-ok";
+      textoValor = `${valorFormatado} / ${formatadorBRL.format(meta.valor_limite)}`;
+    } else {
+      percentualLargura = Math.round((valor / maiorValor) * 100);
+    }
 
     const linha = document.createElement("div");
     linha.className = "categoria-barra-linha";
     linha.innerHTML = `
       <div class="categoria-barra-topo">
-        <strong>${categoria}</strong>
-        <span class="categoria-barra-valor">${valorFormatado}</span>
+        <strong class="${categoria !== "Outras" ? "categoria-barra-nome" : ""}" data-categoria="${categoria}" data-meta="${meta ? meta.valor_limite : ""}">
+          ${categoria}${meta ? " 🎯" : ""}
+        </strong>
+        <span class="categoria-barra-valor">${textoValor}</span>
       </div>
       <div class="categoria-barra-trilho">
-        <div class="categoria-barra-preenchimento" data-largura="${percentual}"></div>
+        <div class="categoria-barra-preenchimento ${classeCor}" data-largura="${percentualLargura}"></div>
       </div>
     `;
     container.appendChild(linha);
+  });
+
+  container.querySelectorAll(".categoria-barra-nome").forEach((el) => {
+    el.addEventListener("click", () => abrirModalMeta(el.dataset.categoria, el.dataset.meta));
   });
 
   // Anima a largura das barras depois de inseridas no DOM (senão a transição CSS não dispara)
@@ -818,17 +1127,216 @@ async function alternarStatusLancamento(id, statusAtual) {
       carregarLancamentos();
     } else {
       const erro = await resposta.json();
-      alert(`Não foi possível atualizar: ${erro.erro}`);
+      await mostrarAviso(`Não foi possível atualizar: ${erro.erro}`);
     }
   } catch (erro) {
     console.error(erro);
-    alert("Erro ao se conectar com o servidor.");
+    await mostrarAviso("Erro ao se conectar com o servidor.");
   }
 }
 
+// --- COMPARAÇÃO COM O MÊS ANTERIOR ---
+let ultimaRequisicaoComparacao = 0;
+
+async function carregarComparacaoMesAnterior(despesasAtuais) {
+  const carteiraId = document.getElementById("seletor-carteira").value;
+  const campoMes = document.getElementById("filtro-mes");
+  if (!carteiraId || !campoMes || !campoMes.dataset.ano) return;
+
+  const idRequisicao = ++ultimaRequisicaoComparacao;
+
+  let ano = Number(campoMes.dataset.ano);
+  let mes = Number(campoMes.dataset.mes) - 1; // mês anterior (0-indexado)
+  if (mes < 0) {
+    mes = 11;
+    ano -= 1;
+  }
+  const mesStr = String(mes + 1).padStart(2, "0");
+
+  try {
+    const resposta = await fetch(`${API_URL}/api/lancamentos?carteira_id=${carteiraId}&mes=${mesStr}&ano=${ano}`, { headers: headersAutenticados(false) });
+    if (idRequisicao !== ultimaRequisicaoComparacao) return;
+    if (!resposta.ok) return;
+
+    const dados = await resposta.json();
+    if (idRequisicao !== ultimaRequisicaoComparacao) return;
+
+    const despesasAnteriores = dados.filter((l) => l.tipo === "despesa" && l.status === "pago").reduce((soma, l) => soma + l.valor, 0);
+
+    renderizarComparacaoMesAnterior(despesasAtuais, despesasAnteriores);
+  } catch (erro) {
+    console.error("Erro ao comparar com mês anterior:", erro);
+  }
+}
+
+function renderizarComparacaoMesAnterior(atual, anterior) {
+  const elemento = document.getElementById("comparacao-mes");
+  if (!elemento) return;
+
+  if (anterior <= 0) {
+    elemento.style.display = "none";
+    return;
+  }
+
+  const diferenca = ((atual - anterior) / anterior) * 100;
+  const arredondado = Math.round(Math.abs(diferenca));
+
+  if (arredondado === 0) {
+    elemento.style.display = "none";
+    return;
+  }
+
+  const subiu = diferenca > 0;
+  elemento.textContent = `${subiu ? "▲" : "▼"} ${arredondado}% vs mês anterior`;
+  elemento.className = `comparacao-mes ${subiu ? "comparacao-pior" : "comparacao-melhor"}`;
+  elemento.style.display = "inline-flex";
+}
+
+// --- QUEM GASTOU QUANTO (útil na carteira compartilhada) ---
+function renderizarResumoAutores(dados) {
+  const card = document.getElementById("card-por-autor");
+  const container = document.getElementById("lista-autores-resumo");
+  if (!card || !container) return;
+
+  const totais = {};
+  dados.forEach((l) => {
+    if (l.tipo !== "despesa" || l.status !== "pago") return;
+    const nome = l.criado_por_nome || "?";
+    totais[nome] = (totais[nome] || 0) + l.valor;
+  });
+
+  const autores = Object.entries(totais).sort((a, b) => b[1] - a[1]);
+
+  // Só faz sentido mostrar quando mais de uma pessoa lançou algo (ex: carteira individual não precisa)
+  if (autores.length < 2) {
+    card.style.display = "none";
+    return;
+  }
+
+  card.style.display = "flex";
+  container.innerHTML = "";
+
+  const somaTotal = autores.reduce((soma, [, valor]) => soma + valor, 0);
+
+  autores.forEach(([nome, valor]) => {
+    const percentual = Math.round((valor / somaTotal) * 100);
+    const cor = typeof corDoAutor === "function" ? corDoAutor(nome) : "var(--cor-marca)";
+
+    const linha = document.createElement("div");
+    linha.className = "categoria-barra-linha";
+    linha.innerHTML = `
+      <div class="categoria-barra-topo">
+        <strong>${nome}</strong>
+        <span class="categoria-barra-valor">${formatadorBRL.format(valor)} · ${percentual}%</span>
+      </div>
+      <div class="categoria-barra-trilho">
+        <div class="categoria-barra-preenchimento" style="background: ${cor}" data-largura="${percentual}"></div>
+      </div>
+    `;
+    container.appendChild(linha);
+  });
+
+  requestAnimationFrame(() => {
+    container.querySelectorAll(".categoria-barra-preenchimento").forEach((barra) => {
+      barra.style.width = `${barra.dataset.largura}%`;
+    });
+  });
+}
+
+// --- TENDÊNCIA (últimos 6 meses, terminando no mês visualizado) ---
+const cacheTendencia = new Map();
+let ultimaRequisicaoTendencia = 0;
+const NOMES_MESES_ABREV = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+
+async function carregarTendencia() {
+  const carteiraId = document.getElementById("seletor-carteira").value;
+  const campoMes = document.getElementById("filtro-mes");
+  if (!carteiraId || !campoMes || !campoMes.dataset.ano) return;
+
+  const idRequisicao = ++ultimaRequisicaoTendencia;
+
+  const anoBase = Number(campoMes.dataset.ano);
+  const mesBase = Number(campoMes.dataset.mes); // 0-indexado
+
+  const meses = [];
+  for (let i = 5; i >= 0; i--) {
+    let m = mesBase - i;
+    let a = anoBase;
+    while (m < 0) {
+      m += 12;
+      a -= 1;
+    }
+    meses.push({ ano: a, mes: m });
+  }
+
+  const totais = await Promise.all(
+    meses.map(async ({ ano, mes }) => {
+      const chave = `${carteiraId}:${ano}-${String(mes + 1).padStart(2, "0")}`;
+      if (cacheTendencia.has(chave)) return cacheTendencia.get(chave);
+
+      try {
+        const resposta = await fetch(`${API_URL}/api/lancamentos?carteira_id=${carteiraId}&mes=${mes + 1}&ano=${ano}`, {
+          headers: headersAutenticados(false),
+        });
+        if (!resposta.ok) return 0;
+        const dadosMes = await resposta.json();
+        const total = dadosMes.filter((l) => l.tipo === "despesa" && l.status === "pago").reduce((soma, l) => soma + l.valor, 0);
+        cacheTendencia.set(chave, total);
+        return total;
+      } catch {
+        return 0;
+      }
+    }),
+  );
+
+  if (idRequisicao !== ultimaRequisicaoTendencia) return;
+
+  renderizarTendencia(meses, totais, mesBase, anoBase);
+}
+
+function renderizarTendencia(meses, totais, mesAtualIdx, anoAtual) {
+  const card = document.getElementById("card-tendencia");
+  const container = document.getElementById("grafico-tendencia");
+  if (!card || !container) return;
+
+  const algumValor = totais.some((v) => v > 0);
+  if (!algumValor) {
+    card.style.display = "none";
+    return;
+  }
+
+  card.style.display = "flex";
+  container.innerHTML = "";
+
+  const maior = Math.max(...totais, 1);
+
+  meses.forEach(({ ano, mes }, i) => {
+    const altura = Math.round((totais[i] / maior) * 100);
+    const ehMesAtual = mes === mesAtualIdx && ano === anoAtual;
+
+    const coluna = document.createElement("div");
+    coluna.className = "tendencia-coluna";
+    coluna.innerHTML = `
+      <span class="tendencia-valor">${totais[i] > 0 ? formatadorBRL.format(totais[i]).replace("R$", "").trim() : ""}</span>
+      <div class="tendencia-barra-trilho">
+        <div class="tendencia-barra ${ehMesAtual ? "tendencia-barra-atual" : ""}" data-altura="${altura}"></div>
+      </div>
+      <span class="tendencia-rotulo">${NOMES_MESES_ABREV[mes]}</span>
+    `;
+    container.appendChild(coluna);
+  });
+
+  requestAnimationFrame(() => {
+    container.querySelectorAll(".tendencia-barra").forEach((barra) => {
+      barra.style.height = `${barra.dataset.altura}%`;
+    });
+  });
+}
+
+
 // --- FUNÇÃO PARA EXCLUIR REGISTROS ---
 async function apagarLancamento(id) {
-  if (!confirm("Deseja realmente excluir este lançamento permanentemente?")) return;
+  if (!(await pedirConfirmacao("Deseja realmente excluir este lançamento permanentemente?", { textoConfirmar: "Excluir", perigo: true }))) return;
 
   try {
     const resposta = await fetch(`${API_URL}/api/lancamentos?id=${id}`, {
@@ -842,11 +1350,11 @@ async function apagarLancamento(id) {
       carregarLancamentos();
     } else {
       const erro = await resposta.json();
-      alert(`Não foi possível apagar: ${erro.erro}`);
+      await mostrarAviso(`Não foi possível apagar: ${erro.erro}`);
     }
   } catch (erro) {
     console.error(erro);
-    alert("Erro ao se conectar com a nuvem.");
+    await mostrarAviso("Erro ao se conectar com a nuvem.");
   }
 }
 
@@ -916,7 +1424,7 @@ function configurarFormularioUsuario() {
     const btnSalvar = document.getElementById("btn-salvar-usuario");
 
     if (!idEdicao && !senha) {
-      alert("Defina uma senha para o novo usuário.");
+      await mostrarAviso("Defina uma senha para o novo usuário.");
       return;
     }
 
@@ -949,10 +1457,10 @@ function configurarFormularioUsuario() {
         carregarUsuarios();
       } else {
         const erro = await resposta.json();
-        alert(`Erro: ${erro.erro}`);
+        await mostrarAviso(`Erro: ${erro.erro}`);
       }
     } catch (erro) {
-      alert("Erro de conexão ao salvar usuário.");
+      await mostrarAviso("Erro de conexão ao salvar usuário.");
     } finally {
       btnSalvar.disabled = false;
       btnSalvar.innerText = idEdicao ? "Salvar edição" : "Criar";
@@ -1031,7 +1539,7 @@ async function carregarUsuarios() {
 }
 
 async function excluirUsuario(id, botao) {
-  if (!confirm("Excluir este usuário permanentemente? Essa ação não pode ser desfeita.")) return;
+  if (!(await pedirConfirmacao("Excluir este usuário permanentemente? Essa ação não pode ser desfeita.", { textoConfirmar: "Excluir", perigo: true }))) return;
 
   botao.disabled = true;
   botao.innerText = "Excluindo...";
@@ -1048,12 +1556,12 @@ async function excluirUsuario(id, botao) {
       carregarUsuarios();
     } else {
       const erro = await resposta.json();
-      alert(`Não foi possível excluir: ${erro.erro}`);
+      await mostrarAviso(`Não foi possível excluir: ${erro.erro}`);
       botao.disabled = false;
       botao.innerText = "Excluir";
     }
   } catch (erro) {
-    alert("Erro ao se conectar com o servidor.");
+    await mostrarAviso("Erro ao se conectar com o servidor.");
     botao.disabled = false;
     botao.innerText = "Excluir";
   }
@@ -1089,10 +1597,10 @@ function configurarFormularioCategoria() {
         carregarListaCategorias();
       } else {
         const erro = await resposta.json();
-        alert(`Erro: ${erro.erro}`);
+        await mostrarAviso(`Erro: ${erro.erro}`);
       }
     } catch (erro) {
-      alert("Erro de conexão ao cadastrar categoria.");
+      await mostrarAviso("Erro de conexão ao cadastrar categoria.");
     } finally {
       btn.disabled = false;
       btn.innerText = "Adicionar";
@@ -1126,12 +1634,16 @@ async function carregarListaCategorias() {
           <span class="item-descricao">${cat.nome}</span>
         </div>
         <div class="item-valores">
+          <button type="button" class="btn-editar-usuario" data-id="${cat.id}" data-nome="${cat.nome}" title="Renomear categoria">Editar</button>
           <button type="button" class="btn-excluir-conta" data-id="${cat.id}" title="Excluir categoria">Excluir</button>
         </div>
       `;
       container.appendChild(div);
     });
 
+    container.querySelectorAll(".btn-editar-usuario").forEach((btn) => {
+      btn.addEventListener("click", () => abrirModalRenomearCategoria(Number(btn.dataset.id), btn.dataset.nome));
+    });
     container.querySelectorAll(".btn-excluir-conta").forEach((btn) => {
       btn.addEventListener("click", () => excluirCategoria(Number(btn.dataset.id), btn));
     });
@@ -1141,7 +1653,7 @@ async function carregarListaCategorias() {
 }
 
 async function excluirCategoria(id, botao) {
-  if (!confirm("Excluir esta categoria da lista? Lançamentos que já usam ela não são afetados.")) return;
+  if (!(await pedirConfirmacao("Excluir esta categoria da lista? Lançamentos que já usam ela não são afetados.", { textoConfirmar: "Excluir", perigo: true }))) return;
 
   botao.disabled = true;
   botao.innerText = "Excluindo...";
@@ -1158,12 +1670,12 @@ async function excluirCategoria(id, botao) {
       carregarListaCategorias();
     } else {
       const erro = await resposta.json();
-      alert(`Não foi possível excluir: ${erro.erro}`);
+      await mostrarAviso(`Não foi possível excluir: ${erro.erro}`);
       botao.disabled = false;
       botao.innerText = "Excluir";
     }
   } catch (erro) {
-    alert("Erro ao se conectar com o servidor.");
+    await mostrarAviso("Erro ao se conectar com o servidor.");
     botao.disabled = false;
     botao.innerText = "Excluir";
   }
@@ -1172,4 +1684,61 @@ async function excluirCategoria(id, botao) {
 window.carregarLancamentos = carregarLancamentos;
 window.apagarLancamento = apagarLancamento;
 window.alternarStatusLancamento = alternarStatusLancamento;
+window.editarLancamento = editarLancamento;
 window.carregarCarteiras = carregarCarteiras;
+
+// --- RENOMEAR CATEGORIA (aplica em massa nos lançamentos e despesas fixas existentes) ---
+function abrirModalRenomearCategoria(id, nomeAtual) {
+  const modal = document.getElementById("modal-renomear-categoria");
+  if (!modal) return;
+
+  document.getElementById("categoria-renomear-id").value = id;
+  document.getElementById("categoria-novo-nome").value = nomeAtual;
+  modal.style.display = "flex";
+}
+
+function configurarModalRenomearCategoria() {
+  const modal = document.getElementById("modal-renomear-categoria");
+  const form = document.getElementById("form-renomear-categoria");
+  const btnFechar = document.getElementById("btn-fechar-modal-renomear-categoria");
+
+  if (!modal || !form || !btnFechar) return;
+
+  btnFechar.addEventListener("click", () => {
+    modal.style.display = "none";
+  });
+
+  form.addEventListener("submit", async (evento) => {
+    evento.preventDefault();
+
+    const id = document.getElementById("categoria-renomear-id").value;
+    const novoNome = document.getElementById("categoria-novo-nome").value.trim();
+    const btnSalvar = document.getElementById("btn-salvar-renomear-categoria");
+
+    btnSalvar.disabled = true;
+    btnSalvar.innerText = "Renomeando...";
+
+    try {
+      const resposta = await fetch(`${API_URL}/api/categorias?id=${id}`, {
+        method: "PUT",
+        headers: headersAutenticados(),
+        body: JSON.stringify({ nome: novoNome }),
+      });
+
+      if (tratarSessaoExpirada(resposta)) return;
+
+      if (resposta.ok) {
+        modal.style.display = "none";
+        carregarListaCategorias();
+      } else {
+        const erro = await resposta.json();
+        await mostrarAviso(`Erro: ${erro.erro}`);
+      }
+    } catch (erro) {
+      await mostrarAviso("Erro de conexão ao renomear categoria.");
+    } finally {
+      btnSalvar.disabled = false;
+      btnSalvar.innerText = "Renomear";
+    }
+  });
+}

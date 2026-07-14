@@ -7,6 +7,7 @@ import { processarUsuarios } from "./routes/usuarios.js";
 import { processarCategorias } from "./routes/categorias.js";
 import { processarCarteiras } from "./routes/carteiras.js";
 import { processarDespesasFixas } from "./routes/despesasFixas.js";
+import { processarMetas } from "./routes/metas.js";
 
 export default {
   async fetch(request, env, ctx) {
@@ -106,6 +107,21 @@ export default {
         const respostaDespesasFixas = await processarDespesasFixas(request, env);
 
         const respostaComCors = new Response(respostaDespesasFixas.body, respostaDespesasFixas);
+        Object.keys(corsHeaders).forEach((chave) => {
+          respostaComCors.headers.set(chave, corsHeaders[chave]);
+        });
+        respostaComCors.headers.set("Content-Type", "application/json");
+
+        return respostaComCors;
+      }
+
+      // ==========================================
+      // ROTA 7: METAS POR CATEGORIA
+      // ==========================================
+      if (url.pathname.startsWith("/api/metas")) {
+        const respostaMetas = await processarMetas(request, env);
+
+        const respostaComCors = new Response(respostaMetas.body, respostaMetas);
         Object.keys(corsHeaders).forEach((chave) => {
           respostaComCors.headers.set(chave, corsHeaders[chave]);
         });

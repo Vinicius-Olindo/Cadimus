@@ -120,7 +120,7 @@ export async function processarLancamentos(request, env) {
         return new Response(JSON.stringify({ erro: "ID não fornecido." }), { status: 400 });
       }
 
-      const { results: alvo } = await env.DB.prepare(`SELECT carteira_id FROM lancamentos WHERE id = ?`).bind(id).all();
+      const { results: alvo } = await env.DB.prepare(`SELECT carteira_id, criado_por FROM lancamentos WHERE id = ?`).bind(id).all();
       if (alvo.length === 0) {
         return new Response(JSON.stringify({ erro: "Lançamento não encontrado." }), { status: 404 });
       }
@@ -130,12 +130,21 @@ export async function processarLancamentos(request, env) {
 
       const dados = await request.json();
       const camposPermitidos = ["descricao", "valor", "data_compra", "tipo", "categoria", "meio_pagamento", "status"];
+      const camposEnviados = Object.keys(dados).filter((campo) => camposPermitidos.includes(campo));
+
+      // Marcar pago/pendente é livre pra quem acessa a carteira. Editar os detalhes
+      // (valor, descrição, categoria, etc.) é restrito a quem criou o lançamento ou a um admin.
+      const apenasAlternandoStatus = camposEnviados.length > 0 && camposEnviados.every((campo) => campo === "status");
+      const podeEditarDetalhes = alvo[0].criado_por === usuarioLogado.id || usuarioLogado.perfil === "superadmin";
+
+      if (!apenasAlternandoStatus && !podeEditarDetalhes) {
+        return new Response(JSON.stringify({ erro: "Só quem lançou (ou um administrador) pode editar os detalhes deste registro." }), { status: 403 });
+      }
+
       const campos = [];
       const valores = [];
 
-      for (const campo of camposPermitidos) {
-        if (dados[campo] === undefined) continue;
-
+      for (const campo of camposEnviados) {
         if (campo === "status" && !["pago", "pendente"].includes(dados.status)) {
           return new Response(JSON.stringify({ erro: "Status inválido." }), { status: 400 });
         }
@@ -173,13 +182,16 @@ export async function processarLancamentos(request, env) {
         return new Response(JSON.stringify({ erro: "ID não fornecido." }), { status: 400 });
       }
 
-      const { results } = await env.DB.prepare(`SELECT carteira_id FROM lancamentos WHERE id = ?`).bind(idParaApagar).all();
+      const { results } = await env.DB.prepare(`SELECT carteira_id, criado_por FROM lancamentos WHERE id = ?`).bind(idParaApagar).all();
 
       if (results.length === 0) {
         return new Response(JSON.stringify({ erro: "Lançamento não encontrado." }), { status: 404 });
       }
       if (!carteirasPermitidas.includes(results[0].carteira_id)) {
         return new Response(JSON.stringify({ erro: "Acesso negado a esta carteira." }), { status: 403 });
+      }
+      if (results[0].criado_por !== usuarioLogado.id && usuarioLogado.perfil !== "superadmin") {
+        return new Response(JSON.stringify({ erro: "Só quem lançou (ou um administrador) pode excluir este registro." }), { status: 403 });
       }
 
       await env.DB.prepare(`DELETE FROM lancamentos WHERE id = ?`).bind(idParaApagar).run();
