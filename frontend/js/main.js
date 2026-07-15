@@ -104,6 +104,7 @@ document.addEventListener("DOMContentLoaded", () => {
   configurarModal();
   configurarModalCarteira();
   configurarModalDespesasFixas();
+  configurarModalComprasParceladas();
   configurarModalMeta();
   configurarModalRenomearCategoria();
   configurarPainelAdmin();
@@ -356,6 +357,17 @@ function configurarModalCarteira() {
 // ==========================================
 let despesasFixasCarregadas = [];
 
+function fecharModalDespesaFixa() {
+  const modal = document.getElementById("modal-despesas-fixas");
+  const form = document.getElementById("form-despesa-fixa");
+
+  modal.style.display = "none";
+  form.reset();
+  document.getElementById("fixa-editando-id").value = "";
+  document.getElementById("titulo-modal-fixa").innerText = "Despesas fixas";
+  document.getElementById("btn-salvar-fixa").innerText = "Adicionar";
+}
+
 async function abrirModalDespesasFixas() {
   const modal = document.getElementById("modal-despesas-fixas");
   const carteiraId = document.getElementById("seletor-carteira").value;
@@ -366,7 +378,33 @@ async function abrirModalDespesasFixas() {
     return;
   }
 
-  popularSelectCategorias(document.getElementById("fixa-categoria"));
+  document.getElementById("fixa-editando-id").value = "";
+  document.getElementById("titulo-modal-fixa").innerText = "Nova despesa fixa";
+  document.getElementById("btn-salvar-fixa").innerText = "Adicionar";
+  await popularSelectCategorias(document.getElementById("fixa-categoria"));
+  modal.style.display = "flex";
+}
+
+async function editarDespesaFixa(id) {
+  const fixa = despesasFixasCarregadas.find((f) => f.id === id);
+  if (!fixa) return;
+
+  const modal = document.getElementById("modal-despesas-fixas");
+  if (!modal) return;
+
+  await popularSelectCategorias(document.getElementById("fixa-categoria"));
+  adicionarOpcaoSelect(document.getElementById("fixa-categoria"), fixa.categoria);
+
+  document.getElementById("fixa-editando-id").value = fixa.id;
+  document.getElementById("fixa-descricao").value = fixa.descricao;
+  document.getElementById("fixa-valor").value = fixa.valor;
+  document.getElementById("fixa-dia").value = fixa.dia_vencimento;
+  document.getElementById("fixa-categoria").value = fixa.categoria;
+  document.getElementById("fixa-meio-pagamento").value = fixa.meio_pagamento;
+  document.getElementById("fixa-tipo").value = fixa.tipo;
+
+  document.getElementById("titulo-modal-fixa").innerText = `Editando "${fixa.descricao}"`;
+  document.getElementById("btn-salvar-fixa").innerText = "Salvar edição";
   modal.style.display = "flex";
 }
 
@@ -381,23 +419,19 @@ function configurarModalDespesasFixas() {
 
   btnAbrir?.addEventListener("click", abrirModalDespesasFixas);
   btnAbrirDoCard?.addEventListener("click", abrirModalDespesasFixas);
-
-  btnFechar.addEventListener("click", () => {
-    modal.style.display = "none";
-    form.reset();
-  });
+  btnFechar.addEventListener("click", fecharModalDespesaFixa);
 
   form.addEventListener("submit", async (evento) => {
     evento.preventDefault();
 
+    const idEdicao = document.getElementById("fixa-editando-id").value;
     const carteiraId = document.getElementById("seletor-carteira").value;
     const btnSalvar = document.getElementById("btn-salvar-fixa");
     btnSalvar.disabled = true;
-    btnSalvar.innerText = "Salvando...";
+    btnSalvar.innerText = idEdicao ? "Salvando edição..." : "Salvando...";
 
     try {
       const corpo = {
-        carteira_id: carteiraId,
         descricao: document.getElementById("fixa-descricao").value.trim(),
         valor: parseFloat(document.getElementById("fixa-valor").value),
         dia_vencimento: parseInt(document.getElementById("fixa-dia").value, 10),
@@ -405,18 +439,24 @@ function configurarModalDespesasFixas() {
         meio_pagamento: document.getElementById("fixa-meio-pagamento").value,
         tipo: document.getElementById("fixa-tipo").value,
       };
+      if (!idEdicao) corpo.carteira_id = carteiraId; // carteira só é definida na criação, não muda na edição
 
-      const resposta = await fetch(`${API_URL}/api/despesas-fixas`, {
-        method: "POST",
-        headers: headersAutenticados(),
-        body: JSON.stringify(corpo),
-      });
+      const resposta = idEdicao
+        ? await fetch(`${API_URL}/api/despesas-fixas?id=${idEdicao}`, {
+            method: "PUT",
+            headers: headersAutenticados(),
+            body: JSON.stringify(corpo),
+          })
+        : await fetch(`${API_URL}/api/despesas-fixas`, {
+            method: "POST",
+            headers: headersAutenticados(),
+            body: JSON.stringify(corpo),
+          });
 
       if (tratarSessaoExpirada(resposta)) return;
 
       if (resposta.ok) {
-        form.reset();
-        modal.style.display = "none";
+        fecharModalDespesaFixa();
         carregarPainelDespesasFixas();
         carregarLancamentos(); // se o mês atual já bateu o vencimento, aparece na hora
       } else {
@@ -425,10 +465,10 @@ function configurarModalDespesasFixas() {
       }
     } catch (erro) {
       console.error(erro);
-      await mostrarAviso("Erro de conexão ao cadastrar despesa fixa.");
+      await mostrarAviso("Erro de conexão ao salvar despesa fixa.");
     } finally {
       btnSalvar.disabled = false;
-      btnSalvar.innerText = "Adicionar";
+      btnSalvar.innerText = idEdicao ? "Salvar edição" : "Adicionar";
     }
   });
 }
@@ -471,14 +511,18 @@ async function carregarPainelDespesasFixas() {
         <div class="item-valores">
           ${badgeAviso}
           <span class="item-status ${fixa.ativo ? "status-pago" : "status-pendente"}">${fixa.ativo ? "Ativa" : "Pausada"}</span>
-          <button type="button" class="btn-editar-usuario" data-id="${fixa.id}">${fixa.ativo ? "Pausar" : "Ativar"}</button>
+          <button type="button" class="btn-editar-usuario btn-editar-fixa" data-id="${fixa.id}">Editar</button>
+          <button type="button" class="btn-editar-usuario btn-alternar-fixa" data-id="${fixa.id}">${fixa.ativo ? "Pausar" : "Ativar"}</button>
           <button type="button" class="btn-excluir-conta" data-id="${fixa.id}">Excluir</button>
         </div>
       `;
       container.appendChild(div);
     });
 
-    container.querySelectorAll(".btn-editar-usuario").forEach((btn) => {
+    container.querySelectorAll(".btn-editar-fixa").forEach((btn) => {
+      btn.addEventListener("click", () => editarDespesaFixa(Number(btn.dataset.id)));
+    });
+    container.querySelectorAll(".btn-alternar-fixa").forEach((btn) => {
       btn.addEventListener("click", () => alternarDespesaFixa(Number(btn.dataset.id)));
     });
     container.querySelectorAll(".btn-excluir-conta").forEach((btn) => {
@@ -545,6 +589,219 @@ async function excluirDespesaFixa(id) {
 
     if (resposta.ok) {
       carregarPainelDespesasFixas();
+    } else {
+      const erro = await resposta.json();
+      await mostrarAviso(`Erro: ${erro.erro}`);
+    }
+  } catch (erro) {
+    await mostrarAviso("Erro de conexão.");
+  }
+}
+
+// ==========================================
+// COMPRAS PARCELADAS (ex: "Notebook em 10x de R$300")
+// ==========================================
+let comprasParceladasCarregadas = [];
+
+async function abrirModalComprasParceladas() {
+  const modal = document.getElementById("modal-compra-parcelada");
+  const carteiraId = document.getElementById("seletor-carteira").value;
+  if (!modal) return;
+
+  if (!carteiraId) {
+    await mostrarAviso("Aguarde suas carteiras carregarem antes de cadastrar uma compra parcelada.");
+    return;
+  }
+
+  popularSelectCategorias(document.getElementById("parcelada-categoria"));
+
+  // Sugere o mês atual como padrão pra 1ª parcela
+  const campoMesInicio = document.getElementById("parcelada-mes-inicio");
+  if (campoMesInicio && !campoMesInicio.value) {
+    const hoje = new Date();
+    campoMesInicio.value = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, "0")}`;
+  }
+
+  modal.style.display = "flex";
+}
+
+function configurarModalComprasParceladas() {
+  const modal = document.getElementById("modal-compra-parcelada");
+  const btnAbrir = document.getElementById("btn-nova-compra-parcelada");
+  const btnFechar = document.getElementById("btn-fechar-modal-parcelada");
+  const form = document.getElementById("form-compra-parcelada");
+
+  if (!modal || !btnFechar || !form) return;
+
+  btnAbrir?.addEventListener("click", abrirModalComprasParceladas);
+
+  btnFechar.addEventListener("click", () => {
+    modal.style.display = "none";
+    form.reset();
+  });
+
+  form.addEventListener("submit", async (evento) => {
+    evento.preventDefault();
+
+    const carteiraId = document.getElementById("seletor-carteira").value;
+    const btnSalvar = document.getElementById("btn-salvar-parcelada");
+    btnSalvar.disabled = true;
+    btnSalvar.innerText = "Salvando...";
+
+    try {
+      const mesInicioValor = document.getElementById("parcelada-mes-inicio").value; // "YYYY-MM"
+      if (!mesInicioValor) {
+        await mostrarAviso("Escolha o mês da primeira parcela.");
+        return;
+      }
+      const [anoInicio, mesInicio] = mesInicioValor.split("-").map(Number);
+
+      const corpo = {
+        carteira_id: carteiraId,
+        descricao: document.getElementById("parcelada-descricao").value.trim(),
+        valor_parcela: parseFloat(document.getElementById("parcelada-valor").value),
+        total_parcelas: parseInt(document.getElementById("parcelada-total").value, 10),
+        dia_vencimento: parseInt(document.getElementById("parcelada-dia").value, 10),
+        ano_inicio: anoInicio,
+        mes_inicio: mesInicio,
+        categoria: document.getElementById("parcelada-categoria").value,
+        meio_pagamento: document.getElementById("parcelada-meio-pagamento").value,
+      };
+
+      const resposta = await fetch(`${API_URL}/api/compras-parceladas`, {
+        method: "POST",
+        headers: headersAutenticados(),
+        body: JSON.stringify(corpo),
+      });
+
+      if (tratarSessaoExpirada(resposta)) return;
+
+      if (resposta.ok) {
+        form.reset();
+        modal.style.display = "none";
+        carregarPainelComprasParceladas();
+        carregarLancamentos(); // se a parcela já bate no mês visível, aparece na hora
+      } else {
+        const erro = await resposta.json();
+        await mostrarAviso(`Erro: ${erro.erro}`);
+      }
+    } catch (erro) {
+      console.error(erro);
+      await mostrarAviso("Erro de conexão ao cadastrar compra parcelada.");
+    } finally {
+      btnSalvar.disabled = false;
+      btnSalvar.innerText = "Adicionar";
+    }
+  });
+}
+
+// Calcula em que parcela a compra está HOJE (pode ser <1 = ainda não começou, ou >total = já terminou)
+function calcularParcelaAtual(compra) {
+  const hoje = new Date();
+  return (hoje.getFullYear() - compra.ano_inicio) * 12 + (hoje.getMonth() + 1 - compra.mes_inicio) + 1;
+}
+
+async function carregarPainelComprasParceladas() {
+  const card = document.getElementById("card-compras-parceladas");
+  const container = document.getElementById("lista-compras-parceladas-painel");
+  const carteiraId = document.getElementById("seletor-carteira").value;
+  if (!card || !container || !carteiraId) return;
+
+  try {
+    const resposta = await fetch(`${API_URL}/api/compras-parceladas?carteira_id=${carteiraId}`, { headers: headersAutenticados(false) });
+    if (tratarSessaoExpirada(resposta)) return;
+    if (!resposta.ok) return;
+
+    comprasParceladasCarregadas = await resposta.json();
+
+    if (comprasParceladasCarregadas.length === 0) {
+      card.style.display = "none";
+      return;
+    }
+
+    card.style.display = "flex";
+    container.innerHTML = "";
+
+    comprasParceladasCarregadas.forEach((compra) => {
+      const valorFormatado = formatadorBRL.format(compra.valor_parcela);
+      const parcelaAtual = calcularParcelaAtual(compra);
+      const concluida = parcelaAtual > compra.total_parcelas;
+
+      let rotuloParcela;
+      if (!compra.ativo) {
+        rotuloParcela = "Cancelada";
+      } else if (concluida) {
+        rotuloParcela = `Concluída (${compra.total_parcelas}/${compra.total_parcelas})`;
+      } else if (parcelaAtual < 1) {
+        rotuloParcela = `Começa em ${NOMES_MESES_ABREV[compra.mes_inicio - 1]}/${compra.ano_inicio}`;
+      } else {
+        rotuloParcela = `Parcela ${parcelaAtual}/${compra.total_parcelas}`;
+      }
+
+      const div = document.createElement("div");
+      div.className = "linha-item linha-usuario";
+      div.innerHTML = `
+        <div class="item-info-principal linha-usuario-info">
+          <span class="item-descricao">${compra.descricao}</span>
+          <span class="item-categoria">${rotuloParcela} · ${valorFormatado}/mês</span>
+        </div>
+        <div class="item-valores">
+          <span class="item-status ${compra.ativo && !concluida ? "status-pago" : "status-pendente"}">${compra.ativo ? (concluida ? "Concluída" : "Ativa") : "Cancelada"}</span>
+          ${!concluida ? `<button type="button" class="btn-editar-usuario" data-id="${compra.id}">${compra.ativo ? "Cancelar" : "Reativar"}</button>` : ""}
+          <button type="button" class="btn-excluir-conta" data-id="${compra.id}">Excluir</button>
+        </div>
+      `;
+      container.appendChild(div);
+    });
+
+    container.querySelectorAll(".btn-editar-usuario").forEach((btn) => {
+      btn.addEventListener("click", () => alternarComprasParcelada(Number(btn.dataset.id)));
+    });
+    container.querySelectorAll(".btn-excluir-conta").forEach((btn) => {
+      btn.addEventListener("click", () => excluirComprasParcelada(Number(btn.dataset.id)));
+    });
+  } catch (erro) {
+    console.error("Erro ao carregar compras parceladas:", erro);
+  }
+}
+
+async function alternarComprasParcelada(id) {
+  const alvo = comprasParceladasCarregadas.find((c) => c.id === id);
+  if (!alvo) return;
+
+  try {
+    const resposta = await fetch(`${API_URL}/api/compras-parceladas?id=${id}`, {
+      method: "PUT",
+      headers: headersAutenticados(),
+      body: JSON.stringify({ ativo: !alvo.ativo }),
+    });
+
+    if (tratarSessaoExpirada(resposta)) return;
+
+    if (resposta.ok) {
+      carregarPainelComprasParceladas();
+    } else {
+      const erro = await resposta.json();
+      await mostrarAviso(`Erro: ${erro.erro}`);
+    }
+  } catch (erro) {
+    await mostrarAviso("Erro de conexão.");
+  }
+}
+
+async function excluirComprasParcelada(id) {
+  if (!(await pedirConfirmacao("Excluir esta compra parcelada? As parcelas já lançadas continuam na lista, só param de ser geradas novas.", { textoConfirmar: "Excluir", perigo: true }))) return;
+
+  try {
+    const resposta = await fetch(`${API_URL}/api/compras-parceladas?id=${id}`, {
+      method: "DELETE",
+      headers: headersAutenticados(false),
+    });
+
+    if (tratarSessaoExpirada(resposta)) return;
+
+    if (resposta.ok) {
+      carregarPainelComprasParceladas();
     } else {
       const erro = await resposta.json();
       await mostrarAviso(`Erro: ${erro.erro}`);
@@ -696,8 +953,8 @@ function carregarCategorias() {
   return popularSelectCategorias(document.getElementById("categoria"));
 }
 
-function adicionarCategoriaAoSelect(nome) {
-  const select = document.getElementById("categoria");
+function adicionarOpcaoSelect(select, nome) {
+  if (!select || !nome) return;
   const opcaoNova = select.querySelector('option[value="__nova__"]');
   const jaExiste = Array.from(select.options).some((op) => op.value.toLowerCase() === nome.toLowerCase());
   if (jaExiste) return;
@@ -706,7 +963,11 @@ function adicionarCategoriaAoSelect(nome) {
   opcao.value = nome;
   opcao.textContent = nome;
   opcao.dataset.categoria = "true";
-  select.insertBefore(opcao, opcaoNova);
+  select.insertBefore(opcao, opcaoNova || null);
+}
+
+function adicionarCategoriaAoSelect(nome) {
+  adicionarOpcaoSelect(document.getElementById("categoria"), nome);
 }
 
 // --- CONTROLE DO MODAL DE LANÇAMENTO ---
@@ -938,6 +1199,7 @@ async function carregarLancamentos() {
   if (!carteiraId) return; // carteiras ainda carregando
 
   carregarPainelDespesasFixas();
+  carregarPainelComprasParceladas();
   const promiseMetas = carregarMetas();
 
   // Marca esta chamada como "a mais recente". Se outra começar antes dela terminar,
@@ -1378,7 +1640,7 @@ function configurarPainelAdmin() {
 
   btnVoltar.addEventListener("click", () => {
     secaoAdmin.style.display = "none";
-    secaoDashboard.style.display = "flex";
+    secaoDashboard.style.display = "block";
     carregarLancamentos();
   });
 

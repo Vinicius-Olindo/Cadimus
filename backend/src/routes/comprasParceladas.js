@@ -1,10 +1,10 @@
 // ==========================================
-// despesasFixas.js (rota) - Gestão das despesas/receitas fixas
+// comprasParceladas.js (rota) - Gestão das compras parceladas
 // ==========================================
 import { obterUsuarioDaSessao } from "../utils/sessao.js";
 import { obterCarteirasDoUsuario } from "../utils/carteiras.js";
 
-export async function processarDespesasFixas(request, env) {
+export async function processarComprasParceladas(request, env) {
   const metodo = request.method;
   const url = new URL(request.url);
 
@@ -29,7 +29,7 @@ export async function processarDespesasFixas(request, env) {
         return new Response(JSON.stringify([]), { status: 200 });
       }
 
-      let query = `SELECT * FROM despesas_fixas WHERE 1=1`;
+      let query = `SELECT * FROM compras_parceladas WHERE 1=1`;
       let params = [];
 
       if (carteiraId) {
@@ -40,14 +40,14 @@ export async function processarDespesasFixas(request, env) {
         params.push(...carteirasPermitidas);
       }
 
-      query += ` ORDER BY dia_vencimento ASC`;
+      query += ` ORDER BY ano_inicio DESC, mes_inicio DESC`;
 
       const { results } = await env.DB.prepare(query)
         .bind(...params)
         .all();
       return new Response(JSON.stringify(results), { status: 200 });
     } catch (erro) {
-      return new Response(JSON.stringify({ erro: "Erro ao buscar despesas fixas." }), { status: 500 });
+      return new Response(JSON.stringify({ erro: "Erro ao buscar compras parceladas." }), { status: 500 });
     }
   }
 
@@ -63,18 +63,29 @@ export async function processarDespesasFixas(request, env) {
       }
 
       const descricao = (dados.descricao || "").trim();
-      const valor = parseFloat(dados.valor);
+      const valorParcela = parseFloat(dados.valor_parcela);
       const diaVencimento = parseInt(dados.dia_vencimento, 10);
-      const tipo = dados.tipo === "receita" ? "receita" : "despesa";
+      const totalParcelas = parseInt(dados.total_parcelas, 10);
+      const anoInicio = parseInt(dados.ano_inicio, 10);
+      const mesInicio = parseInt(dados.mes_inicio, 10);
 
       if (!descricao) {
         return new Response(JSON.stringify({ erro: "Informe uma descrição." }), { status: 400 });
       }
-      if (!Number.isFinite(valor) || valor <= 0) {
-        return new Response(JSON.stringify({ erro: "Informe um valor válido." }), { status: 400 });
+      if (!Number.isFinite(valorParcela) || valorParcela <= 0) {
+        return new Response(JSON.stringify({ erro: "Informe o valor da parcela." }), { status: 400 });
       }
       if (!Number.isInteger(diaVencimento) || diaVencimento < 1 || diaVencimento > 28) {
-        return new Response(JSON.stringify({ erro: "Escolha um dia de vencimento entre 1 e 28 (evita problemas em meses mais curtos)." }), { status: 400 });
+        return new Response(JSON.stringify({ erro: "Escolha um dia de vencimento entre 1 e 28." }), { status: 400 });
+      }
+      if (!Number.isInteger(totalParcelas) || totalParcelas < 2) {
+        return new Response(JSON.stringify({ erro: "Uma compra parcelada precisa de pelo menos 2 parcelas (pra 1x, lance como despesa comum)." }), { status: 400 });
+      }
+      if (totalParcelas > 60) {
+        return new Response(JSON.stringify({ erro: "Máximo de 60 parcelas." }), { status: 400 });
+      }
+      if (!Number.isInteger(anoInicio) || !Number.isInteger(mesInicio) || mesInicio < 1 || mesInicio > 12) {
+        return new Response(JSON.stringify({ erro: "Informe o mês da primeira parcela." }), { status: 400 });
       }
       if (!dados.categoria) {
         return new Response(JSON.stringify({ erro: "Escolha uma categoria." }), { status: 400 });
@@ -84,20 +95,21 @@ export async function processarDespesasFixas(request, env) {
       }
 
       const resultado = await env.DB.prepare(
-        `INSERT INTO despesas_fixas (carteira_id, descricao, valor, tipo, categoria, meio_pagamento, dia_vencimento, criado_por)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO compras_parceladas
+         (carteira_id, descricao, valor_parcela, categoria, meio_pagamento, dia_vencimento, total_parcelas, ano_inicio, mes_inicio, criado_por)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       )
-        .bind(dados.carteira_id, descricao, valor, tipo, dados.categoria, dados.meio_pagamento, diaVencimento, usuarioLogado.id)
+        .bind(dados.carteira_id, descricao, valorParcela, dados.categoria, dados.meio_pagamento, diaVencimento, totalParcelas, anoInicio, mesInicio, usuarioLogado.id)
         .run();
 
-      return new Response(JSON.stringify({ id: resultado.meta.last_row_id, mensagem: "Despesa fixa cadastrada!" }), { status: 201 });
+      return new Response(JSON.stringify({ id: resultado.meta.last_row_id, mensagem: "Compra parcelada cadastrada!" }), { status: 201 });
     } catch (erro) {
-      return new Response(JSON.stringify({ erro: "Erro ao cadastrar despesa fixa.", detalhe: erro.message }), { status: 500 });
+      return new Response(JSON.stringify({ erro: "Erro ao cadastrar compra parcelada.", detalhe: erro.message }), { status: 500 });
     }
   }
 
   // ==========================================
-  // EDITAR / PAUSAR / ATIVAR
+  // EDITAR / CANCELAR
   // ==========================================
   if (metodo === "PUT") {
     try {
@@ -106,9 +118,9 @@ export async function processarDespesasFixas(request, env) {
         return new Response(JSON.stringify({ erro: "ID não fornecido." }), { status: 400 });
       }
 
-      const { results: alvo } = await env.DB.prepare(`SELECT carteira_id FROM despesas_fixas WHERE id = ?`).bind(id).all();
+      const { results: alvo } = await env.DB.prepare(`SELECT carteira_id FROM compras_parceladas WHERE id = ?`).bind(id).all();
       if (alvo.length === 0) {
-        return new Response(JSON.stringify({ erro: "Despesa fixa não encontrada." }), { status: 404 });
+        return new Response(JSON.stringify({ erro: "Compra parcelada não encontrada." }), { status: 404 });
       }
       if (!carteirasPermitidas.includes(alvo[0].carteira_id)) {
         return new Response(JSON.stringify({ erro: "Acesso negado a esta carteira." }), { status: 403 });
@@ -122,17 +134,13 @@ export async function processarDespesasFixas(request, env) {
         campos.push("descricao = ?");
         valores.push(String(dados.descricao).trim());
       }
-      if (dados.valor !== undefined) {
-        const valor = parseFloat(dados.valor);
+      if (dados.valor_parcela !== undefined) {
+        const valor = parseFloat(dados.valor_parcela);
         if (!Number.isFinite(valor) || valor <= 0) {
-          return new Response(JSON.stringify({ erro: "Informe um valor válido." }), { status: 400 });
+          return new Response(JSON.stringify({ erro: "Informe o valor da parcela." }), { status: 400 });
         }
-        campos.push("valor = ?");
+        campos.push("valor_parcela = ?");
         valores.push(valor);
-      }
-      if (dados.tipo !== undefined) {
-        campos.push("tipo = ?");
-        valores.push(dados.tipo === "receita" ? "receita" : "despesa");
       }
       if (dados.categoria !== undefined) {
         campos.push("categoria = ?");
@@ -160,7 +168,7 @@ export async function processarDespesasFixas(request, env) {
       }
 
       valores.push(id);
-      await env.DB.prepare(`UPDATE despesas_fixas SET ${campos.join(", ")} WHERE id = ?`)
+      await env.DB.prepare(`UPDATE compras_parceladas SET ${campos.join(", ")} WHERE id = ?`)
         .bind(...valores)
         .run();
 
@@ -180,21 +188,20 @@ export async function processarDespesasFixas(request, env) {
         return new Response(JSON.stringify({ erro: "ID não fornecido." }), { status: 400 });
       }
 
-      const { results: alvo } = await env.DB.prepare(`SELECT carteira_id FROM despesas_fixas WHERE id = ?`).bind(id).all();
+      const { results: alvo } = await env.DB.prepare(`SELECT carteira_id FROM compras_parceladas WHERE id = ?`).bind(id).all();
       if (alvo.length === 0) {
-        return new Response(JSON.stringify({ erro: "Despesa fixa não encontrada." }), { status: 404 });
+        return new Response(JSON.stringify({ erro: "Compra parcelada não encontrada." }), { status: 404 });
       }
       if (!carteirasPermitidas.includes(alvo[0].carteira_id)) {
         return new Response(JSON.stringify({ erro: "Acesso negado a esta carteira." }), { status: 403 });
       }
 
-      // Desvincula os lançamentos que essa regra já gerou (eles continuam existindo,
-      // só param de "pertencer" à regra) — sem isso, a chave estrangeira impede a exclusão
-      await env.DB.prepare(`UPDATE lancamentos SET despesa_fixa_id = NULL WHERE despesa_fixa_id = ?`).bind(id).run();
+      // Desvincula as parcelas já geradas antes de excluir a regra (evita violar a chave estrangeira)
+      await env.DB.prepare(`UPDATE lancamentos SET compra_parcelada_id = NULL WHERE compra_parcelada_id = ?`).bind(id).run();
 
-      await env.DB.prepare(`DELETE FROM despesas_fixas WHERE id = ?`).bind(id).run();
+      await env.DB.prepare(`DELETE FROM compras_parceladas WHERE id = ?`).bind(id).run();
 
-      return new Response(JSON.stringify({ mensagem: "Despesa fixa excluída." }), { status: 200 });
+      return new Response(JSON.stringify({ mensagem: "Compra parcelada excluída." }), { status: 200 });
     } catch (erro) {
       return new Response(JSON.stringify({ erro: "Erro ao excluir." }), { status: 500 });
     }

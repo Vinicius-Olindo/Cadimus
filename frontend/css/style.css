@@ -49,9 +49,19 @@ button {
    LAYOUT GERAL
    ========================================== */
 .app-container {
-  max-width: 620px;
-  margin: 0 auto;
   padding: 28px 20px 60px;
+}
+
+/* Dashboard é o painel de controle de verdade — precisa de espaço pra duas colunas */
+#dashboard-section {
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+/* Admin/Configurações não precisa da mesma largura (são formulários e listas simples) */
+#admin-section {
+  max-width: 760px;
+  margin: 0 auto;
 }
 
 /* Cabeçalho: capa do caderno, em duas linhas */
@@ -193,30 +203,6 @@ button:active {
   color: var(--cor-marca-forte);
 }
 
-/* Botão de ação principal (carimbo) */
-.atalhos-container {
-  margin-top: 22px;
-  display: flex;
-  justify-content: center;
-}
-
-#btn-novo-gasto {
-  background: var(--cor-marca);
-  color: var(--cor-superficie-alta);
-  padding: 13px 28px;
-  border-radius: 999px;
-  font-size: 0.9rem;
-  box-shadow: 0 6px 16px -6px var(--cor-sombra);
-}
-
-#btn-novo-gasto:hover {
-  background: var(--cor-marca-forte);
-}
-
-#btn-novo-gasto:active {
-  transform: scale(0.96) rotate(-0.5deg);
-}
-
 #btn-salvar-lancamento {
   background: var(--cor-marca);
 }
@@ -334,15 +320,87 @@ button:active {
 }
 
 /* ==========================================
-   RESUMO (receitas / despesas / saldo + categorias)
+   GRID DO PAINEL: resumo no topo + lançamentos (esquerda) + controle (direita)
    ========================================== */
-.resumo-cards {
-  margin-bottom: 22px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+#conteudo-periodo {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
 }
 
+.area-resumo {
+  order: 1;
+}
+
+.area-controle {
+  order: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.area-lancamentos {
+  order: 3;
+}
+
+@media (min-width: 900px) {
+  #conteudo-periodo {
+    grid-template-columns: minmax(0, 1fr) 360px;
+    align-items: start;
+  }
+
+  .area-resumo {
+    grid-column: 1 / -1;
+    order: unset;
+  }
+
+  .area-lancamentos {
+    grid-column: 1;
+    order: unset;
+  }
+
+  .area-controle {
+    grid-column: 2;
+    order: unset;
+    position: sticky;
+    top: 20px;
+  }
+}
+
+.lancamentos-cabecalho {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.lancamentos-cabecalho h3 {
+  font-family: var(--fonte-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 1.5rem;
+}
+
+#btn-novo-gasto {
+  background: var(--cor-marca);
+  color: var(--cor-superficie-alta);
+  padding: 10px 20px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  box-shadow: 0 6px 16px -6px var(--cor-sombra);
+}
+
+#btn-novo-gasto:hover {
+  background: var(--cor-marca-forte);
+}
+
+#btn-novo-gasto:active {
+  transform: scale(0.96) rotate(-0.5deg);
+}
+
+/* ==========================================
+   RESUMO PRINCIPAL (o "painel de controle" propriamente dito)
+   ========================================== */
 .card {
   background: var(--cor-superficie);
   border: var(--borda) solid var(--cor-pauta-forte);
@@ -353,8 +411,10 @@ button:active {
 .resumo-principal {
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 26px;
   flex-wrap: wrap;
+  padding: 26px 28px;
+  background: linear-gradient(135deg, var(--cor-superficie-alta), var(--cor-superficie));
 }
 
 .resumo-item {
@@ -373,7 +433,7 @@ button:active {
 .resumo-valor {
   font-family: var(--fonte-mono);
   font-variant-numeric: tabular-nums;
-  font-size: 1.15rem;
+  font-size: 1.2rem;
   font-weight: 600;
   letter-spacing: -0.3px;
   color: var(--cor-texto);
@@ -390,12 +450,12 @@ button:active {
 }
 
 #saldo-total {
-  font-size: 1.9rem;
+  font-size: 2.2rem;
   color: var(--cor-texto);
   transition: color 0.3s ease;
 }
 
-/* Raio-x por categoria */
+/* Raio-x por categoria (e demais cards analíticos da coluna direita) */
 .resumo-categorias {
   display: flex;
   flex-direction: column;
@@ -1143,18 +1203,37 @@ label {
 .linha-usuario {
   padding: 10px 14px;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
-.linha-usuario-info {
+.linha-usuario .item-info-principal {
+  min-width: 140px;
+}
+
+/* Só nas listas do admin (nome + selo de perfil cabem numa linha só).
+   Despesas fixas e compras parceladas usam o empilhamento vertical padrão —
+   têm um texto secundário mais longo ("Todo dia 7 · R$ 967,00") que precisa de espaço. */
+#lista-usuarios .linha-usuario-info,
+#lista-categorias .linha-usuario-info {
   flex-direction: row !important;
   justify-content: flex-start !important;
   align-items: center;
-  gap: 10px;
+}
+
+.linha-usuario-info {
+  gap: 4px;
   flex: 1;
+  min-width: 0;
+}
+
+.linha-usuario .item-descricao {
+  white-space: normal;
 }
 
 .linha-usuario .item-valores {
   gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .btn-editar-usuario {
@@ -1260,6 +1339,7 @@ label {
 
   .resumo-principal {
     gap: 14px;
+    padding: 18px 20px;
   }
 
   .resumo-saldo-item {
@@ -1270,6 +1350,16 @@ label {
 
   .resumo-divisor {
     display: none;
+  }
+
+  .lancamentos-cabecalho {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  #btn-novo-gasto {
+    font-size: 0.78rem;
+    padding: 8px 16px;
   }
 }
 

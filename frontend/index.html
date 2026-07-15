@@ -64,28 +64,42 @@
         </header>
 
         <div id="conteudo-periodo">
-          <div class="resumo-cards">
-            <div class="card resumo-principal">
-              <div class="resumo-item">
-                <span class="resumo-rotulo">Receitas</span>
-                <span class="resumo-valor texto-receita" id="total-receitas">R$ 0,00</span>
-              </div>
-              <div class="resumo-item">
-                <span class="resumo-rotulo">Despesas</span>
-                <span class="resumo-valor texto-despesa" id="total-despesas">R$ 0,00</span>
-                <span class="comparacao-mes" id="comparacao-mes" style="display: none"></span>
-              </div>
-              <div class="resumo-item" id="resumo-pendente-item" style="display: none">
-                <span class="resumo-rotulo">A pagar</span>
-                <span class="resumo-valor" id="total-pendente" style="color: var(--cor-pendente)">R$ 0,00</span>
-              </div>
-              <div class="resumo-divisor"></div>
-              <div class="resumo-item resumo-saldo-item">
-                <span class="resumo-rotulo">Saldo do período</span>
-                <span class="resumo-valor" id="saldo-total">R$ 0,00</span>
-              </div>
+          <!-- LINHA 1: resumo geral, ocupa a largura toda — é o "painel de controle" -->
+          <div class="card resumo-principal area-resumo">
+            <div class="resumo-item">
+              <span class="resumo-rotulo">Receitas</span>
+              <span class="resumo-valor texto-receita" id="total-receitas">R$ 0,00</span>
             </div>
+            <div class="resumo-item">
+              <span class="resumo-rotulo">Despesas</span>
+              <span class="resumo-valor texto-despesa" id="total-despesas">R$ 0,00</span>
+              <span class="comparacao-mes" id="comparacao-mes" style="display: none"></span>
+            </div>
+            <div class="resumo-item" id="resumo-pendente-item" style="display: none">
+              <span class="resumo-rotulo">A pagar</span>
+              <span class="resumo-valor" id="total-pendente" style="color: var(--cor-pendente)">R$ 0,00</span>
+            </div>
+            <div class="resumo-divisor"></div>
+            <div class="resumo-item resumo-saldo-item">
+              <span class="resumo-rotulo">Saldo do período</span>
+              <span class="resumo-valor" id="saldo-total">R$ 0,00</span>
+            </div>
+          </div>
 
+          <!-- LINHA 2, COLUNA ESQUERDA: os lançamentos em si -->
+          <div class="area-lancamentos">
+            <div class="lancamentos-cabecalho">
+              <h3>Lançamentos</h3>
+              <button id="btn-novo-gasto">+ Novo lançamento</button>
+            </div>
+            <div class="busca-lancamentos">
+              <input type="search" id="busca-lancamento" placeholder="Buscar por descrição ou categoria..." />
+            </div>
+            <div class="lista-lancamentos" id="lista-lancamentos"></div>
+          </div>
+
+          <!-- LINHA 2, COLUNA DIREITA: tudo analítico — o "controle" de verdade -->
+          <div class="area-controle">
             <div class="card resumo-categorias" id="resumo-categorias" style="display: none">
               <span class="resumo-categorias-titulo">Para onde foi o dinheiro</span>
               <div id="lista-categorias-resumo"></div>
@@ -108,15 +122,16 @@
               </div>
               <div id="lista-despesas-fixas-painel"></div>
             </div>
+
+            <div class="card resumo-categorias" id="card-compras-parceladas" style="display: none">
+              <div class="despesas-fixas-cabecalho">
+                <span class="resumo-categorias-titulo">Compras parceladas</span>
+                <button type="button" id="btn-nova-compra-parcelada" class="btn-link-adicionar">+ Nova</button>
+              </div>
+              <div id="lista-compras-parceladas-painel"></div>
+            </div>
           </div>
-          <div class="busca-lancamentos">
-            <input type="search" id="busca-lancamento" placeholder="Buscar por descrição ou categoria..." />
-          </div>
-          <div class="lista-lancamentos" id="lista-lancamentos"></div>
         </div>
-        <footer class="atalhos-container">
-          <button id="btn-novo-gasto">+ Novo lançamento</button>
-        </footer>
       </section>
 
       <!-- SEÇÃO ADMIN / CONFIGURAÇÕES -->
@@ -259,10 +274,11 @@
     <!-- MODAL: DESPESAS FIXAS -->
     <div id="modal-despesas-fixas" class="modal-overlay" style="display: none">
       <div class="modal-content">
-        <h3>Despesas fixas</h3>
+        <h3 id="titulo-modal-fixa">Despesas fixas</h3>
         <p class="modal-subtitulo">Lançadas automaticamente todo mês, nesta carteira, sempre no mesmo valor.</p>
 
         <form id="form-despesa-fixa">
+          <input type="hidden" id="fixa-editando-id" value="" />
           <div class="campo">
             <label for="fixa-descricao">Descrição</label>
             <input type="text" id="fixa-descricao" placeholder="Ex: Aluguel" required />
@@ -310,6 +326,65 @@
         </form>
 
         <button type="button" id="btn-fechar-modal-fixas">Fechar</button>
+      </div>
+    </div>
+
+    <!-- MODAL: COMPRA PARCELADA -->
+    <div id="modal-compra-parcelada" class="modal-overlay" style="display: none">
+      <div class="modal-content">
+        <h3>Compra parcelada</h3>
+        <p class="modal-subtitulo">Gera uma parcela por mês, sozinha, até completar o total (ex: 3/10).</p>
+
+        <form id="form-compra-parcelada">
+          <div class="campo">
+            <label for="parcelada-descricao">Descrição</label>
+            <input type="text" id="parcelada-descricao" placeholder="Ex: Notebook" required />
+          </div>
+
+          <div class="linha-form-dupla">
+            <div class="campo">
+              <label for="parcelada-valor">Valor da parcela</label>
+              <input type="number" id="parcelada-valor" step="0.01" placeholder="0,00" required />
+            </div>
+            <div class="campo">
+              <label for="parcelada-total">Total de parcelas</label>
+              <input type="number" id="parcelada-total" min="2" max="60" placeholder="Ex: 10" required />
+            </div>
+          </div>
+
+          <div class="linha-form-dupla">
+            <div class="campo">
+              <label for="parcelada-dia">Dia de vencimento</label>
+              <input type="number" id="parcelada-dia" min="1" max="28" placeholder="Ex: 15" required />
+            </div>
+            <div class="campo">
+              <label for="parcelada-mes-inicio">1ª parcela</label>
+              <input type="month" id="parcelada-mes-inicio" required />
+            </div>
+          </div>
+
+          <div class="campo">
+            <label for="parcelada-categoria">Categoria</label>
+            <select id="parcelada-categoria" required>
+              <option value="" disabled selected>Escolher</option>
+            </select>
+          </div>
+
+          <div class="campo">
+            <label for="parcelada-meio-pagamento">Meio de pagamento</label>
+            <select id="parcelada-meio-pagamento" required>
+              <option value="" disabled selected>Escolher</option>
+              <option value="dinheiro">Dinheiro</option>
+              <option value="pix">Pix</option>
+              <option value="debito">Débito</option>
+              <option value="credito">Crédito</option>
+            </select>
+          </div>
+
+          <button type="submit" id="btn-salvar-parcelada">Adicionar</button>
+        </form>
+
+        <button type="button" id="btn-fechar-modal-parcelada">Fechar</button>
       </div>
     </div>
 

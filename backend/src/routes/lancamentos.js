@@ -4,6 +4,7 @@
 import { obterUsuarioDaSessao } from "../utils/sessao.js";
 import { obterCarteirasDoUsuario } from "../utils/carteiras.js";
 import { gerarLancamentosFixosDoMes } from "../utils/despesasFixas.js";
+import { gerarLancamentosParceladosDoMes } from "../utils/comprasParceladas.js";
 
 export async function processarLancamentos(request, env) {
   const metodo = request.method;
@@ -35,10 +36,11 @@ export async function processarLancamentos(request, env) {
         return new Response(JSON.stringify([]), { status: 200 });
       }
 
-      // Antes de listar, garante que as despesas fixas ativas já viraram lançamento neste mês
+      // Antes de listar, garante que as despesas fixas ativas e as parcelas do mês já foram geradas
       if (mes && ano) {
         const carteirasAlvo = carteiraId ? [Number(carteiraId)] : carteirasPermitidas;
         await gerarLancamentosFixosDoMes(env, carteirasAlvo, ano, mes);
+        await gerarLancamentosParceladosDoMes(env, carteirasAlvo, ano, mes);
       }
 
       let query = `

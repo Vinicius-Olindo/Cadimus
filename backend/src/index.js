@@ -8,6 +8,7 @@ import { processarCategorias } from "./routes/categorias.js";
 import { processarCarteiras } from "./routes/carteiras.js";
 import { processarDespesasFixas } from "./routes/despesasFixas.js";
 import { processarMetas } from "./routes/metas.js";
+import { processarComprasParceladas } from "./routes/comprasParceladas.js";
 
 export default {
   async fetch(request, env, ctx) {
@@ -122,6 +123,21 @@ export default {
         const respostaMetas = await processarMetas(request, env);
 
         const respostaComCors = new Response(respostaMetas.body, respostaMetas);
+        Object.keys(corsHeaders).forEach((chave) => {
+          respostaComCors.headers.set(chave, corsHeaders[chave]);
+        });
+        respostaComCors.headers.set("Content-Type", "application/json");
+
+        return respostaComCors;
+      }
+
+      // ==========================================
+      // ROTA 8: COMPRAS PARCELADAS
+      // ==========================================
+      if (url.pathname.startsWith("/api/compras-parceladas")) {
+        const respostaComprasParceladas = await processarComprasParceladas(request, env);
+
+        const respostaComCors = new Response(respostaComprasParceladas.body, respostaComprasParceladas);
         Object.keys(corsHeaders).forEach((chave) => {
           respostaComCors.headers.set(chave, corsHeaders[chave]);
         });
