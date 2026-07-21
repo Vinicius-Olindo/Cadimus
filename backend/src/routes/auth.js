@@ -44,8 +44,10 @@ export async function processarLogin(request, env) {
       return new Response(JSON.stringify({ erro: "Muitas tentativas de login. Aguarde alguns minutos e tente novamente." }), { status: 429 });
     }
 
-    // Busca o usuário pelo nome_usuario (o hash não sai daqui)
-    const query = `SELECT id, nome_usuario, perfil, senha_hash FROM usuarios WHERE nome_usuario = ?`;
+    // Busca o usuário pelo nome_usuario, sem diferenciar maiúsculas/minúsculas — teclados
+    // de celular costumam capitalizar a primeira letra sozinhos, e o cadastro/edição de
+    // usuário já trata "Vinicius" e "vinicius" como o mesmo nome (ver usuarios.js)
+    const query = `SELECT id, nome_usuario, perfil, senha_hash FROM usuarios WHERE LOWER(nome_usuario) = LOWER(?)`;
     const { results } = await env.DB.prepare(query).bind(usuario).all();
 
     const userDB = results[0];

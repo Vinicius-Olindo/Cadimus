@@ -627,13 +627,15 @@ async function abrirModalComprasParceladas() {
 
 function configurarModalComprasParceladas() {
   const modal = document.getElementById("modal-compra-parcelada");
-  const btnAbrir = document.getElementById("btn-nova-compra-parcelada");
+  const btnAbrirTopo = document.getElementById("btn-compras-parceladas");
+  const btnAbrirDoCard = document.getElementById("btn-nova-compra-parcelada");
   const btnFechar = document.getElementById("btn-fechar-modal-parcelada");
   const form = document.getElementById("form-compra-parcelada");
 
   if (!modal || !btnFechar || !form) return;
 
-  btnAbrir?.addEventListener("click", abrirModalComprasParceladas);
+  btnAbrirTopo?.addEventListener("click", abrirModalComprasParceladas);
+  btnAbrirDoCard?.addEventListener("click", abrirModalComprasParceladas);
 
   btnFechar.addEventListener("click", () => {
     modal.style.display = "none";

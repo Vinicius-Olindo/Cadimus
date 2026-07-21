@@ -182,10 +182,12 @@ button:active {
 #btn-theme-toggle,
 #btn-admin,
 #btn-despesas-fixas,
+#btn-compras-parceladas,
 #btn-voltar-dashboard,
 #btn-fechar-modal,
 #btn-fechar-modal-carteira,
-#btn-fechar-modal-fixas {
+#btn-fechar-modal-fixas,
+#btn-fechar-modal-parcelada {
   background: transparent;
   color: var(--cor-texto-suave);
   border-color: var(--cor-pauta-forte);
@@ -195,10 +197,12 @@ button:active {
 #btn-theme-toggle:hover,
 #btn-admin:hover,
 #btn-despesas-fixas:hover,
+#btn-compras-parceladas:hover,
 #btn-voltar-dashboard:hover,
 #btn-fechar-modal:hover,
 #btn-fechar-modal-carteira:hover,
-#btn-fechar-modal-fixas:hover {
+#btn-fechar-modal-fixas:hover,
+#btn-fechar-modal-parcelada:hover {
   border-color: var(--cor-marca);
   color: var(--cor-marca-forte);
 }

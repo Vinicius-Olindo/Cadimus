@@ -33,7 +33,7 @@
           <h1>Cadimus</h1>
           <span class="subtitulo">Caderno de contas</span>
           <form id="login-form">
-            <input type="text" id="usuario" placeholder="Usuário" autocomplete="username" required />
+            <input type="text" id="usuario" placeholder="Usuário" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required />
             <input type="password" id="senha" placeholder="Senha" autocomplete="current-password" required />
             <button type="submit">Entrar</button>
           </form>
@@ -47,6 +47,7 @@
             <h2>Cadimus</h2>
             <div class="acoes-topo">
               <button id="btn-despesas-fixas" title="Despesas fixas">🔁</button>
+              <button id="btn-compras-parceladas" title="Compras parceladas">🧾</button>
               <button id="btn-admin" style="display: none" title="Configurações">⚙️</button>
               <button id="btn-logout">Sair</button>
             </div>
@@ -154,7 +155,7 @@
             <h3 id="titulo-form-usuario">Novo usuário</h3>
             <form id="form-novo-usuario">
               <input type="hidden" id="usuario-editando-id" value="" />
-              <input type="text" id="novo-usuario" placeholder="Usuário" required />
+              <input type="text" id="novo-usuario" placeholder="Usuário" autocapitalize="none" autocorrect="off" spellcheck="false" required />
               <input type="password" id="nova-senha" placeholder="Senha" />
               <span class="dica-campo" id="dica-senha" style="display: none">Deixe em branco para manter a senha atual.</span>
               <select id="novo-perfil">
