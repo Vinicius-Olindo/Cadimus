@@ -6,7 +6,7 @@
 // HELPER: headers autenticados para chamadas à API
 // ==========================================
 function headersAutenticados(comJson = true) {
-  const token = localStorage.getItem("cadimus_token");
+  const token = obterToken();
   const headers = {};
   if (comJson) headers["Content-Type"] = "application/json";
   if (token) headers["Authorization"] = `Bearer ${token}`;
@@ -16,7 +16,7 @@ function headersAutenticados(comJson = true) {
 // Se a API responder 401 (sessão inválida/expirada), desloga e volta pro login
 function tratarSessaoExpirada(resposta) {
   if (resposta.status === 401) {
-    localStorage.clear();
+    limparSessao();
     alternarTelas(false);
     mostrarAviso("Sua sessão expirou. Faça login novamente."); // não bloqueia: a função precisa continuar síncrona
     return true;
@@ -1796,7 +1796,7 @@ async function carregarUsuarios() {
 
     container.innerHTML = "";
 
-    const usuarioLogado = JSON.parse(localStorage.getItem("cadimus_usuario") || "{}");
+    const usuarioLogado = obterUsuarioLogado();
 
     dados.forEach((user) => {
       const ehVoceMesmo = user.id === usuarioLogado.id;

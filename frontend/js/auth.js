@@ -1,5 +1,35 @@
 const API_URL = "https://cadimus-backend.olinbytedigital.workers.dev";
 
+// ==========================================
+// SESSÃO EM MEMÓRIA (de propósito, não usa localStorage/sessionStorage)
+// Fechar a aba ou recarregar a página apaga isso automaticamente, forçando
+// login de novo — importante num app financeiro que pode ficar numa tela
+// compartilhada. A única coisa persistida entre sessões é a preferência de
+// tema (claro/escuro), que não é informação sensível.
+// ==========================================
+const sessaoMemoria = {
+  token: null,
+  usuario: null,
+};
+
+function obterToken() {
+  return sessaoMemoria.token;
+}
+
+function obterUsuarioLogado() {
+  return sessaoMemoria.usuario || {};
+}
+
+function salvarSessao(token, usuario) {
+  sessaoMemoria.token = token;
+  sessaoMemoria.usuario = usuario;
+}
+
+function limparSessao() {
+  sessaoMemoria.token = null;
+  sessaoMemoria.usuario = null;
+}
+
 function alternarTelas(estaLogado) {
   const sLogin = document.getElementById("login-section");
   const sDash = document.getElementById("dashboard-section");
@@ -11,7 +41,7 @@ function alternarTelas(estaLogado) {
     sDash.style.display = "block";
     sAdmin.style.display = "none";
 
-    const u = JSON.parse(localStorage.getItem("cadimus_usuario") || "{}");
+    const u = obterUsuarioLogado();
     bAdmin.style.display = u.perfil === "superadmin" ? "inline-block" : "none";
     if (window.carregarCarteiras) window.carregarCarteiras();
   } else {
@@ -35,8 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
       const d = await res.json();
       if (res.ok) {
-        localStorage.setItem("cadimus_token", d.token);
-        localStorage.setItem("cadimus_usuario", JSON.stringify(d.usuario));
+        salvarSessao(d.token, d.usuario);
         alternarTelas(true);
       } else {
         if (typeof mostrarAviso === "function") {
@@ -48,7 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
   document.getElementById("btn-logout")?.addEventListener("click", async () => {
-    const token = localStorage.getItem("cadimus_token");
+    const token = obterToken();
     if (token) {
       try {
         await fetch(`${API_URL}/api/auth`, {
@@ -60,8 +89,10 @@ document.addEventListener("DOMContentLoaded", () => {
         console.error("Erro ao encerrar sessão no servidor:", erro);
       }
     }
-    localStorage.clear();
+    limparSessao();
     alternarTelas(false);
   });
-  alternarTelas(!!localStorage.getItem("cadimus_token"));
+
+  // Sempre começa deslogado: a sessão não sobrevive a reload nem a fechar a aba
+  alternarTelas(false);
 });

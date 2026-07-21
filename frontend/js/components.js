@@ -38,7 +38,7 @@ function criarLinhaLancamento(lancamento) {
 
   // Só quem criou o lançamento (ou um admin) pode editar/excluir — o backend também garante isso,
   // aqui é só pra não mostrar botões que vão falhar ao clicar
-  const usuarioLogado = JSON.parse(localStorage.getItem("cadimus_usuario") || "{}");
+  const usuarioLogado = obterUsuarioLogado();
   const podeGerenciar = lancamento.criado_por === usuarioLogado.id || usuarioLogado.perfil === "superadmin";
   const botoesGerenciar = podeGerenciar
     ? `<button class="btn-editar" onclick="editarLancamento(${lancamento.id})" title="Editar registro">✎</button>
