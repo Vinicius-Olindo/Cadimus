@@ -147,6 +147,7 @@
         <div class="admin-tabs">
           <button type="button" class="tab-admin ativo" data-painel="painel-usuarios">Usuários</button>
           <button type="button" class="tab-admin" data-painel="painel-categorias">Categorias</button>
+          <button type="button" class="tab-admin" data-painel="painel-sistema">Sistema</button>
         </div>
 
         <!-- PAINEL: USUÁRIOS -->
@@ -182,8 +183,37 @@
           </div>
           <div class="lista-lancamentos" id="lista-categorias"></div>
         </div>
+
+        <!-- PAINEL: SISTEMA (zona de perigo) -->
+        <div id="painel-sistema" class="painel-admin" style="display: none">
+          <div class="card card-zona-perigo">
+            <h3 class="titulo-zona-perigo">Zona de perigo</h3>
+            <p class="modal-subtitulo">
+              Apaga permanentemente todos os lançamentos, despesas fixas, compras parceladas e metas de todas as carteiras. As
+              categorias voltam para a lista padrão. Usuários, carteiras e permissões de acesso não são afetados.
+            </p>
+            <button type="button" id="btn-abrir-zerar-dados" class="btn-excluir-conta">Apagar todos os dados financeiros</button>
+          </div>
+        </div>
       </section>
     </main>
+
+    <!-- MODAL: ZERAR TODOS OS DADOS -->
+    <div id="modal-zerar-dados" class="modal-overlay" style="display: none">
+      <div class="modal-content">
+        <h3>Apagar todos os dados financeiros</h3>
+        <p class="modal-subtitulo">
+          Isso remove permanentemente todos os lançamentos, despesas fixas, compras parceladas e metas — de todas as carteiras,
+          de todos os usuários. As categorias voltam ao padrão. Essa ação não pode ser desfeita.
+        </p>
+        <div class="campo">
+          <label for="confirmacao-zerar-dados">Digite <strong>APAGAR TUDO</strong> para confirmar</label>
+          <input type="text" id="confirmacao-zerar-dados" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="APAGAR TUDO" />
+        </div>
+        <button type="button" id="btn-confirmar-zerar-dados" class="btn-excluir-conta" disabled>Apagar tudo permanentemente</button>
+        <button type="button" id="btn-fechar-modal-zerar-dados">Cancelar</button>
+      </div>
+    </div>
 
     <!-- MODAL: NOVO LANÇAMENTO -->
     <div id="modal-lancamento" class="modal-overlay" style="display: none">

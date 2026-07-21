@@ -1189,6 +1189,27 @@ label {
   flex-basis: 100%;
 }
 
+.card-zona-perigo {
+  border-color: color-mix(in srgb, var(--cor-despesa) 40%, transparent);
+  background: color-mix(in srgb, var(--cor-despesa) 5%, var(--cor-superficie));
+}
+
+.titulo-zona-perigo {
+  color: var(--cor-despesa) !important;
+}
+
+#confirmacao-zerar-dados {
+  font-family: var(--fonte-mono);
+}
+
+#btn-confirmar-zerar-dados:disabled {
+  background: var(--cor-pauta-forte);
+  color: var(--cor-texto-suave);
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .dica-campo {
   flex-basis: 100%;
   font-size: 0.72rem;

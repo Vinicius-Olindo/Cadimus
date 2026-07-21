@@ -9,6 +9,7 @@ import { processarCarteiras } from "./routes/carteiras.js";
 import { processarDespesasFixas } from "./routes/despesasFixas.js";
 import { processarMetas } from "./routes/metas.js";
 import { processarComprasParceladas } from "./routes/comprasParceladas.js";
+import { processarLimpezaDados } from "./routes/manutencao.js";
 
 export default {
   async fetch(request, env, ctx) {
@@ -138,6 +139,21 @@ export default {
         const respostaComprasParceladas = await processarComprasParceladas(request, env);
 
         const respostaComCors = new Response(respostaComprasParceladas.body, respostaComprasParceladas);
+        Object.keys(corsHeaders).forEach((chave) => {
+          respostaComCors.headers.set(chave, corsHeaders[chave]);
+        });
+        respostaComCors.headers.set("Content-Type", "application/json");
+
+        return respostaComCors;
+      }
+
+      // ==========================================
+      // ROTA 9: MANUTENÇÃO (zerar todos os dados — só superadmin)
+      // ==========================================
+      if (url.pathname.startsWith("/api/admin/zerar-dados")) {
+        const respostaLimpeza = await processarLimpezaDados(request, env);
+
+        const respostaComCors = new Response(respostaLimpeza.body, respostaLimpeza);
         Object.keys(corsHeaders).forEach((chave) => {
           respostaComCors.headers.set(chave, corsHeaders[chave]);
         });

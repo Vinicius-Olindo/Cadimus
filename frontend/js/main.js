@@ -1678,6 +1678,7 @@ function configurarPainelAdmin() {
   configurarSubAbasAdmin();
   configurarFormularioUsuario();
   configurarFormularioCategoria();
+  configurarZonaDePerigo();
 }
 
 function configurarSubAbasAdmin() {
@@ -1695,6 +1696,71 @@ function configurarSubAbasAdmin() {
       if (tab.dataset.painel === "painel-categorias") carregarListaCategorias();
       if (tab.dataset.painel === "painel-usuarios") carregarUsuarios();
     });
+  });
+}
+
+// ==========================================
+// ZONA DE PERIGO: apagar todos os dados financeiros (só superadmin)
+// ==========================================
+const FRASE_CONFIRMACAO_ZERAR = "APAGAR TUDO";
+
+function configurarZonaDePerigo() {
+  const btnAbrir = document.getElementById("btn-abrir-zerar-dados");
+  const modal = document.getElementById("modal-zerar-dados");
+  const btnFechar = document.getElementById("btn-fechar-modal-zerar-dados");
+  const btnConfirmar = document.getElementById("btn-confirmar-zerar-dados");
+  const campoConfirmacao = document.getElementById("confirmacao-zerar-dados");
+
+  if (!btnAbrir || !modal || !btnFechar || !btnConfirmar || !campoConfirmacao) return;
+
+  function fecharModalZerarDados() {
+    modal.style.display = "none";
+    campoConfirmacao.value = "";
+    btnConfirmar.disabled = true;
+  }
+
+  btnAbrir.addEventListener("click", () => {
+    campoConfirmacao.value = "";
+    btnConfirmar.disabled = true;
+    modal.style.display = "flex";
+  });
+
+  btnFechar.addEventListener("click", fecharModalZerarDados);
+
+  campoConfirmacao.addEventListener("input", () => {
+    btnConfirmar.disabled = campoConfirmacao.value !== FRASE_CONFIRMACAO_ZERAR;
+  });
+
+  btnConfirmar.addEventListener("click", async () => {
+    if (campoConfirmacao.value !== FRASE_CONFIRMACAO_ZERAR) return;
+
+    btnConfirmar.disabled = true;
+    btnConfirmar.innerText = "Apagando...";
+
+    try {
+      const resposta = await fetch(`${API_URL}/api/admin/zerar-dados`, {
+        method: "POST",
+        headers: headersAutenticados(),
+        body: JSON.stringify({ confirmacao: campoConfirmacao.value }),
+      });
+
+      if (tratarSessaoExpirada(resposta)) return;
+
+      if (resposta.ok) {
+        fecharModalZerarDados();
+        await mostrarAviso("Todos os dados financeiros foram apagados. As categorias voltaram ao padrão.");
+        carregarListaCategorias();
+      } else {
+        const erro = await resposta.json();
+        await mostrarAviso(`Erro: ${erro.erro}`);
+      }
+    } catch (erro) {
+      console.error(erro);
+      await mostrarAviso("Erro de conexão ao apagar os dados.");
+    } finally {
+      btnConfirmar.innerText = "Apagar tudo permanentemente";
+      btnConfirmar.disabled = campoConfirmacao.value !== FRASE_CONFIRMACAO_ZERAR;
+    }
   });
 }
 
