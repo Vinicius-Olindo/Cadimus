@@ -631,15 +631,36 @@ function configurarModalComprasParceladas() {
   const btnAbrirDoCard = document.getElementById("btn-nova-compra-parcelada");
   const btnFechar = document.getElementById("btn-fechar-modal-parcelada");
   const form = document.getElementById("form-compra-parcelada");
+  const campoValorTotal = document.getElementById("parcelada-valor-total");
+  const campoTotalParcelas = document.getElementById("parcelada-total");
+  const preview = document.getElementById("parcelada-preview");
 
   if (!modal || !btnFechar || !form) return;
 
   btnAbrirTopo?.addEventListener("click", abrirModalComprasParceladas);
   btnAbrirDoCard?.addEventListener("click", abrirModalComprasParceladas);
 
+  function atualizarPreview() {
+    const total = parseFloat(campoValorTotal.value);
+    const parcelas = parseInt(campoTotalParcelas.value, 10);
+
+    if (!Number.isFinite(total) || total <= 0 || !Number.isInteger(parcelas) || parcelas < 2) {
+      preview.style.display = "none";
+      return;
+    }
+
+    const valorParcela = total / parcelas;
+    preview.textContent = `= ${parcelas}x de ${formatadorBRL.format(valorParcela)}`;
+    preview.style.display = "block";
+  }
+
+  campoValorTotal?.addEventListener("input", atualizarPreview);
+  campoTotalParcelas?.addEventListener("input", atualizarPreview);
+
   btnFechar.addEventListener("click", () => {
     modal.style.display = "none";
     form.reset();
+    preview.style.display = "none";
   });
 
   form.addEventListener("submit", async (evento) => {
@@ -658,11 +679,18 @@ function configurarModalComprasParceladas() {
       }
       const [anoInicio, mesInicio] = mesInicioValor.split("-").map(Number);
 
+      const valorTotal = parseFloat(campoValorTotal.value);
+      const totalParcelas = parseInt(campoTotalParcelas.value, 10);
+      // O valor de cada parcela é calculado aqui (total ÷ parcelas); o backend guarda
+      // um valor fixo por parcela, então pode sobrar/faltar poucos centavos no total
+      // exato — é a mesma simplificação que a maioria dos apps de finanças faz.
+      const valorParcela = Math.round((valorTotal / totalParcelas) * 100) / 100;
+
       const corpo = {
         carteira_id: carteiraId,
         descricao: document.getElementById("parcelada-descricao").value.trim(),
-        valor_parcela: parseFloat(document.getElementById("parcelada-valor").value),
-        total_parcelas: parseInt(document.getElementById("parcelada-total").value, 10),
+        valor_parcela: valorParcela,
+        total_parcelas: totalParcelas,
         dia_vencimento: parseInt(document.getElementById("parcelada-dia").value, 10),
         ano_inicio: anoInicio,
         mes_inicio: mesInicio,
@@ -680,6 +708,7 @@ function configurarModalComprasParceladas() {
 
       if (resposta.ok) {
         form.reset();
+        preview.style.display = "none";
         modal.style.display = "none";
         carregarPainelComprasParceladas();
         carregarLancamentos(); // se a parcela já bate no mês visível, aparece na hora

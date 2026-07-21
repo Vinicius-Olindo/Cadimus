@@ -3,6 +3,7 @@
 // ==========================================
 import { obterUsuarioDaSessao } from "../utils/sessao.js";
 import { obterCarteirasDoUsuario } from "../utils/carteiras.js";
+import { gerarTodasParcelasDaCompra } from "../utils/comprasParceladas.js";
 
 export async function processarComprasParceladas(request, env) {
   const metodo = request.method;
@@ -101,6 +102,10 @@ export async function processarComprasParceladas(request, env) {
       )
         .bind(dados.carteira_id, descricao, valorParcela, dados.categoria, dados.meio_pagamento, diaVencimento, totalParcelas, anoInicio, mesInicio, usuarioLogado.id)
         .run();
+
+      // Gera todas as N parcelas de uma vez (inclusive as de meses futuros) — diferente da
+      // despesa fixa, aqui já sabemos exatamente quando tudo termina desde o cadastro
+      await gerarTodasParcelasDaCompra(env, resultado.meta.last_row_id);
 
       return new Response(JSON.stringify({ id: resultado.meta.last_row_id, mensagem: "Compra parcelada cadastrada!" }), { status: 201 });
     } catch (erro) {

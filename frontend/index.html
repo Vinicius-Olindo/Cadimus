@@ -344,14 +344,15 @@
 
           <div class="linha-form-dupla">
             <div class="campo">
-              <label for="parcelada-valor">Valor da parcela</label>
-              <input type="number" id="parcelada-valor" step="0.01" placeholder="0,00" required />
+              <label for="parcelada-valor-total">Valor total da compra</label>
+              <input type="number" id="parcelada-valor-total" step="0.01" placeholder="0,00" required />
             </div>
             <div class="campo">
               <label for="parcelada-total">Total de parcelas</label>
               <input type="number" id="parcelada-total" min="2" max="60" placeholder="Ex: 10" required />
             </div>
           </div>
+          <p class="parcelada-preview" id="parcelada-preview" style="display: none"></p>
 
           <div class="linha-form-dupla">
             <div class="campo">

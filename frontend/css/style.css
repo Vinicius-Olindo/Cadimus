@@ -1093,6 +1093,15 @@ label {
   margin-bottom: 18px;
 }
 
+.parcelada-preview {
+  font-family: var(--fonte-mono);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--cor-marca-forte);
+  margin-top: -6px;
+  text-align: right;
+}
+
 #lista-despesas-fixas {
   margin: 18px 0;
   max-height: 240px;
