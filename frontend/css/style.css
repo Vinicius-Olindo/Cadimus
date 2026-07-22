@@ -1,6 +1,8 @@
 /* ==========================================
    CADIMUS — Estilo
-   Um caderno de contas: papel pautado, régua de margem e carimbo de latão.
+   Mesma paleta papel/tinta de sempre, a serviço de um painel de controle —
+   não mais um caderno. A superfície agora é lisa; o contraste entre canvas
+   e cartão é o que dá estrutura, não linhas de pauta.
    ========================================== */
 
 *,
@@ -25,10 +27,6 @@ body {
   transition:
     background-color 0.25s ease,
     color 0.25s ease;
-  background-image:
-    linear-gradient(var(--cor-pauta) 1px, transparent 1px);
-  background-size: 100% 2.4em;
-  background-attachment: local;
 }
 
 ::selection {
@@ -156,7 +154,7 @@ button {
    ========================================== */
 button {
   padding: 9px 14px;
-  border-radius: var(--raio-sm);
+  border-radius: var(--raio-md);
   border: var(--borda) solid transparent;
   background: var(--cor-texto);
   color: var(--cor-superficie-alta);
@@ -205,6 +203,26 @@ button:active {
 #btn-fechar-modal-parcelada:hover {
   border-color: var(--cor-marca);
   color: var(--cor-marca-forte);
+}
+
+/* Botões só-ícone do topo: quadrados, ícone centralizado */
+#btn-theme-toggle,
+#btn-admin,
+#btn-despesas-fixas,
+#btn-compras-parceladas {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+}
+
+#btn-theme-toggle svg,
+#btn-admin svg,
+#btn-despesas-fixas svg,
+#btn-compras-parceladas svg {
+  display: block;
 }
 
 #btn-salvar-lancamento {
@@ -379,19 +397,19 @@ button:active {
 }
 
 .lancamentos-cabecalho h3 {
-  font-family: var(--fonte-display);
-  font-style: italic;
-  font-weight: 400;
-  font-size: 1.5rem;
+  font-family: var(--fonte-corpo);
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--cor-texto);
 }
 
 #btn-novo-gasto {
   background: var(--cor-marca);
   color: var(--cor-superficie-alta);
   padding: 10px 20px;
-  border-radius: 999px;
+  border-radius: var(--raio-md);
   font-size: 0.82rem;
-  box-shadow: 0 6px 16px -6px var(--cor-sombra);
+  box-shadow: var(--sombra-cartao);
 }
 
 #btn-novo-gasto:hover {
@@ -399,62 +417,68 @@ button:active {
 }
 
 #btn-novo-gasto:active {
-  transform: scale(0.96) rotate(-0.5deg);
+  transform: scale(0.98);
 }
 
 /* ==========================================
-   RESUMO PRINCIPAL (o "painel de controle" propriamente dito)
+   GRADE DE INDICADORES (KPIs) — o painel de controle propriamente dito
    ========================================== */
 .card {
   background: var(--cor-superficie);
   border: var(--borda) solid var(--cor-pauta-forte);
   padding: 20px;
   border-radius: var(--raio-lg);
+  box-shadow: var(--sombra-cartao);
 }
 
-.resumo-principal {
-  display: flex;
-  align-items: center;
-  gap: 26px;
-  flex-wrap: wrap;
-  padding: 26px 28px;
-  background: linear-gradient(135deg, var(--cor-superficie-alta), var(--cor-superficie));
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
 }
 
-.resumo-item {
+.stat-card {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
+  padding: 18px 20px;
+  position: relative;
+  overflow: hidden;
 }
 
-.resumo-rotulo {
+.stat-card-saldo {
+  border-color: color-mix(in srgb, var(--cor-marca) 35%, var(--cor-pauta-forte));
+}
+
+.stat-card-saldo::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--cor-marca);
+}
+
+.stat-rotulo {
   font-size: 0.68rem;
   text-transform: uppercase;
   letter-spacing: 1.2px;
   color: var(--cor-texto-suave);
+  font-weight: 600;
 }
 
-.resumo-valor {
+.stat-valor {
   font-family: var(--fonte-mono);
   font-variant-numeric: tabular-nums;
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   font-weight: 600;
   letter-spacing: -0.3px;
   color: var(--cor-texto);
 }
 
-.resumo-divisor {
-  width: 1px;
-  align-self: stretch;
-  background: var(--cor-pauta-forte);
-}
-
-.resumo-saldo-item {
-  margin-left: auto;
-}
-
 #saldo-total {
-  font-size: 2.2rem;
+  font-size: 1.7rem;
   color: var(--cor-texto);
   transition: color 0.3s ease;
 }
@@ -466,11 +490,14 @@ button:active {
   gap: 10px;
 }
 
+/* Rótulo de seção — mesmo sistema visual dos rótulos de indicador acima,
+   não mais um título em itálico manuscrito */
 .resumo-categorias-titulo {
-  font-family: var(--fonte-display);
-  font-style: italic;
-  font-size: 1.05rem;
-  color: var(--cor-texto);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--cor-texto-suave);
 }
 
 .despesas-fixas-cabecalho {
@@ -553,6 +580,14 @@ button:active {
 .categoria-barra-nome {
   cursor: pointer;
   border-bottom: 1px dotted var(--cor-pauta-forte);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.categoria-barra-nome svg {
+  color: var(--cor-marca);
+  flex-shrink: 0;
 }
 
 .categoria-barra-nome:hover {
@@ -659,7 +694,7 @@ button:active {
 }
 
 /* ==========================================
-   LISTA DE LANÇAMENTOS (folha pautada)
+   LISTA DE LANÇAMENTOS (transações)
    ========================================== */
 .lista-lancamentos {
   display: flex;
@@ -672,35 +707,52 @@ button:active {
   align-items: stretch;
   gap: 14px;
   border-bottom: var(--borda) solid var(--cor-pauta-forte);
-  animation: escrever 0.35s ease backwards;
+  animation: entrar-linha 0.25s ease backwards;
+  transition: background-color 0.12s ease;
 }
 
-.linha-item:nth-child(odd) {
-  background: color-mix(in srgb, var(--cor-pauta-forte) 45%, transparent);
+.linha-item:hover {
+  background: color-mix(in srgb, var(--cor-marca) 5%, transparent);
 }
 
-@keyframes escrever {
+@keyframes entrar-linha {
   from {
     opacity: 0;
-    transform: translateX(-6px);
+    transform: translateY(3px);
   }
   to {
     opacity: 1;
-    transform: translateX(0);
+    transform: translateY(0);
   }
 }
 
-.linha-dia {
+/* Etiqueta de data: dia + mês abreviado, tipografia de dado (mono) */
+.data-chip {
   flex: 0 0 auto;
-  width: 34px;
+  width: 42px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 1px;
+  padding: 10px 0;
+}
+
+.data-chip-dia {
   font-family: var(--fonte-mono);
-  font-size: 0.78rem;
-  color: var(--cor-marca-forte);
-  border-right: 2px solid var(--cor-marca);
-  padding: 12px 0;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--cor-texto);
+  line-height: 1;
+}
+
+.data-chip-mes {
+  font-family: var(--fonte-mono);
+  font-size: 0.6rem;
+  color: var(--cor-texto-suave);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  line-height: 1;
 }
 
 .linha-corpo {
@@ -711,6 +763,7 @@ button:active {
   gap: 10px;
   padding: 12px 14px 12px 0;
   min-width: 0;
+  border-left: var(--borda) solid var(--cor-pauta-forte);
 }
 
 .item-info-principal {
@@ -718,10 +771,7 @@ button:active {
   flex-direction: column;
   gap: 2px;
   min-width: 0;
-}
-
-.item-data {
-  display: none; /* o dia já aparece na régua de margem */
+  padding-left: 4px;
 }
 
 .item-descricao {
@@ -831,23 +881,30 @@ button.item-status:active {
 
 .btn-excluir {
   background: transparent;
-  padding: 4px 6px;
-  font-size: 0.9rem;
-  line-height: 1;
-  opacity: 0.55;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  opacity: 0.5;
 }
 
 .btn-excluir:hover {
   opacity: 1;
   background: color-mix(in srgb, var(--cor-despesa) 12%, transparent);
+  color: var(--cor-despesa);
 }
 
 .btn-editar {
   background: transparent;
-  padding: 4px 6px;
-  font-size: 0.85rem;
-  line-height: 1;
-  opacity: 0.55;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  opacity: 0.5;
 }
 
 .btn-editar:hover {
@@ -944,7 +1001,7 @@ button.item-status:active {
   width: 100%;
   background: var(--cor-marca);
   padding: 12px;
-  border-radius: 999px;
+  border-radius: var(--raio-md);
   margin-top: 6px;
 }
 
@@ -1181,10 +1238,9 @@ label {
 }
 
 .painel-admin .card h3 {
-  font-family: var(--fonte-display);
-  font-style: italic;
-  font-weight: 400;
-  font-size: 1.3rem;
+  font-family: var(--fonte-corpo);
+  font-weight: 700;
+  font-size: 1.05rem;
   margin-bottom: 14px;
   flex-basis: 100%;
 }
@@ -1371,19 +1427,21 @@ label {
     justify-content: flex-end;
   }
 
-  .resumo-principal {
-    gap: 14px;
-    padding: 18px 20px;
+  .stat-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
   }
 
-  .resumo-saldo-item {
-    margin-left: 0;
-    width: 100%;
-    padding-top: 4px;
+  .stat-card {
+    padding: 14px 16px;
   }
 
-  .resumo-divisor {
-    display: none;
+  .stat-valor {
+    font-size: 1.05rem;
+  }
+
+  #saldo-total {
+    font-size: 1.4rem;
   }
 
   .lancamentos-cabecalho {

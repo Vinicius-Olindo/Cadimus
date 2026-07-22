@@ -1,6 +1,8 @@
 /* ==========================================
    CADIMUS — Tokens visuais
-   Direção: caderno de contas — papel pautado, tinta e carimbo de latão.
+   A mesma paleta "papel / tinta" de sempre, agora a serviço de um painel de
+   controle financeiro — não mais um caderno. Cor não muda; a linguagem de
+   layout, tipografia e forma em cima dela, sim (ver style.css).
    Modo padrão = "papel" (claro). Classe .dark-mode = "tinta" (escuro).
    ========================================== */
 
@@ -15,6 +17,10 @@
   --raio-md: 10px;
   --raio-lg: 18px;
   --borda: 1px;
+
+  /* --- Elevação (camadas de sombra, do cartão de painel ao modal) --- */
+  --sombra-cartao: 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 20px -12px var(--cor-sombra);
+  --sombra-flutuante: 0 12px 32px -8px var(--cor-sombra);
 
   /* --- Modo Papel (padrão) --- */
   --cor-fundo: #e7e3d6;

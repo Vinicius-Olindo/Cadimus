@@ -2,6 +2,13 @@
 // components.js - Fábrica de Elementos HTML
 // ==========================================
 
+const MESES_ABREV_COMPONENTES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+
+const ICONE_LAPIS =
+  '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>';
+const ICONE_LIXEIRA =
+  '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>';
+
 /**
  * Cria o HTML de uma linha de lançamento (despesa ou receita)
  * @param {Object} lancamento - Objeto com os dados do gasto/receita
@@ -22,6 +29,7 @@ function criarLinhaLancamento(lancamento) {
   const dataObjeto = new Date(lancamento.data_compra);
   const dataFormatada = dataObjeto.toLocaleDateString("pt-BR", { timeZone: "UTC" });
   const diaDoMes = dataObjeto.toLocaleDateString("pt-BR", { timeZone: "UTC", day: "2-digit" });
+  const mesAbrev = MESES_ABREV_COMPONENTES[dataObjeto.getUTCMonth()];
 
   // Define a classe de cor baseada no tipo (receita ou despesa)
   const classeTipo = lancamento.tipo === "receita" ? "texto-receita" : "texto-despesa";
@@ -41,17 +49,19 @@ function criarLinhaLancamento(lancamento) {
   const usuarioLogado = obterUsuarioLogado();
   const podeGerenciar = lancamento.criado_por === usuarioLogado.id || usuarioLogado.perfil === "superadmin";
   const botoesGerenciar = podeGerenciar
-    ? `<button class="btn-editar" onclick="editarLancamento(${lancamento.id})" title="Editar registro">✎</button>
-       <button class="btn-excluir" onclick="apagarLancamento(${lancamento.id})" title="Apagar registro">✕</button>`
+    ? `<button class="btn-editar" onclick="editarLancamento(${lancamento.id})" title="Editar registro">${ICONE_LAPIS}</button>
+       <button class="btn-excluir" onclick="apagarLancamento(${lancamento.id})" title="Apagar registro">${ICONE_LIXEIRA}</button>`
     : "";
 
-  // Monta a estrutura interna do componente:
-  // régua de margem (dia do mês) + corpo do lançamento, como uma folha pautada
+  // Estrutura da linha: etiqueta de data compacta + corpo do lançamento —
+  // lista de transações, não mais uma página de livro-caixa
   div.innerHTML = `
-        <div class="linha-dia" title="${dataFormatada}">${diaDoMes}</div>
+        <div class="data-chip" title="${dataFormatada}">
+          <span class="data-chip-dia">${diaDoMes}</span>
+          <span class="data-chip-mes">${mesAbrev}</span>
+        </div>
         <div class="linha-corpo">
             <div class="item-info-principal">
-                <span class="item-data">${dataFormatada}</span>
                 <span class="item-descricao">${lancamento.descricao}</span>
                 <span class="item-categoria">${lancamento.categoria}</span>
             </div>
