@@ -4,6 +4,75 @@
 import { hashSenha } from "../utils/crypto.js";
 import { obterUsuarioDaSessao } from "../utils/sessao.js";
 
+// Regra simples de formato (não valida se o e-mail existe de verdade — isso
+// só o envio da confirmação/recuperação por e-mail vai garantir, quando essa
+// parte for implementada).
+const REGEX_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// Tamanho máximo da data URL da foto (base64). Isso equivale a ~220KB de
+// imagem já comprimida — a compressão de verdade acontece no navegador
+// (ver frontend/js/main.js) antes de chegar aqui; este limite é só uma
+// trava de segurança contra uploads gigantes ou manipulados.
+const TAMANHO_MAXIMO_FOTO = 300000;
+
+// Valida e normaliza os campos cadastrais (nome, telefone, e-mail, foto).
+// Usado tanto na criação quanto na edição. `idAtual` é usado para não
+// barrar o próprio e-mail do usuário quando ele edita outra coisa.
+async function validarDadosCadastrais(dados, env, idAtual = null) {
+  const resultado = {};
+
+  if (dados.nome !== undefined) {
+    const nome = String(dados.nome).trim();
+    if (!nome) {
+      return { erro: "Informe o nome completo." };
+    }
+    if (nome.length > 80) {
+      return { erro: "Nome muito longo (máx. 80 caracteres)." };
+    }
+    resultado.nome = nome;
+  }
+
+  if (dados.email !== undefined) {
+    const email = String(dados.email).trim().toLowerCase();
+    if (!email || !REGEX_EMAIL.test(email)) {
+      return { erro: "Informe um e-mail válido." };
+    }
+
+    const condicaoId = idAtual !== null ? "AND id != ?" : "";
+    const binds = idAtual !== null ? [email, idAtual] : [email];
+    const { results: duplicado } = await env.DB.prepare(`SELECT id FROM usuarios WHERE LOWER(email) = LOWER(?) ${condicaoId}`)
+      .bind(...binds)
+      .all();
+    if (duplicado.length > 0) {
+      return { erro: "Já existe um usuário cadastrado com esse e-mail." };
+    }
+    resultado.email = email;
+  }
+
+  if (dados.telefone !== undefined) {
+    const digitos = String(dados.telefone).replace(/\D/g, "");
+    if (digitos && (digitos.length < 10 || digitos.length > 11)) {
+      return { erro: "Telefone inválido (informe DDD + número)." };
+    }
+    resultado.telefone = digitos || null;
+  }
+
+  if (dados.foto_perfil !== undefined) {
+    const foto = dados.foto_perfil;
+    if (foto) {
+      if (typeof foto !== "string" || !foto.startsWith("data:image/")) {
+        return { erro: "Foto de perfil inválida." };
+      }
+      if (foto.length > TAMANHO_MAXIMO_FOTO) {
+        return { erro: "Foto de perfil muito grande. Tente uma imagem menor." };
+      }
+    }
+    resultado.foto_perfil = foto || null;
+  }
+
+  return resultado;
+}
+
 export async function processarUsuarios(request, env) {
   const metodo = request.method;
   const url = new URL(request.url);
@@ -22,7 +91,7 @@ export async function processarUsuarios(request, env) {
   // ==========================================
   if (metodo === "GET") {
     try {
-      const query = `SELECT id, nome_usuario, perfil FROM usuarios ORDER BY id ASC`;
+      const query = `SELECT id, nome_usuario, perfil, nome, telefone, email, foto_perfil FROM usuarios ORDER BY id ASC`;
       const { results } = await env.DB.prepare(query).all();
       return new Response(JSON.stringify(results), { status: 200 });
     } catch (erro) {
@@ -44,17 +113,27 @@ export async function processarUsuarios(request, env) {
       if (dados.senha.length < 6) {
         return new Response(JSON.stringify({ erro: "A senha deve ter ao menos 6 caracteres." }), { status: 400 });
       }
+      if (!dados.nome || !dados.email) {
+        return new Response(JSON.stringify({ erro: "Nome completo e e-mail são obrigatórios." }), { status: 400 });
+      }
 
       const { results: existente } = await env.DB.prepare(`SELECT id FROM usuarios WHERE LOWER(nome_usuario) = LOWER(?)`).bind(dados.usuario).all();
       if (existente.length > 0) {
         return new Response(JSON.stringify({ erro: "Já existe um usuário com esse nome." }), { status: 409 });
       }
 
+      const cadastrais = await validarDadosCadastrais(dados, env);
+      if (cadastrais.erro) {
+        return new Response(JSON.stringify({ erro: cadastrais.erro }), { status: 400 });
+      }
+
       // Nunca mais gravamos a senha em texto puro
       const senhaHash = await hashSenha(dados.senha);
 
-      const query = `INSERT INTO usuarios (nome_usuario, senha_hash, perfil) VALUES (?, ?, ?)`;
-      await env.DB.prepare(query).bind(dados.usuario, senhaHash, perfil).run();
+      const query = `INSERT INTO usuarios (nome_usuario, senha_hash, perfil, nome, telefone, email, foto_perfil) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+      await env.DB.prepare(query)
+        .bind(dados.usuario, senhaHash, perfil, cadastrais.nome, cadastrais.telefone ?? null, cadastrais.email, cadastrais.foto_perfil ?? null)
+        .run();
 
       return new Response(JSON.stringify({ mensagem: "Usuário cadastrado com sucesso!" }), { status: 201 });
     } catch (erro) {
@@ -111,6 +190,27 @@ export async function processarUsuarios(request, env) {
         }
         campos.push("senha_hash = ?");
         valores.push(await hashSenha(dados.senha));
+      }
+
+      const cadastrais = await validarDadosCadastrais(dados, env, Number(id));
+      if (cadastrais.erro) {
+        return new Response(JSON.stringify({ erro: cadastrais.erro }), { status: 400 });
+      }
+      if (cadastrais.nome !== undefined) {
+        campos.push("nome = ?");
+        valores.push(cadastrais.nome);
+      }
+      if (cadastrais.email !== undefined) {
+        campos.push("email = ?");
+        valores.push(cadastrais.email);
+      }
+      if (cadastrais.telefone !== undefined) {
+        campos.push("telefone = ?");
+        valores.push(cadastrais.telefone);
+      }
+      if (cadastrais.foto_perfil !== undefined) {
+        campos.push("foto_perfil = ?");
+        valores.push(cadastrais.foto_perfil);
       }
 
       if (campos.length === 0) {

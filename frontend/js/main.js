@@ -1779,20 +1779,88 @@ function configurarZonaDePerigo() {
   });
 }
 
+// --- FOTO DE PERFIL: redimensiona e comprime no navegador antes de enviar ---
+// Evita mandar fotos de celular (que podem vir com vários MB) pro backend;
+// aqui já sai como base64 pequeno, do tamanho certo pra um avatar.
+function comprimirImagemParaBase64(arquivo, ladoMaximo = 256, qualidade = 0.8) {
+  return new Promise((resolve, reject) => {
+    const leitor = new FileReader();
+    leitor.onerror = () => reject(new Error("Não foi possível ler o arquivo."));
+    leitor.onload = () => {
+      const imagem = new Image();
+      imagem.onerror = () => reject(new Error("Arquivo não é uma imagem válida."));
+      imagem.onload = () => {
+        const escala = Math.min(1, ladoMaximo / Math.max(imagem.width, imagem.height));
+        const largura = Math.round(imagem.width * escala);
+        const altura = Math.round(imagem.height * escala);
+
+        const canvas = document.createElement("canvas");
+        canvas.width = largura;
+        canvas.height = altura;
+        canvas.getContext("2d").drawImage(imagem, 0, 0, largura, altura);
+
+        resolve(canvas.toDataURL("image/jpeg", qualidade));
+      };
+      imagem.src = leitor.result;
+    };
+    leitor.readAsDataURL(arquivo);
+  });
+}
+
+function definirPreviewFoto(dataUrl) {
+  const preview = document.getElementById("preview-foto-perfil");
+  const vazio = document.getElementById("avatar-vazio");
+  const btnRemover = document.getElementById("btn-remover-foto");
+  document.getElementById("nova-foto-perfil").value = dataUrl || "";
+
+  if (dataUrl) {
+    preview.src = dataUrl;
+    preview.style.display = "block";
+    vazio.style.display = "none";
+    btnRemover.style.display = "inline-block";
+  } else {
+    preview.src = "";
+    preview.style.display = "none";
+    vazio.style.display = "flex";
+    btnRemover.style.display = "none";
+  }
+}
+
 // --- FORMULÁRIO DE USUÁRIO (criar E editar no mesmo formulário) ---
 function configurarFormularioUsuario() {
   const form = document.getElementById("form-novo-usuario");
   const btnCancelar = document.getElementById("btn-cancelar-edicao");
+  const inputFoto = document.getElementById("input-foto-perfil");
+  const btnRemoverFoto = document.getElementById("btn-remover-foto");
 
   if (!form) return;
 
   btnCancelar?.addEventListener("click", () => sairModoEdicaoUsuario());
 
+  inputFoto?.addEventListener("change", async () => {
+    const arquivo = inputFoto.files[0];
+    if (!arquivo) return;
+    try {
+      const dataUrl = await comprimirImagemParaBase64(arquivo);
+      definirPreviewFoto(dataUrl);
+    } catch (erro) {
+      await mostrarAviso("Não foi possível usar essa imagem. Tente outra foto.");
+    } finally {
+      inputFoto.value = "";
+    }
+  });
+
+  btnRemoverFoto?.addEventListener("click", () => definirPreviewFoto(null));
+
   form.addEventListener("submit", async (evento) => {
     evento.preventDefault();
 
     const idEdicao = document.getElementById("usuario-editando-id").value;
+    const nome = document.getElementById("novo-nome").value.trim();
     const usuario = document.getElementById("novo-usuario").value.trim();
+    const email = document.getElementById("novo-email").value.trim();
+    const telefone = document.getElementById("novo-telefone").value.trim();
+    const fotoPerfil = document.getElementById("nova-foto-perfil").value;
     const senha = document.getElementById("nova-senha").value;
     const perfil = document.getElementById("novo-perfil").value;
     const btnSalvar = document.getElementById("btn-salvar-usuario");
@@ -1807,10 +1875,10 @@ function configurarFormularioUsuario() {
 
     try {
       let resposta;
+      const corpo = { nome, usuario, email, telefone, perfil, foto_perfil: fotoPerfil };
+      if (senha) corpo.senha = senha;
 
       if (idEdicao) {
-        const corpo = { usuario, perfil };
-        if (senha) corpo.senha = senha;
         resposta = await fetch(`${API_URL}/api/usuarios?id=${idEdicao}`, {
           method: "PUT",
           headers: headersAutenticados(),
@@ -1820,7 +1888,7 @@ function configurarFormularioUsuario() {
         resposta = await fetch(`${API_URL}/api/usuarios`, {
           method: "POST",
           headers: headersAutenticados(),
-          body: JSON.stringify({ usuario, senha, perfil }),
+          body: JSON.stringify(corpo),
         });
       }
 
@@ -1844,9 +1912,13 @@ function configurarFormularioUsuario() {
 
 function entrarModoEdicaoUsuario(usuario) {
   document.getElementById("usuario-editando-id").value = usuario.id;
+  document.getElementById("novo-nome").value = usuario.nome || "";
   document.getElementById("novo-usuario").value = usuario.nome_usuario;
+  document.getElementById("novo-email").value = usuario.email || "";
+  document.getElementById("novo-telefone").value = usuario.telefone || "";
   document.getElementById("nova-senha").value = "";
   document.getElementById("novo-perfil").value = usuario.perfil;
+  definirPreviewFoto(usuario.foto_perfil || null);
   document.getElementById("dica-senha").style.display = "inline-block";
   document.getElementById("titulo-form-usuario").innerText = `Editando "${usuario.nome_usuario}"`;
   document.getElementById("btn-salvar-usuario").innerText = "Salvar edição";
@@ -1858,11 +1930,13 @@ function sairModoEdicaoUsuario() {
   const form = document.getElementById("form-novo-usuario");
   form.reset();
   document.getElementById("usuario-editando-id").value = "";
+  definirPreviewFoto(null);
   document.getElementById("dica-senha").style.display = "none";
   document.getElementById("titulo-form-usuario").innerText = "Novo usuário";
   document.getElementById("btn-salvar-usuario").innerText = "Criar";
   document.getElementById("btn-cancelar-edicao").style.display = "none";
 }
+
 
 async function carregarUsuarios() {
   const container = document.getElementById("lista-usuarios");
@@ -1884,10 +1958,17 @@ async function carregarUsuarios() {
 
       const div = document.createElement("div");
       div.className = "linha-item linha-usuario";
+      const avatarHtml = user.foto_perfil
+        ? `<img class="avatar-lista" src="${user.foto_perfil}" alt="" />`
+        : `<div class="avatar-lista avatar-vazio">${(user.nome || user.nome_usuario).charAt(0).toUpperCase()}</div>`;
       div.innerHTML = `
+        ${avatarHtml}
         <div class="item-info-principal linha-usuario-info">
-          <span class="item-descricao">${user.nome_usuario}${ehVoceMesmo ? " (você)" : ""}</span>
-          <span class="item-status status-pago">${user.perfil.toUpperCase()}</span>
+          <div class="linha-usuario-nome-linha">
+            <span class="item-descricao">${user.nome || user.nome_usuario}${ehVoceMesmo ? " (você)" : ""}</span>
+            <span class="item-status status-pago">${user.perfil.toUpperCase()}</span>
+          </div>
+          <span class="linha-usuario-detalhe">@${user.nome_usuario}${user.email ? ` · ${user.email}` : ""}</span>
         </div>
         <div class="item-valores">
           <button type="button" class="btn-editar-usuario" data-id="${user.id}">Editar</button>

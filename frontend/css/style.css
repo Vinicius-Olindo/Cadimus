@@ -1223,11 +1223,16 @@ label {
 }
 
 #lista-usuarios .item-info-principal {
-  flex-direction: row !important;
-  justify-content: space-between;
-  align-items: center;
   width: 100%;
-  padding: 10px 0;
+  padding: 6px 0;
+}
+
+.linha-usuario-nome-linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
 }
 
 /* Sub-navegação Usuários / Categorias */
@@ -1322,14 +1327,17 @@ label {
   min-width: 140px;
 }
 
-/* Só nas listas do admin (nome + selo de perfil cabem numa linha só).
-   Despesas fixas e compras parceladas usam o empilhamento vertical padrão —
-   têm um texto secundário mais longo ("Todo dia 7 · R$ 967,00") que precisa de espaço. */
-#lista-usuarios .linha-usuario-info,
+/* Categorias: nome + selo cabem numa linha só. Usuários agora tem uma
+   segunda linha de detalhe (@login · e-mail), então usa empilhamento. */
 #lista-categorias .linha-usuario-info {
   flex-direction: row !important;
   justify-content: flex-start !important;
   align-items: center;
+}
+
+#lista-usuarios .linha-usuario-info {
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .linha-usuario-info {
@@ -1346,6 +1354,87 @@ label {
   gap: 6px;
   flex-wrap: wrap;
   justify-content: flex-end;
+}
+
+.linha-usuario-detalhe {
+  font-size: 0.74rem;
+  color: var(--cor-texto-suave);
+}
+
+/* Avatar na listagem de usuários */
+.avatar-lista {
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  align-self: center;
+}
+
+.avatar-lista.avatar-vazio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--cor-marca);
+  color: var(--cor-superficie-alta);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+/* Campo de upload de foto no formulário de usuário */
+.campo-foto-perfil {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-basis: 100%;
+  margin-bottom: 4px;
+}
+
+.avatar-preview {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex: 0 0 auto;
+}
+
+.avatar-preview.avatar-vazio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--cor-pauta-forte);
+  color: var(--cor-texto-suave);
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.campo-foto-acoes {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.botao-arquivo {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: var(--borda) solid var(--cor-pauta-forte);
+  background: var(--cor-superficie);
+  cursor: pointer;
+}
+
+.botao-arquivo:hover {
+  border-color: var(--cor-marca);
+}
+
+#btn-remover-foto {
+  background: transparent;
+  color: var(--cor-despesa);
+  border: none;
+  font-size: 0.78rem;
+  padding: 0;
 }
 
 .btn-editar-usuario {
