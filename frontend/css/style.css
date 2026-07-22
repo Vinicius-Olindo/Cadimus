@@ -1009,6 +1009,28 @@ button.item-status:active {
   background: var(--cor-marca-forte);
 }
 
+.login-links {
+  margin-top: 18px;
+  font-size: 0.8rem;
+  color: var(--cor-texto-suave);
+}
+
+.login-link {
+  color: var(--cor-texto-suave);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.login-link:hover {
+  color: var(--cor-marca);
+  text-decoration: underline;
+}
+
+.login-links-separador {
+  margin: 0 8px;
+  opacity: 0.5;
+}
+
 /* ==========================================
    CAMPOS DE FORMULÁRIO
    ========================================== */
