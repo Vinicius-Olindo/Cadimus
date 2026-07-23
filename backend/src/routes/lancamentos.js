@@ -44,7 +44,7 @@ export async function processarLancamentos(request, env) {
       }
 
       let query = `
-        SELECT l.*, u.nome_usuario AS criado_por_nome
+        SELECT l.*, COALESCE(u.nome, u.nome_usuario) AS criado_por_nome, u.foto_perfil AS criado_por_foto
         FROM lancamentos l
         JOIN usuarios u ON u.id = l.criado_por
         WHERE 1=1
