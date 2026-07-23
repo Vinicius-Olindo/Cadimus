@@ -51,9 +51,19 @@
           <h1>Nova senha</h1>
           <span class="subtitulo">Escolha uma nova senha para sua conta</span>
           <form id="form-redefinir-senha">
-            <input type="password" id="redefinir-nova-senha" placeholder="Nova senha" autocomplete="new-password" required />
-            <input type="password" id="redefinir-confirmar-senha" placeholder="Confirmar nova senha" autocomplete="new-password" required />
-            <button type="submit">Salvar nova senha</button>
+            <div class="campo-senha-toggle">
+              <input type="password" id="redefinir-nova-senha" placeholder="Nova senha" autocomplete="new-password" minlength="6" required />
+              <button type="button" class="btn-toggle-senha" data-alvo="redefinir-nova-senha" aria-label="Mostrar senha">👁</button>
+            </div>
+            <span class="dica-campo">Mínimo de 6 caracteres</span>
+
+            <div class="campo-senha-toggle">
+              <input type="password" id="redefinir-confirmar-senha" placeholder="Confirmar nova senha" autocomplete="new-password" minlength="6" required />
+              <button type="button" class="btn-toggle-senha" data-alvo="redefinir-confirmar-senha" aria-label="Mostrar senha">👁</button>
+            </div>
+            <span class="dica-campo dica-erro" id="aviso-senhas-diferentes" style="display: none">As senhas não coincidem.</span>
+
+            <button type="submit" id="btn-salvar-nova-senha">Salvar nova senha</button>
             <div class="login-links">
               <a href="javascript:void(0)" id="link-voltar-login" class="login-link">Voltar para o login</a>
             </div>

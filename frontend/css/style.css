@@ -1058,6 +1058,40 @@ button.item-status:active {
   opacity: 0.5;
 }
 
+.campo-senha-toggle {
+  position: relative;
+}
+
+.campo-senha-toggle input {
+  padding-right: 40px;
+  width: 100%;
+}
+
+.btn-toggle-senha {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  padding: 4px 8px;
+  font-size: 1rem;
+  line-height: 1;
+  color: var(--cor-texto-suave);
+  cursor: pointer;
+}
+
+.btn-toggle-senha:hover {
+  color: var(--cor-marca);
+}
+
+.dica-erro {
+  color: var(--cor-despesa);
+  display: block;
+  margin-top: -8px;
+  margin-bottom: 12px;
+}
+
 /* ==========================================
    CAMPOS DE FORMULÁRIO
    ========================================== */

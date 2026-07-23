@@ -153,14 +153,42 @@ document.addEventListener("DOMContentLoaded", () => {
     window.history.replaceState({}, "", window.location.pathname);
   });
 
+  // Mostrar/ocultar senha (funciona em qualquer campo de senha da página,
+  // não só na tela de redefinir — basta ter o botão .btn-toggle-senha do lado)
+  document.querySelectorAll(".btn-toggle-senha").forEach((botao) => {
+    botao.addEventListener("click", () => {
+      const alvo = document.getElementById(botao.dataset.alvo);
+      if (!alvo) return;
+      const mostrando = alvo.type === "text";
+      alvo.type = mostrando ? "password" : "text";
+      botao.setAttribute("aria-label", mostrando ? "Mostrar senha" : "Ocultar senha");
+      botao.textContent = mostrando ? "👁" : "🙈";
+    });
+  });
+
+  // Avisa em tempo real se "nova senha" e "confirmar senha" não coincidem,
+  // em vez de só descobrir isso depois de tentar salvar
+  const campoNovaSenha = document.getElementById("redefinir-nova-senha");
+  const campoConfirmarSenha = document.getElementById("redefinir-confirmar-senha");
+  const avisoSenhasDiferentes = document.getElementById("aviso-senhas-diferentes");
+
+  function verificarSenhasCoincidem() {
+    if (!campoNovaSenha || !campoConfirmarSenha || !avisoSenhasDiferentes) return true;
+    const diferentes = campoConfirmarSenha.value.length > 0 && campoNovaSenha.value !== campoConfirmarSenha.value;
+    avisoSenhasDiferentes.style.display = diferentes ? "block" : "none";
+    return !diferentes;
+  }
+
+  campoNovaSenha?.addEventListener("input", verificarSenhasCoincidem);
+  campoConfirmarSenha?.addEventListener("input", verificarSenhasCoincidem);
+
   document.getElementById("form-redefinir-senha")?.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const novaSenha = document.getElementById("redefinir-nova-senha").value;
-    const confirmar = document.getElementById("redefinir-confirmar-senha").value;
-    const btnSalvar = e.target.querySelector("button[type=submit]");
+    const novaSenha = campoNovaSenha.value;
+    const confirmar = campoConfirmarSenha.value;
+    const btnSalvar = document.getElementById("btn-salvar-nova-senha");
 
-    if (novaSenha !== confirmar) {
-      await mostrarAviso("As senhas não coincidem.");
+    if (!verificarSenhasCoincidem()) {
       return;
     }
 
