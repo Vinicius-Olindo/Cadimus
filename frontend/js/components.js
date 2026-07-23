@@ -44,6 +44,11 @@ function criarLinhaLancamento(lancamento) {
   const inicialAutor = nomeAutor.charAt(0).toUpperCase();
   const corAutor = corDoAutor(nomeAutor);
 
+  // Se o autor tiver foto de perfil, mostra a foto no lugar da inicial
+  const carimboAutorHtml = lancamento.criado_por_foto
+    ? `<span class="carimbo-autor tem-foto" style="background-image: url('${lancamento.criado_por_foto}')" title="Lançado por ${nomeAutor}"></span>`
+    : `<span class="carimbo-autor" style="--cor-autor: ${corAutor}" title="Lançado por ${nomeAutor}">${inicialAutor}</span>`;
+
   // Só quem criou o lançamento (ou um admin) pode editar/excluir — o backend também garante isso,
   // aqui é só pra não mostrar botões que vão falhar ao clicar
   const usuarioLogado = obterUsuarioLogado();
@@ -66,7 +71,7 @@ function criarLinhaLancamento(lancamento) {
                 <span class="item-categoria">${lancamento.categoria}</span>
             </div>
             <div class="item-valores">
-                <span class="carimbo-autor" style="--cor-autor: ${corAutor}" title="Lançado por ${nomeAutor}">${inicialAutor}</span>
+                ${carimboAutorHtml}
                 <span class="item-meio-pagamento">${lancamento.meio_pagamento}</span>
                 <button type="button" class="item-status ${classeStatus}" onclick="alternarStatusLancamento(${lancamento.id}, '${lancamento.status}')" title="Clique para marcar como ${lancamento.status === "pago" ? "pendente" : "pago"}">${textoStatus}</button>
                 <span class="item-valor ${classeTipo}">${sinal} ${valorFormatado}</span>

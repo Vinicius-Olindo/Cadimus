@@ -898,6 +898,13 @@ button.item-status:active {
   cursor: default;
 }
 
+.carimbo-autor.tem-foto {
+  background-color: transparent;
+  background-size: cover;
+  background-position: center;
+  border: 1px solid var(--cor-pauta-forte);
+}
+
 .status-pago {
   background: color-mix(in srgb, var(--cor-receita) 18%, transparent);
   color: var(--cor-receita);
