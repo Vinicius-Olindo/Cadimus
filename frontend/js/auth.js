@@ -93,6 +93,106 @@ document.addEventListener("DOMContentLoaded", () => {
     alternarTelas(false);
   });
 
+  // ==========================================
+  // ESQUECI MINHA SENHA
+  // ==========================================
+  const modalEsqueciSenha = document.getElementById("modal-esqueci-senha");
+  const formEsqueciSenha = document.getElementById("form-esqueci-senha");
+
+  document.getElementById("link-esqueci-senha")?.addEventListener("click", () => {
+    if (modalEsqueciSenha) modalEsqueciSenha.style.display = "flex";
+  });
+
+  document.getElementById("btn-fechar-modal-esqueci-senha")?.addEventListener("click", () => {
+    if (modalEsqueciSenha) modalEsqueciSenha.style.display = "none";
+    formEsqueciSenha?.reset();
+  });
+
+  formEsqueciSenha?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = document.getElementById("esqueci-email").value.trim();
+    const btnEnviar = document.getElementById("btn-enviar-recuperacao");
+
+    btnEnviar.disabled = true;
+    btnEnviar.innerText = "Enviando...";
+
+    try {
+      const res = await fetch(`${API_URL}/api/auth/esqueci-senha`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const d = await res.json();
+
+      if (modalEsqueciSenha) modalEsqueciSenha.style.display = "none";
+      formEsqueciSenha.reset();
+      await mostrarAviso(res.ok ? d.mensagem : d.erro);
+    } catch (erro) {
+      await mostrarAviso("Falha na comunicação com o servidor.");
+    } finally {
+      btnEnviar.disabled = false;
+      btnEnviar.innerText = "Enviar link de recuperação";
+    }
+  });
+
+  // ==========================================
+  // REDEFINIR SENHA (link do e-mail: ?token=...)
+  // ==========================================
+  const tokenRecuperacao = new URLSearchParams(window.location.search).get("token");
+  const sRedefinir = document.getElementById("redefinir-senha-section");
+  const sLoginInicial = document.getElementById("login-section");
+
+  if (tokenRecuperacao && sRedefinir && sLoginInicial) {
+    sLoginInicial.style.display = "none";
+    sRedefinir.style.display = "flex";
+  }
+
+  document.getElementById("link-voltar-login")?.addEventListener("click", () => {
+    if (sRedefinir) sRedefinir.style.display = "none";
+    if (sLoginInicial) sLoginInicial.style.display = "flex";
+    window.history.replaceState({}, "", window.location.pathname);
+  });
+
+  document.getElementById("form-redefinir-senha")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const novaSenha = document.getElementById("redefinir-nova-senha").value;
+    const confirmar = document.getElementById("redefinir-confirmar-senha").value;
+    const btnSalvar = e.target.querySelector("button[type=submit]");
+
+    if (novaSenha !== confirmar) {
+      await mostrarAviso("As senhas não coincidem.");
+      return;
+    }
+
+    btnSalvar.disabled = true;
+    btnSalvar.innerText = "Salvando...";
+
+    try {
+      const res = await fetch(`${API_URL}/api/auth/redefinir-senha`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: tokenRecuperacao, novaSenha }),
+      });
+      const d = await res.json();
+
+      await mostrarAviso(res.ok ? d.mensagem : d.erro);
+
+      if (res.ok) {
+        window.history.replaceState({}, "", window.location.pathname);
+        if (sRedefinir) sRedefinir.style.display = "none";
+        if (sLoginInicial) sLoginInicial.style.display = "flex";
+      }
+    } catch (erro) {
+      await mostrarAviso("Falha na comunicação com o servidor.");
+    } finally {
+      btnSalvar.disabled = false;
+      btnSalvar.innerText = "Salvar nova senha";
+    }
+  });
+
   // Sempre começa deslogado: a sessão não sobrevive a reload nem a fechar a aba
-  alternarTelas(false);
+  // (a não ser que a gente esteja mostrando a tela de redefinir senha)
+  if (!tokenRecuperacao) {
+    alternarTelas(false);
+  }
 });

@@ -103,6 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
   configurarBuscaLancamentos();
   configurarModal();
   configurarModalCarteira();
+  configurarModalGerenciarMembros();
   configurarModalDespesasFixas();
   configurarModalComprasParceladas();
   configurarModalMeta();
@@ -268,6 +269,9 @@ function renderizarTabsCarteira() {
   container.innerHTML = "";
 
   carteirasDoUsuario.forEach((carteira) => {
+    const wrapper = document.createElement("div");
+    wrapper.className = "tab-carteira-wrapper";
+
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "tab-carteira";
@@ -278,7 +282,23 @@ function renderizarTabsCarteira() {
       btn.classList.add("ativo");
     }
     btn.addEventListener("click", () => selecionarCarteira(carteira.id));
-    container.appendChild(btn);
+    wrapper.appendChild(btn);
+
+    // Só quem é admin de uma carteira compartilhada pode gerenciar quem tem acesso
+    if (carteira.tipo === "compartilhada" && carteira.papel === "admin") {
+      const btnGerenciar = document.createElement("button");
+      btnGerenciar.type = "button";
+      btnGerenciar.className = "btn-gerenciar-membros";
+      btnGerenciar.textContent = "⚙";
+      btnGerenciar.title = `Gerenciar membros de "${carteira.nome}"`;
+      btnGerenciar.addEventListener("click", (evento) => {
+        evento.stopPropagation();
+        abrirModalGerenciarMembros(carteira);
+      });
+      wrapper.appendChild(btnGerenciar);
+    }
+
+    container.appendChild(wrapper);
   });
 
   const btnAdd = document.createElement("button");
@@ -316,12 +336,54 @@ function configurarModalCarteira() {
   const modal = document.getElementById("modal-carteira");
   const btnFechar = document.getElementById("btn-fechar-modal-carteira");
   const form = document.getElementById("form-carteira");
+  const selectTipo = document.getElementById("tipo-carteira");
+  const campoMembros = document.getElementById("campo-membros-carteira");
+  const listaMembros = document.getElementById("lista-membros-carteira");
 
   if (!modal || !btnFechar || !form) return;
+
+  async function atualizarListaMembros() {
+    if (selectTipo.value !== "compartilhada") {
+      campoMembros.style.display = "none";
+      return;
+    }
+
+    campoMembros.style.display = "block";
+    listaMembros.innerHTML = `<span class="dica-campo">Carregando...</span>`;
+
+    try {
+      const resposta = await fetch(`${API_URL}/api/carteiras?colegas=1`, { headers: headersAutenticados() });
+      if (tratarSessaoExpirada(resposta)) return;
+      const colegas = await resposta.json();
+
+      if (colegas.length === 0) {
+        listaMembros.innerHTML = `<span class="dica-campo">Não há outros usuários cadastrados ainda.</span>`;
+        return;
+      }
+
+      // Vem pré-marcado pra manter a conveniência de quem sempre compartilhou
+      // com todo mundo — mas agora dá pra desmarcar quem não deve ter acesso.
+      listaMembros.innerHTML = colegas
+        .map(
+          (colega) => `
+        <label class="opcao-membro">
+          <input type="checkbox" class="checkbox-membro-carteira" value="${colega.id}" checked />
+          ${colega.nome || colega.nome_usuario}
+        </label>
+      `,
+        )
+        .join("");
+    } catch (erro) {
+      listaMembros.innerHTML = `<span class="dica-campo">Não foi possível carregar a lista de usuários.</span>`;
+    }
+  }
+
+  selectTipo?.addEventListener("change", atualizarListaMembros);
 
   btnFechar.addEventListener("click", () => {
     modal.style.display = "none";
     form.reset();
+    campoMembros.style.display = "none";
   });
 
   form.addEventListener("submit", async (evento) => {
@@ -334,11 +396,16 @@ function configurarModalCarteira() {
     try {
       const nome = document.getElementById("nome-carteira").value.trim();
       const tipo = document.getElementById("tipo-carteira").value;
+      const corpo = { nome, tipo };
+
+      if (tipo === "compartilhada") {
+        corpo.membros = Array.from(document.querySelectorAll(".checkbox-membro-carteira:checked")).map((chk) => Number(chk.value));
+      }
 
       const resposta = await fetch(`${API_URL}/api/carteiras`, {
         method: "POST",
         headers: headersAutenticados(),
-        body: JSON.stringify({ nome, tipo }),
+        body: JSON.stringify(corpo),
       });
 
       if (tratarSessaoExpirada(resposta)) return;
@@ -347,6 +414,7 @@ function configurarModalCarteira() {
         const novaCarteira = await resposta.json();
         modal.style.display = "none";
         form.reset();
+        campoMembros.style.display = "none";
         await carregarCarteiras();
         selecionarCarteira(novaCarteira.id);
       } else {
@@ -363,9 +431,103 @@ function configurarModalCarteira() {
   });
 }
 
-// ==========================================
-// DESPESAS FIXAS (recorrentes — ex: aluguel)
-// ==========================================
+// --- MODAL: GERENCIAR MEMBROS DE UMA CARTEIRA COMPARTILHADA ---
+async function abrirModalGerenciarMembros(carteira) {
+  const modal = document.getElementById("modal-gerenciar-membros");
+  const lista = document.getElementById("lista-gerenciar-membros");
+  if (!modal || !lista) return;
+
+  document.getElementById("titulo-gerenciar-membros").innerText = `Membros de "${carteira.nome}"`;
+  document.getElementById("gerenciar-membros-carteira-id").value = carteira.id;
+  lista.innerHTML = `<span class="dica-campo">Carregando...</span>`;
+  modal.style.display = "flex";
+
+  try {
+    const [respostaMembros, respostaColegas] = await Promise.all([
+      fetch(`${API_URL}/api/carteiras?membros=${carteira.id}`, { headers: headersAutenticados(false) }),
+      fetch(`${API_URL}/api/carteiras?colegas=1`, { headers: headersAutenticados(false) }),
+    ]);
+
+    if (tratarSessaoExpirada(respostaMembros) || tratarSessaoExpirada(respostaColegas)) return;
+
+    const dadosMembros = await respostaMembros.json();
+    const colegas = await respostaColegas.json();
+
+    if (!respostaMembros.ok) {
+      lista.innerHTML = `<span class="dica-campo">${dadosMembros.erro || "Erro ao carregar membros."}</span>`;
+      return;
+    }
+
+    const idsAtuais = new Set(dadosMembros.membros.map((m) => m.id));
+    const idsAdmins = new Set(dadosMembros.membros.filter((m) => m.papel === "admin").map((m) => m.id));
+
+    if (colegas.length === 0) {
+      lista.innerHTML = `<span class="dica-campo">Não há outros usuários cadastrados ainda.</span>`;
+      return;
+    }
+
+    lista.innerHTML = colegas
+      .map((colega) => {
+        const jaAdmin = idsAdmins.has(colega.id);
+        const marcado = idsAtuais.has(colega.id);
+        return `
+          <label class="opcao-membro ${jaAdmin ? "opcao-membro-desabilitada" : ""}">
+            <input type="checkbox" class="checkbox-gerenciar-membro" value="${colega.id}" ${marcado ? "checked" : ""} ${jaAdmin ? "disabled" : ""} />
+            ${colega.nome || colega.nome_usuario}${jaAdmin ? " (admin)" : ""}
+          </label>
+        `;
+      })
+      .join("");
+  } catch (erro) {
+    lista.innerHTML = `<span class="dica-campo">Falha na comunicação com o servidor.</span>`;
+  }
+}
+
+function configurarModalGerenciarMembros() {
+  const modal = document.getElementById("modal-gerenciar-membros");
+  const btnFechar = document.getElementById("btn-fechar-modal-membros");
+  const btnSalvar = document.getElementById("btn-salvar-membros");
+
+  if (!modal || !btnFechar || !btnSalvar) return;
+
+  btnFechar.addEventListener("click", () => {
+    modal.style.display = "none";
+  });
+
+  btnSalvar.addEventListener("click", async () => {
+    const carteiraId = document.getElementById("gerenciar-membros-carteira-id").value;
+    if (!carteiraId) return;
+
+    const membros = Array.from(document.querySelectorAll(".checkbox-gerenciar-membro:checked:not(:disabled)")).map((chk) => Number(chk.value));
+
+    btnSalvar.disabled = true;
+    btnSalvar.innerText = "Salvando...";
+
+    try {
+      const resposta = await fetch(`${API_URL}/api/carteiras?id=${carteiraId}`, {
+        method: "PUT",
+        headers: headersAutenticados(),
+        body: JSON.stringify({ membros }),
+      });
+
+      if (tratarSessaoExpirada(resposta)) return;
+
+      if (resposta.ok) {
+        modal.style.display = "none";
+      } else {
+        const erro = await resposta.json();
+        await mostrarAviso(`Erro: ${erro.erro}`);
+      }
+    } catch (erro) {
+      await mostrarAviso("Falha na comunicação com o servidor.");
+    } finally {
+      btnSalvar.disabled = false;
+      btnSalvar.innerText = "Salvar";
+    }
+  });
+}
+
+
 let despesasFixasCarregadas = [];
 
 function fecharModalDespesaFixa() {

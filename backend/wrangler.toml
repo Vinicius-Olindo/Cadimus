@@ -15,3 +15,24 @@ binding = "DB" # É com essa sigla que o seu JavaScript vai chamar o banco de da
 database_name = "cadimus-db"
 database_id = "410fe09f-6bdb-43b6-9dc9-f542d85537ca"
 migrations_dir = "../database/migrations"
+
+# ==========================================
+# RECUPERAÇÃO DE SENHA POR E-MAIL (via Resend)
+# ==========================================
+# Variáveis normais (não são segredo, então ficam aqui no arquivo):
+[vars]
+# URL onde o frontend do Cadimus está publicado — usada pra montar o link
+# que vai dentro do e-mail de recuperação de senha. TROQUE pelo endereço real.
+FRONTEND_URL = "https://cadimus.pages.dev/"
+# Remetente do e-mail. Pra usar seu próprio domínio, verifique-o antes em
+# https://resend.com/domains — enquanto isso, "onboarding@resend.dev" funciona
+# só pra testes e só envia pro e-mail da própria conta Resend.
+EMAIL_REMETENTE = "Cadimus <onboarding@resend.dev>"
+
+# A chave de API é segredo — NÃO coloque aqui no arquivo. Depois de criar
+# uma conta grátis em https://resend.com, rode no terminal (dentro da pasta
+# backend/):
+#   wrangler secret put RESEND_API_KEY
+# e cole a chave quando pedir. Em desenvolvimento local, em vez disso, crie
+# um arquivo backend/.dev.vars (não vai pro Git) com a linha:
+#   RESEND_API_KEY=re_sua_chave_aqui

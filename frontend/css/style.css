@@ -185,7 +185,9 @@ button:active {
 #btn-fechar-modal,
 #btn-fechar-modal-carteira,
 #btn-fechar-modal-fixas,
-#btn-fechar-modal-parcelada {
+#btn-fechar-modal-parcelada,
+#btn-fechar-modal-membros,
+#btn-fechar-modal-esqueci-senha {
   background: transparent;
   color: var(--cor-texto-suave);
   border-color: var(--cor-pauta-forte);
@@ -200,7 +202,9 @@ button:active {
 #btn-fechar-modal:hover,
 #btn-fechar-modal-carteira:hover,
 #btn-fechar-modal-fixas:hover,
-#btn-fechar-modal-parcelada:hover {
+#btn-fechar-modal-parcelada:hover,
+#btn-fechar-modal-membros:hover,
+#btn-fechar-modal-esqueci-senha:hover {
   border-color: var(--cor-marca);
   color: var(--cor-marca-forte);
 }
@@ -291,6 +295,29 @@ button:active {
 .tab-carteira-add:hover {
   color: var(--cor-marca-forte);
   background: color-mix(in srgb, var(--cor-marca) 12%, transparent);
+}
+
+.tab-carteira-wrapper {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.btn-gerenciar-membros {
+  background: transparent;
+  border: none;
+  color: var(--cor-texto-suave);
+  font-size: 0.7rem;
+  padding: 6px 6px 6px 0;
+  flex-shrink: 0;
+}
+
+.btn-gerenciar-membros:hover {
+  color: var(--cor-marca);
+}
+
+.opcao-membro-desabilitada {
+  opacity: 0.6;
 }
 
 /* ==========================================
@@ -1067,6 +1094,29 @@ label {
 
 .campo {
   margin-bottom: 12px;
+}
+
+.lista-membros-carteira {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 160px;
+  overflow-y: auto;
+  padding: 10px 12px;
+  border: var(--borda) solid var(--cor-pauta-forte);
+  border-radius: var(--raio-md);
+}
+
+.opcao-membro {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.86rem;
+  cursor: pointer;
+}
+
+.opcao-membro input {
+  width: auto;
 }
 
 /* ==========================================

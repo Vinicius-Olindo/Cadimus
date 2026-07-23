@@ -45,6 +45,22 @@
         </div>
       </section>
 
+      <!-- SEÇÃO REDEFINIR SENHA (aberta a partir do link do e-mail) -->
+      <section id="redefinir-senha-section" style="display: none">
+        <div class="login-box">
+          <h1>Nova senha</h1>
+          <span class="subtitulo">Escolha uma nova senha para sua conta</span>
+          <form id="form-redefinir-senha">
+            <input type="password" id="redefinir-nova-senha" placeholder="Nova senha" autocomplete="new-password" required />
+            <input type="password" id="redefinir-confirmar-senha" placeholder="Confirmar nova senha" autocomplete="new-password" required />
+            <button type="submit">Salvar nova senha</button>
+            <div class="login-links">
+              <a href="javascript:void(0)" id="link-voltar-login" class="login-link">Voltar para o login</a>
+            </div>
+          </form>
+        </div>
+      </section>
+
       <!-- SEÇÃO DASHBOARD -->
       <section id="dashboard-section" style="display: none">
         <header class="top-bar">
@@ -309,6 +325,21 @@
       </div>
     </div>
 
+    <!-- MODAL: ESQUECI MINHA SENHA -->
+    <div id="modal-esqueci-senha" class="modal-overlay" style="display: none">
+      <div class="modal-content">
+        <h3>Esqueci minha senha</h3>
+        <form id="form-esqueci-senha">
+          <div class="campo">
+            <label for="esqueci-email">E-mail cadastrado</label>
+            <input type="email" id="esqueci-email" placeholder="seu@email.com" required />
+          </div>
+          <button type="submit" id="btn-enviar-recuperacao">Enviar link de recuperação</button>
+          <button type="button" id="btn-fechar-modal-esqueci-senha">Cancelar</button>
+        </form>
+      </div>
+    </div>
+
     <!-- MODAL: NOVA CARTEIRA -->
     <div id="modal-carteira" class="modal-overlay" style="display: none">
       <div class="modal-content">
@@ -322,12 +353,34 @@
             <label for="tipo-carteira">Tipo</label>
             <select id="tipo-carteira">
               <option value="individual">Só minha</option>
-              <option value="compartilhada">Compartilhada com a casa</option>
+              <option value="compartilhada">Compartilhada</option>
             </select>
+          </div>
+          <div class="campo" id="campo-membros-carteira" style="display: none">
+            <label>Compartilhar com</label>
+            <div id="lista-membros-carteira" class="lista-membros-carteira">
+              <span class="dica-campo">Carregando...</span>
+            </div>
           </div>
           <button type="submit" id="btn-salvar-carteira">Criar carteira</button>
           <button type="button" id="btn-fechar-modal-carteira">Cancelar</button>
         </form>
+      </div>
+    </div>
+
+    <!-- MODAL: GERENCIAR MEMBROS DE UMA CARTEIRA COMPARTILHADA -->
+    <div id="modal-gerenciar-membros" class="modal-overlay" style="display: none">
+      <div class="modal-content">
+        <h3 id="titulo-gerenciar-membros">Gerenciar membros</h3>
+        <input type="hidden" id="gerenciar-membros-carteira-id" value="" />
+        <div class="campo">
+          <label>Quem tem acesso</label>
+          <div id="lista-gerenciar-membros" class="lista-membros-carteira">
+            <span class="dica-campo">Carregando...</span>
+          </div>
+        </div>
+        <button type="button" id="btn-salvar-membros">Salvar</button>
+        <button type="button" id="btn-fechar-modal-membros">Cancelar</button>
       </div>
     </div>
 

@@ -131,9 +131,27 @@ export async function processarUsuarios(request, env) {
       const senhaHash = await hashSenha(dados.senha);
 
       const query = `INSERT INTO usuarios (nome_usuario, senha_hash, perfil, nome, telefone, email, foto_perfil) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-      await env.DB.prepare(query)
+      const resultadoUsuario = await env.DB.prepare(query)
         .bind(dados.usuario, senhaHash, perfil, cadastrais.nome, cadastrais.telefone ?? null, cadastrais.email, cadastrais.foto_perfil ?? null)
         .run();
+      const novoUsuarioId = resultadoUsuario.meta.last_row_id;
+
+      // Toda conta nova já nasce com sua própria carteira pessoal — sem isso
+      // o usuário fica sem nenhum lugar pra lançar nada. Quem cria carteiras
+      // compartilhadas continua sendo decisão manual, feita depois pelo próprio
+      // usuário (ver carteiras.js).
+      try {
+        const nomeCarteira = `Pessoal - ${cadastrais.nome}`.slice(0, 40);
+        const resultadoCarteira = await env.DB.prepare(`INSERT INTO carteiras (nome, tipo) VALUES (?, 'individual')`).bind(nomeCarteira).run();
+        const novaCarteiraId = resultadoCarteira.meta.last_row_id;
+        await env.DB.prepare(`INSERT INTO usuarios_carteiras (usuario_id, carteira_id, papel) VALUES (?, ?, 'admin')`)
+          .bind(novoUsuarioId, novaCarteiraId)
+          .run();
+      } catch (erroCarteira) {
+        // Desfaz o usuário pra não deixar uma conta órfã, sem carteira e presa
+        await env.DB.prepare(`DELETE FROM usuarios WHERE id = ?`).bind(novoUsuarioId).run();
+        return new Response(JSON.stringify({ erro: "Usuário não pôde ser cadastrado (falha ao criar a carteira pessoal)." }), { status: 500 });
+      }
 
       return new Response(JSON.stringify({ mensagem: "Usuário cadastrado com sucesso!" }), { status: 201 });
     } catch (erro) {
