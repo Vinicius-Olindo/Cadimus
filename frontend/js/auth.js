@@ -30,6 +30,24 @@ function limparSessao() {
   sessaoMemoria.usuario = null;
 }
 
+function atualizarAvatarTopo(usuario) {
+  const avatar = document.getElementById("avatar-usuario-logado");
+  if (!avatar) return;
+
+  const nomeExibicao = usuario.nome || usuario.nome_usuario || "";
+  avatar.title = nomeExibicao;
+
+  if (usuario.foto_perfil) {
+    avatar.classList.remove("avatar-vazio");
+    avatar.style.backgroundImage = `url("${usuario.foto_perfil}")`;
+    avatar.textContent = "";
+  } else {
+    avatar.classList.add("avatar-vazio");
+    avatar.style.backgroundImage = "";
+    avatar.textContent = nomeExibicao.charAt(0).toUpperCase();
+  }
+}
+
 function alternarTelas(estaLogado) {
   const sLogin = document.getElementById("login-section");
   const sDash = document.getElementById("dashboard-section");
@@ -43,6 +61,7 @@ function alternarTelas(estaLogado) {
 
     const u = obterUsuarioLogado();
     bAdmin.style.display = u.perfil === "superadmin" ? "inline-block" : "none";
+    atualizarAvatarTopo(u);
     if (window.carregarCarteiras) window.carregarCarteiras();
   } else {
     sLogin.style.display = "flex"; // Garante o centro da tela

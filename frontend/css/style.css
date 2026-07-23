@@ -99,6 +99,26 @@ button {
   align-items: center;
 }
 
+.avatar-topo {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  background-size: cover;
+  background-position: center;
+}
+
+.avatar-topo.avatar-vazio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--cor-marca);
+  color: var(--cor-superficie-alta);
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
 #filtro-mes {
   flex-shrink: 0;
 }

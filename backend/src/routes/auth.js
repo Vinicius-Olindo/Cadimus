@@ -153,7 +153,7 @@ export async function processarLogin(request, env) {
     // Busca o usuário pelo nome_usuario, sem diferenciar maiúsculas/minúsculas — teclados
     // de celular costumam capitalizar a primeira letra sozinhos, e o cadastro/edição de
     // usuário já trata "Vinicius" e "vinicius" como o mesmo nome (ver usuarios.js)
-    const query = `SELECT id, nome_usuario, perfil, senha_hash FROM usuarios WHERE LOWER(nome_usuario) = LOWER(?)`;
+    const query = `SELECT id, nome_usuario, perfil, nome, foto_perfil, senha_hash FROM usuarios WHERE LOWER(nome_usuario) = LOWER(?)`;
     const { results } = await env.DB.prepare(query).bind(usuario).all();
 
     const userDB = results[0];
@@ -179,6 +179,8 @@ export async function processarLogin(request, env) {
           id: userDB.id,
           nome_usuario: userDB.nome_usuario,
           perfil: userDB.perfil,
+          nome: userDB.nome,
+          foto_perfil: userDB.foto_perfil,
         },
       }),
       { status: 200 },
