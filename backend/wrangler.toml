@@ -23,7 +23,7 @@ migrations_dir = "../database/migrations"
 [vars]
 # URL onde o frontend do Cadimus está publicado — usada pra montar o link
 # que vai dentro do e-mail de recuperação de senha. TROQUE pelo endereço real.
-FRONTEND_URL = "https://SEU-FRONTEND-AQUI.pages.dev"
+FRONTEND_URL = "https://cadimus.pages.dev"
 # Remetente do e-mail. Pra usar seu próprio domínio, verifique-o antes em
 # https://resend.com/domains — enquanto isso, "onboarding@resend.dev" funciona
 # só pra testes e só envia pro e-mail da própria conta Resend.
