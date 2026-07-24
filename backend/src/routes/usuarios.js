@@ -73,12 +73,12 @@ async function validarDadosCadastrais(dados, env, idAtual = null) {
   return resultado;
 }
 
-export async function processarUsuarios(request, env) {
+export async function processarUsuarios(request, env, ctx) {
   const metodo = request.method;
   const url = new URL(request.url);
 
   // Todo o painel de usuários é restrito: precisa estar logado E ser superadmin
-  const usuarioLogado = await obterUsuarioDaSessao(request, env);
+  const usuarioLogado = await obterUsuarioDaSessao(request, env, ctx);
   if (!usuarioLogado) {
     return new Response(JSON.stringify({ erro: "Não autenticado." }), { status: 401 });
   }

@@ -229,24 +229,69 @@ button:active {
   color: var(--cor-marca-forte);
 }
 
-/* Botões só-ícone do topo: quadrados, ícone centralizado */
-#btn-theme-toggle,
-#btn-admin,
-#btn-despesas-fixas,
-#btn-compras-parceladas {
+/* Botões do topo com ícone + label */
+.btn-topo-icone {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  padding: 0;
+  gap: 5px;
+  padding: 6px 10px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.1px;
 }
 
-#btn-theme-toggle svg,
-#btn-admin svg,
-#btn-despesas-fixas svg,
-#btn-compras-parceladas svg {
-  display: block;
+.btn-topo-icone svg {
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+
+.btn-topo-label {
+  line-height: 1;
+}
+
+/* Variante para botões do topo que têm só ícone, sem label de texto (ex: alternar tema) */
+.btn-topo-icone-only {
+  padding: 6px;
+}
+
+/* Sair: ícone + texto, destaque sutil */
+.btn-topo-sair {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  background: transparent;
+  color: var(--cor-texto-suave);
+  border-color: var(--cor-pauta-forte);
+}
+
+.btn-topo-sair:hover {
+  border-color: var(--cor-despesa);
+  color: var(--cor-despesa);
+}
+
+/* Divisor vertical entre grupos de botões */
+.acoes-topo-divider {
+  width: 1px;
+  height: 20px;
+  background: var(--cor-pauta-forte);
+  flex-shrink: 0;
+}
+
+/* Avatar como botão clicável */
+.btn-avatar-perfil {
+  background: transparent;
+  border: none;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 50%;
+}
+
+.btn-avatar-perfil:hover {
+  transform: none;
+  opacity: 0.85;
 }
 
 #btn-salvar-lancamento {
@@ -289,11 +334,25 @@ button:active {
   background: transparent;
   color: var(--cor-texto-suave);
   border: none;
-  padding: 6px 14px;
+  padding: 5px 12px;
   border-radius: 999px;
   font-size: 0.78rem;
   white-space: nowrap;
   flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: background 0.12s, color 0.12s;
+}
+
+.tab-carteira-icone {
+  opacity: 0.6;
+  flex-shrink: 0;
+  transition: opacity 0.12s;
+}
+
+.tab-carteira-nome {
+  line-height: 1;
 }
 
 .tab-carteira.ativo {
@@ -301,35 +360,97 @@ button:active {
   color: var(--cor-superficie-alta);
 }
 
-.tab-carteira:not(.ativo):hover {
-  color: var(--cor-texto);
+.tab-carteira.ativo .tab-carteira-icone {
+  opacity: 0.75;
+  stroke: var(--cor-superficie-alta);
 }
 
+/* Carteira compartilhada inativa: toque de cor da marca */
+.tab-carteira.tab-compartilhada:not(.ativo) {
+  color: var(--cor-texto-suave);
+}
+
+.tab-carteira.tab-compartilhada.ativo {
+  background: var(--cor-marca);
+  color: #fff;
+}
+
+.tab-carteira.tab-compartilhada.ativo .tab-carteira-icone {
+  stroke: #fff;
+  opacity: 0.9;
+}
+
+.tab-carteira:not(.ativo):hover {
+  color: var(--cor-texto);
+  background: color-mix(in srgb, var(--cor-texto) 7%, transparent);
+}
+
+.tab-carteira:not(.ativo):hover .tab-carteira-icone {
+  opacity: 1;
+}
+
+/* Separador entre carteiras e o botão + */
+.tab-carteira-separador {
+  width: 1px;
+  height: 16px;
+  background: var(--cor-pauta-forte);
+  flex-shrink: 0;
+  align-self: center;
+  margin: 0 2px;
+}
+
+/* Botão + para nova carteira: ícone sem label, compacto */
 .tab-carteira-add {
-  font-family: var(--fonte-mono);
-  font-weight: 700;
+  background: transparent;
+  border: none;
   color: var(--cor-marca);
-  padding: 6px 12px;
+  padding: 5px 8px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 0;
 }
 
 .tab-carteira-add:hover {
   color: var(--cor-marca-forte);
   background: color-mix(in srgb, var(--cor-marca) 12%, transparent);
+  transform: none;
 }
 
 .tab-carteira-wrapper {
   display: inline-flex;
   align-items: center;
+  gap: 8px;
   flex-shrink: 0;
+  padding-right: 4px;
+  cursor: grab;
+  border-radius: 999px;
+  transition: opacity 0.12s, box-shadow 0.12s;
+}
+
+.tab-carteira-wrapper.arrastando {
+  opacity: 0.4;
+}
+
+.tab-carteira-wrapper.alvo-drop {
+  box-shadow: inset 2px 0 0 var(--cor-marca);
 }
 
 .btn-gerenciar-membros {
-  background: transparent;
+  background: color-mix(in srgb, var(--cor-texto) 8%, transparent);
   border: none;
   color: var(--cor-texto-suave);
   font-size: 0.7rem;
-  padding: 6px 6px 6px 0;
+  padding: 5px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
+  width: 22px;
+  height: 22px;
 }
 
 .btn-gerenciar-membros:hover {
@@ -338,6 +459,24 @@ button:active {
 
 .opcao-membro-desabilitada {
   opacity: 0.6;
+}
+
+/* Zona de perigo: excluir carteira, dentro da modal de configurações */
+.zona-perigo-carteira {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: var(--borda) solid var(--cor-pauta-forte);
+}
+
+#btn-excluir-carteira {
+  width: 100%;
+  background: transparent;
+  border: var(--borda) solid var(--cor-despesa);
+  color: var(--cor-despesa);
+}
+
+#btn-excluir-carteira:hover {
+  background: color-mix(in srgb, var(--cor-despesa) 12%, transparent);
 }
 
 /* ==========================================
@@ -1065,6 +1204,12 @@ button.item-status:active {
   margin-top: 18px;
   font-size: 0.8rem;
   color: var(--cor-texto-suave);
+}
+
+.login-link-info {
+  color: var(--text-muted, #888);
+  font-size: 0.85rem;
+  cursor: default;
 }
 
 .login-link {

@@ -14,10 +14,20 @@ export async function criarSessao(env, usuarioId) {
 }
 
 /**
+ * Remove sessões expiradas do banco.
+ * Chamado em background (ctx.waitUntil) a cada requisição autenticada —
+ * não bloqueia a resposta, mas vai limpando a tabela ao longo do tempo
+ * sem precisar de um job agendado separado.
+ */
+export async function limparSessoesExpiradas(env) {
+  await env.DB.prepare(`DELETE FROM sessoes WHERE expira_em < datetime('now')`).run();
+}
+
+/**
  * Lê o header Authorization: Bearer <token>, valida contra o banco
  * e retorna o usuário logado (ou null se não autenticado/expirado).
  */
-export async function obterUsuarioDaSessao(request, env) {
+export async function obterUsuarioDaSessao(request, env, ctx) {
   const cabecalho = request.headers.get("Authorization") || "";
   const token = cabecalho.startsWith("Bearer ") ? cabecalho.slice(7).trim() : null;
   if (!token) return null;
@@ -36,6 +46,12 @@ export async function obterUsuarioDaSessao(request, env) {
     // Sessão expirada: remove e nega acesso
     await env.DB.prepare(`DELETE FROM sessoes WHERE token = ?`).bind(token).run();
     return null;
+  }
+
+  // Limpeza em background: não atrasa a resposta, mas vai varrendo registros
+  // mortos a cada requisição autenticada (lazy cleanup sem job agendado)
+  if (ctx?.waitUntil) {
+    ctx.waitUntil(limparSessoesExpiradas(env));
   }
 
   return { id: sessao.id, nome_usuario: sessao.nome_usuario, perfil: sessao.perfil };

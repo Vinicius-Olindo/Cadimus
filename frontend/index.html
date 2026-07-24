@@ -37,7 +37,8 @@
             <input type="password" id="senha" placeholder="Senha" autocomplete="current-password" required />
             <button type="submit">Entrar</button>
             <div class="login-links">
-              <a href="javascript:void(0)" id="link-cadastrar" class="login-link">Cadastrar</a>
+              <!-- Cadastro fechado: novas contas são criadas pelo administrador no painel Admin. -->
+              <span class="login-link-info">Novo usuário? Peça ao administrador.</span>
               <span class="login-links-separador">·</span>
               <a href="javascript:void(0)" id="link-esqueci-senha" class="login-link">Esqueci minha senha</a>
             </div>
@@ -77,17 +78,27 @@
           <div class="top-bar-linha1">
             <h2>Cadimus</h2>
             <div class="acoes-topo">
-              <button id="btn-despesas-fixas" title="Despesas fixas">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+              <button id="btn-despesas-fixas" class="btn-topo-icone" title="Despesas fixas">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+                <span class="btn-topo-label">Fixas</span>
               </button>
-              <button id="btn-compras-parceladas" title="Compras parceladas">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3h16v18l-3-2-2 2-2-2-2 2-2-2-2 2-3-2Z"/><path d="M8 8h8M8 12h8M8 16h4"/></svg>
+              <button id="btn-compras-parceladas" class="btn-topo-icone" title="Compras parceladas">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3h16v18l-3-2-2 2-2-2-2 2-2-2-2 2-3-2Z"/><path d="M8 8h8M8 12h8M8 16h4"/></svg>
+                <span class="btn-topo-label">Parceladas</span>
               </button>
-              <button id="btn-admin" style="display: none" title="Configurações">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+              <div class="acoes-topo-divider"></div>
+              <button id="btn-admin" class="btn-topo-icone" style="display: none" title="Configurações">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+                <span class="btn-topo-label">Admin</span>
               </button>
-              <button id="btn-logout">Sair</button>
-              <div id="avatar-usuario-logado" class="avatar-topo avatar-vazio" title=""></div>
+              <div class="acoes-topo-divider"></div>
+              <button id="btn-logout" class="btn-topo-sair">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                Sair
+              </button>
+              <button id="btn-avatar-perfil" class="btn-avatar-perfil" title="Meu perfil" aria-label="Perfil do usuário">
+                <div id="avatar-usuario-logado" class="avatar-topo avatar-vazio" title=""></div>
+              </button>
             </div>
           </div>
           <div class="top-bar-linha2">
@@ -379,12 +390,12 @@
       </div>
     </div>
 
-    <!-- MODAL: GERENCIAR MEMBROS DE UMA CARTEIRA COMPARTILHADA -->
+    <!-- MODAL: CONFIGURAÇÕES DA CARTEIRA (membros + excluir) -->
     <div id="modal-gerenciar-membros" class="modal-overlay" style="display: none">
       <div class="modal-content">
         <h3 id="titulo-gerenciar-membros">Gerenciar membros</h3>
         <input type="hidden" id="gerenciar-membros-carteira-id" value="" />
-        <div class="campo">
+        <div class="campo" id="campo-gerenciar-membros">
           <label>Quem tem acesso</label>
           <div id="lista-gerenciar-membros" class="lista-membros-carteira">
             <span class="dica-campo">Carregando...</span>
@@ -392,6 +403,9 @@
         </div>
         <button type="button" id="btn-salvar-membros">Salvar</button>
         <button type="button" id="btn-fechar-modal-membros">Cancelar</button>
+        <div class="zona-perigo-carteira">
+          <button type="button" id="btn-excluir-carteira">Excluir esta carteira</button>
+        </div>
       </div>
     </div>
 

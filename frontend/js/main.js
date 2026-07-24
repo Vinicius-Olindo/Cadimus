@@ -208,6 +208,7 @@ function inicializarDarkMode() {
 
   const btnTheme = document.createElement("button");
   btnTheme.id = "btn-theme-toggle";
+  btnTheme.className = "btn-topo-icone btn-topo-icone-only";
   btnTheme.title = "Alternar tema";
 
   areaAcoes.insertBefore(btnTheme, document.getElementById("btn-logout"));
@@ -268,29 +269,70 @@ function renderizarTabsCarteira() {
 
   container.innerHTML = "";
 
-  carteirasDoUsuario.forEach((carteira) => {
+  carteirasDoUsuario.forEach((carteira, indice) => {
     const wrapper = document.createElement("div");
     wrapper.className = "tab-carteira-wrapper";
+    wrapper.draggable = true;
+    wrapper.dataset.id = carteira.id;
+
+    wrapper.addEventListener("dragstart", (evento) => {
+      wrapper.classList.add("arrastando");
+      evento.dataTransfer.setData("text/plain", String(carteira.id));
+      evento.dataTransfer.effectAllowed = "move";
+    });
+
+    wrapper.addEventListener("dragend", () => {
+      wrapper.classList.remove("arrastando");
+      container.querySelectorAll(".tab-carteira-wrapper").forEach((w) => w.classList.remove("alvo-drop"));
+    });
+
+    wrapper.addEventListener("dragover", (evento) => {
+      evento.preventDefault();
+      evento.dataTransfer.dropEffect = "move";
+      wrapper.classList.add("alvo-drop");
+    });
+
+    wrapper.addEventListener("dragleave", () => {
+      wrapper.classList.remove("alvo-drop");
+    });
+
+    wrapper.addEventListener("drop", (evento) => {
+      evento.preventDefault();
+      wrapper.classList.remove("alvo-drop");
+      const idArrastado = evento.dataTransfer.getData("text/plain");
+      if (!idArrastado || String(idArrastado) === String(carteira.id)) return;
+      reordenarCarteiras(idArrastado, carteira.id);
+    });
 
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "tab-carteira";
-    btn.textContent = carteira.nome;
-    btn.title = carteira.tipo === "compartilhada" ? `${carteira.nome} · compartilhada` : `${carteira.nome} · só sua`;
     btn.dataset.valor = carteira.id;
+    btn.title = carteira.tipo === "compartilhada" ? `${carteira.nome} · compartilhada` : `${carteira.nome} · só sua`;
     if (aindaExiste && String(carteira.id) === String(valorAtual)) {
       btn.classList.add("ativo");
     }
+    if (carteira.tipo === "compartilhada") {
+      btn.classList.add("tab-compartilhada");
+    }
+
+    // Ícone do tipo de carteira
+    const svgIcone = carteira.tipo === "compartilhada"
+      ? `<svg class="tab-carteira-icone" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`
+      : `<svg class="tab-carteira-icone" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`;
+
+    btn.innerHTML = svgIcone + `<span class="tab-carteira-nome">${carteira.nome}</span>`;
     btn.addEventListener("click", () => selecionarCarteira(carteira.id));
     wrapper.appendChild(btn);
 
-    // Só quem é admin de uma carteira compartilhada pode gerenciar quem tem acesso
-    if (carteira.tipo === "compartilhada" && carteira.papel === "admin") {
+    // Quem é admin da carteira (individual sempre é; compartilhada só quem administra)
+    // pode abrir as configurações dela — gerenciar membros (se compartilhada) e excluir.
+    if (carteira.papel === "admin") {
       const btnGerenciar = document.createElement("button");
       btnGerenciar.type = "button";
       btnGerenciar.className = "btn-gerenciar-membros";
-      btnGerenciar.textContent = "⚙";
-      btnGerenciar.title = `Gerenciar membros de "${carteira.nome}"`;
+      btnGerenciar.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>`;
+      btnGerenciar.title = `Configurações de "${carteira.nome}"`;
       btnGerenciar.addEventListener("click", (evento) => {
         evento.stopPropagation();
         abrirModalGerenciarMembros(carteira);
@@ -301,17 +343,51 @@ function renderizarTabsCarteira() {
     container.appendChild(wrapper);
   });
 
+  // Separador visual antes do botão de adicionar
+  const separador = document.createElement("div");
+  separador.className = "tab-carteira-separador";
+  container.appendChild(separador);
+
   const btnAdd = document.createElement("button");
   btnAdd.type = "button";
-  btnAdd.className = "tab-carteira tab-carteira-add";
-  btnAdd.textContent = "+";
+  btnAdd.className = "tab-carteira-add";
+  btnAdd.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
   btnAdd.title = "Nova carteira";
+  btnAdd.setAttribute("aria-label", "Nova carteira");
   btnAdd.addEventListener("click", () => abrirModalCarteira());
   container.appendChild(btnAdd);
 
   // Se a carteira selecionada não existe mais (ou é a primeira carga), seleciona a primeira disponível
   if (!aindaExiste && carteirasDoUsuario.length > 0) {
     selecionarCarteira(carteirasDoUsuario[0].id);
+  }
+}
+
+function reordenarCarteiras(idArrastadoStr, idAlvo) {
+  const idArrastado = carteirasDoUsuario.find((c) => String(c.id) === String(idArrastadoStr))?.id;
+  if (idArrastado === undefined) return;
+
+  const indiceOrigem = carteirasDoUsuario.findIndex((c) => String(c.id) === String(idArrastado));
+  const indiceDestino = carteirasDoUsuario.findIndex((c) => String(c.id) === String(idAlvo));
+  if (indiceOrigem === -1 || indiceDestino === -1) return;
+
+  const [movida] = carteirasDoUsuario.splice(indiceOrigem, 1);
+  carteirasDoUsuario.splice(indiceDestino, 0, movida);
+
+  renderizarTabsCarteira();
+  salvarOrdemCarteiras();
+}
+
+async function salvarOrdemCarteiras() {
+  try {
+    const resposta = await fetch(`${API_URL}/api/carteiras`, {
+      method: "PATCH",
+      headers: headersAutenticados(),
+      body: JSON.stringify({ ordem: carteirasDoUsuario.map((c) => c.id) }),
+    });
+    tratarSessaoExpirada(resposta);
+  } catch (erro) {
+    // Se falhar, a ordem só não persiste — não vale travar a interface por isso
   }
 }
 
@@ -435,12 +511,24 @@ function configurarModalCarteira() {
 async function abrirModalGerenciarMembros(carteira) {
   const modal = document.getElementById("modal-gerenciar-membros");
   const lista = document.getElementById("lista-gerenciar-membros");
+  const campoMembros = document.getElementById("campo-gerenciar-membros");
+  const btnSalvarMembros = document.getElementById("btn-salvar-membros");
   if (!modal || !lista) return;
 
-  document.getElementById("titulo-gerenciar-membros").innerText = `Membros de "${carteira.nome}"`;
+  document.getElementById("titulo-gerenciar-membros").innerText = `Configurações de "${carteira.nome}"`;
   document.getElementById("gerenciar-membros-carteira-id").value = carteira.id;
-  lista.innerHTML = `<span class="dica-campo">Carregando...</span>`;
+  document.getElementById("btn-excluir-carteira").dataset.nome = carteira.nome;
   modal.style.display = "flex";
+
+  // Carteira individual não tem com quem compartilhar — só mostra a zona de excluir
+  if (carteira.tipo !== "compartilhada") {
+    campoMembros.style.display = "none";
+    btnSalvarMembros.style.display = "none";
+    return;
+  }
+  campoMembros.style.display = "";
+  btnSalvarMembros.style.display = "";
+  lista.innerHTML = `<span class="dica-campo">Carregando...</span>`;
 
   try {
     const [respostaMembros, respostaColegas] = await Promise.all([
@@ -487,11 +575,50 @@ function configurarModalGerenciarMembros() {
   const modal = document.getElementById("modal-gerenciar-membros");
   const btnFechar = document.getElementById("btn-fechar-modal-membros");
   const btnSalvar = document.getElementById("btn-salvar-membros");
+  const btnExcluir = document.getElementById("btn-excluir-carteira");
 
-  if (!modal || !btnFechar || !btnSalvar) return;
+  if (!modal || !btnFechar || !btnSalvar || !btnExcluir) return;
 
   btnFechar.addEventListener("click", () => {
     modal.style.display = "none";
+  });
+
+  btnExcluir.addEventListener("click", async () => {
+    const carteiraId = document.getElementById("gerenciar-membros-carteira-id").value;
+    const nome = btnExcluir.dataset.nome || "esta carteira";
+    if (!carteiraId) return;
+
+    const confirmou = await pedirConfirmacao(
+      `Excluir "${nome}"? Todos os lançamentos, despesas fixas e metas dela serão apagados para sempre.`,
+      { textoConfirmar: "Excluir", perigo: true },
+    );
+    if (!confirmou) return;
+
+    btnExcluir.disabled = true;
+    btnExcluir.innerText = "Excluindo...";
+
+    try {
+      const resposta = await fetch(`${API_URL}/api/carteiras?id=${carteiraId}`, {
+        method: "DELETE",
+        headers: headersAutenticados(false),
+      });
+
+      if (tratarSessaoExpirada(resposta)) return;
+
+      if (resposta.ok) {
+        modal.style.display = "none";
+        carteirasDoUsuario = await (await fetch(`${API_URL}/api/carteiras`, { headers: headersAutenticados(false) })).json();
+        renderizarTabsCarteira();
+      } else {
+        const erro = await resposta.json();
+        await mostrarAviso(`Erro: ${erro.erro}`);
+      }
+    } catch (erro) {
+      await mostrarAviso("Falha na comunicação com o servidor.");
+    } finally {
+      btnExcluir.disabled = false;
+      btnExcluir.innerText = "Excluir esta carteira";
+    }
   });
 
   btnSalvar.addEventListener("click", async () => {

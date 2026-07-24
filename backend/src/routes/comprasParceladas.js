@@ -5,11 +5,11 @@ import { obterUsuarioDaSessao } from "../utils/sessao.js";
 import { obterCarteirasDoUsuario } from "../utils/carteiras.js";
 import { gerarTodasParcelasDaCompra } from "../utils/comprasParceladas.js";
 
-export async function processarComprasParceladas(request, env) {
+export async function processarComprasParceladas(request, env, ctx) {
   const metodo = request.method;
   const url = new URL(request.url);
 
-  const usuarioLogado = await obterUsuarioDaSessao(request, env);
+  const usuarioLogado = await obterUsuarioDaSessao(request, env, ctx);
   if (!usuarioLogado) {
     return new Response(JSON.stringify({ erro: "Não autenticado." }), { status: 401 });
   }

@@ -8,7 +8,7 @@ import { enviarEmail, templateRecuperacaoSenha } from "../utils/email.js";
 const LIMITE_TENTATIVAS = 5; // por usuário, dentro dos últimos 15 minutos (ver datetime('now', '-15 minutes') abaixo)
 const DURACAO_TOKEN_RECUPERACAO_MS = 30 * 60 * 1000; // 30 minutos
 
-export async function processarLogin(request, env) {
+export async function processarLogin(request, env, ctx) {
   const url = new URL(request.url);
 
   // ==========================================

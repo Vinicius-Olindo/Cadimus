@@ -6,12 +6,12 @@ import { obterUsuarioDaSessao } from "../utils/sessao.js";
 const CATEGORIAS_PADRAO = ["Mercado", "Transporte", "Moradia", "Contas", "Saúde", "Lazer", "Educação", "Salário", "Outros"];
 const FRASE_CONFIRMACAO = "APAGAR TUDO";
 
-export async function processarLimpezaDados(request, env) {
+export async function processarLimpezaDados(request, env, ctx) {
   if (request.method !== "POST") {
     return new Response(JSON.stringify({ erro: "Método não permitido." }), { status: 405 });
   }
 
-  const usuarioLogado = await obterUsuarioDaSessao(request, env);
+  const usuarioLogado = await obterUsuarioDaSessao(request, env, ctx);
   if (!usuarioLogado) {
     return new Response(JSON.stringify({ erro: "Não autenticado." }), { status: 401 });
   }

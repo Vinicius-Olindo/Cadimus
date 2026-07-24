@@ -4,11 +4,11 @@
 import { obterUsuarioDaSessao } from "../utils/sessao.js";
 import { obterCarteirasDoUsuario } from "../utils/carteiras.js";
 
-export async function processarDespesasFixas(request, env) {
+export async function processarDespesasFixas(request, env, ctx) {
   const metodo = request.method;
   const url = new URL(request.url);
 
-  const usuarioLogado = await obterUsuarioDaSessao(request, env);
+  const usuarioLogado = await obterUsuarioDaSessao(request, env, ctx);
   if (!usuarioLogado) {
     return new Response(JSON.stringify({ erro: "Não autenticado." }), { status: 401 });
   }

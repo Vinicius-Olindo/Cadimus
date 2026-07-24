@@ -14,11 +14,11 @@ async function idsValidosDeUsuarios(env, idsRecebidos) {
   return results.map((u) => u.id);
 }
 
-export async function processarCarteiras(request, env) {
+export async function processarCarteiras(request, env, ctx) {
   const metodo = request.method;
   const url = new URL(request.url);
 
-  const usuarioLogado = await obterUsuarioDaSessao(request, env);
+  const usuarioLogado = await obterUsuarioDaSessao(request, env, ctx);
   if (!usuarioLogado) {
     return new Response(JSON.stringify({ erro: "Não autenticado." }), { status: 401 });
   }
@@ -67,7 +67,7 @@ export async function processarCarteiras(request, env) {
         FROM carteiras c
         JOIN usuarios_carteiras uc ON uc.carteira_id = c.id
         WHERE uc.usuario_id = ?
-        ORDER BY c.tipo ASC, c.nome ASC
+        ORDER BY uc.ordem ASC, c.tipo ASC, c.nome ASC
       `;
       const { results } = await env.DB.prepare(query).bind(usuarioLogado.id).all();
       return new Response(JSON.stringify(results), { status: 200 });
@@ -167,6 +167,67 @@ export async function processarCarteiras(request, env) {
       return new Response(JSON.stringify({ mensagem: "Membros atualizados com sucesso!" }), { status: 200 });
     } catch (erro) {
       return new Response(JSON.stringify({ erro: "Erro ao atualizar membros.", detalhe: erro.message }), { status: 500 });
+    }
+  }
+
+  // ==========================================
+  // REORDENAR (o usuário arrasta as abas como quiser)
+  // ==========================================
+  if (metodo === "PATCH") {
+    try {
+      const dados = await request.json();
+      const ordemRecebida = Array.isArray(dados.ordem) ? dados.ordem.map(Number).filter((id) => Number.isInteger(id)) : [];
+      if (ordemRecebida.length === 0) {
+        return new Response(JSON.stringify({ erro: "Ordem inválida." }), { status: 400 });
+      }
+
+      for (let indice = 0; indice < ordemRecebida.length; indice++) {
+        await env.DB.prepare(`UPDATE usuarios_carteiras SET ordem = ? WHERE usuario_id = ? AND carteira_id = ?`)
+          .bind(indice, usuarioLogado.id, ordemRecebida[indice])
+          .run();
+      }
+
+      return new Response(JSON.stringify({ mensagem: "Ordem salva." }), { status: 200 });
+    } catch (erro) {
+      return new Response(JSON.stringify({ erro: "Erro ao salvar ordem.", detalhe: erro.message }), { status: 500 });
+    }
+  }
+
+  // ==========================================
+  // EXCLUIR CARTEIRA (só quem é admin dela)
+  // ==========================================
+  if (metodo === "DELETE") {
+    try {
+      const carteiraId = url.searchParams.get("id");
+      if (!carteiraId) {
+        return new Response(JSON.stringify({ erro: "ID da carteira não fornecido." }), { status: 400 });
+      }
+
+      const { results: acesso } = await env.DB.prepare(`SELECT papel FROM usuarios_carteiras WHERE usuario_id = ? AND carteira_id = ?`)
+        .bind(usuarioLogado.id, carteiraId)
+        .all();
+      if (acesso.length === 0 || acesso[0].papel !== "admin") {
+        return new Response(JSON.stringify({ erro: "Só um administrador desta carteira pode excluí-la." }), { status: 403 });
+      }
+
+      const { results: totalCarteiras } = await env.DB.prepare(`SELECT COUNT(*) AS total FROM usuarios_carteiras WHERE usuario_id = ?`)
+        .bind(usuarioLogado.id)
+        .all();
+      if (totalCarteiras[0].total <= 1) {
+        return new Response(JSON.stringify({ erro: "Você precisa ter pelo menos uma carteira." }), { status: 400 });
+      }
+
+      // Limpa tudo que referencia essa carteira antes de excluí-la
+      await env.DB.prepare(`DELETE FROM despesas_fixas WHERE carteira_id = ?`).bind(carteiraId).run();
+      await env.DB.prepare(`DELETE FROM compras_parceladas WHERE carteira_id = ?`).bind(carteiraId).run();
+      await env.DB.prepare(`DELETE FROM metas_categoria WHERE carteira_id = ?`).bind(carteiraId).run();
+      await env.DB.prepare(`DELETE FROM lancamentos WHERE carteira_id = ?`).bind(carteiraId).run();
+      await env.DB.prepare(`DELETE FROM usuarios_carteiras WHERE carteira_id = ?`).bind(carteiraId).run();
+      await env.DB.prepare(`DELETE FROM carteiras WHERE id = ?`).bind(carteiraId).run();
+
+      return new Response(JSON.stringify({ mensagem: "Carteira excluída." }), { status: 200 });
+    } catch (erro) {
+      return new Response(JSON.stringify({ erro: "Erro ao excluir carteira.", detalhe: erro.message }), { status: 500 });
     }
   }
 

@@ -6,12 +6,12 @@ import { obterCarteirasDoUsuario } from "../utils/carteiras.js";
 import { gerarLancamentosFixosDoMes } from "../utils/despesasFixas.js";
 import { gerarLancamentosParceladosDoMes } from "../utils/comprasParceladas.js";
 
-export async function processarLancamentos(request, env) {
+export async function processarLancamentos(request, env, ctx) {
   const metodo = request.method;
   const url = new URL(request.url);
 
   // Toda operação em lançamentos exige login
-  const usuarioLogado = await obterUsuarioDaSessao(request, env);
+  const usuarioLogado = await obterUsuarioDaSessao(request, env, ctx);
   if (!usuarioLogado) {
     return new Response(JSON.stringify({ erro: "Não autenticado." }), { status: 401 });
   }
@@ -87,6 +87,19 @@ export async function processarLancamentos(request, env) {
         return new Response(JSON.stringify({ erro: "Acesso negado a esta carteira." }), { status: 403 });
       }
 
+      // Valida que a categoria existe na tabela de categorias.
+      // Não usamos FK no banco porque a categoria é texto livre nos lançamentos
+      // históricos (permite renomear retroativamente via categorias.js), mas
+      // garantimos aqui que só entram valores reconhecidos pelo sistema.
+      if (dados.categoria) {
+        const { results: catValida } = await env.DB.prepare(
+          `SELECT id FROM categorias WHERE LOWER(nome) = LOWER(?)`
+        ).bind(dados.categoria).all();
+        if (catValida.length === 0) {
+          return new Response(JSON.stringify({ erro: "Categoria inválida. Escolha uma categoria existente ou cadastre uma nova antes de salvar." }), { status: 400 });
+        }
+      }
+
       const query = `
                 INSERT INTO lancamentos 
                 (descricao, valor, data_compra, tipo, categoria, meio_pagamento, status, carteira_id, criado_por)
@@ -152,6 +165,14 @@ export async function processarLancamentos(request, env) {
         }
         if (campo === "tipo" && !["despesa", "receita"].includes(dados.tipo)) {
           return new Response(JSON.stringify({ erro: "Tipo inválido." }), { status: 400 });
+        }
+        if (campo === "categoria") {
+          const { results: catValida } = await env.DB.prepare(
+            `SELECT id FROM categorias WHERE LOWER(nome) = LOWER(?)`
+          ).bind(dados.categoria).all();
+          if (catValida.length === 0) {
+            return new Response(JSON.stringify({ erro: "Categoria inválida. Escolha uma categoria existente ou cadastre uma nova antes de salvar." }), { status: 400 });
+          }
         }
 
         campos.push(`${campo} = ?`);

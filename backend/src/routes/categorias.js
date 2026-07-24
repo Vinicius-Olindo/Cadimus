@@ -3,12 +3,12 @@
 // ==========================================
 import { obterUsuarioDaSessao } from "../utils/sessao.js";
 
-export async function processarCategorias(request, env) {
+export async function processarCategorias(request, env, ctx) {
   const metodo = request.method;
   const url = new URL(request.url);
 
   // Qualquer pessoa da casa (autenticada) pode ver e cadastrar categorias
-  const usuarioLogado = await obterUsuarioDaSessao(request, env);
+  const usuarioLogado = await obterUsuarioDaSessao(request, env, ctx);
   if (!usuarioLogado) {
     return new Response(JSON.stringify({ erro: "Não autenticado." }), { status: 401 });
   }
