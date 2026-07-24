@@ -1078,7 +1078,8 @@ button.item-status:active {
   width: 26px;
   height: 26px;
   padding: 0;
-  opacity: 0.5;
+  opacity: 0.85;
+  color: var(--cor-texto-suave);
 }
 
 .btn-excluir:hover {
@@ -1095,7 +1096,8 @@ button.item-status:active {
   width: 26px;
   height: 26px;
   padding: 0;
-  opacity: 0.5;
+  opacity: 0.85;
+  color: var(--cor-texto-suave);
 }
 
 .btn-editar:hover {
