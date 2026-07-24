@@ -15,23 +15,40 @@ import { processarLimpezaDados } from "./routes/manutencao.js";
 // HELPER: adiciona os headers de CORS à resposta e força Content-Type JSON.
 // Centralizado aqui para não repetir o mesmo bloco em cada rota.
 //
-// O Origin permitido vem de env.FRONTEND_URL (configurado no wrangler.toml).
-// Se a variável não estiver definida (ex.: ambiente local sem .dev.vars),
-// cai para "*" para não quebrar o desenvolvimento.
+// origemPermitida vem de resolverOrigemPermitida() — é a origem da própria
+// requisição, mas só se ela estiver na lista de permitidas (produção +
+// endereços de desenvolvimento local). Isso permite testar em
+// http://127.0.0.1:5500 (Live Server) ou http://localhost:5500 sem quebrar
+// o CORS de produção.
 // ==========================================
-function comCors(resposta, frontendUrl) {
-  const origem = frontendUrl || "*";
+function comCors(resposta, origemPermitida) {
   const nova = new Response(resposta.body, resposta);
-  nova.headers.set("Access-Control-Allow-Origin", origem);
+  nova.headers.set("Access-Control-Allow-Origin", origemPermitida);
   nova.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
   nova.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  nova.headers.set("Vary", "Origin");
   nova.headers.set("Content-Type", "application/json");
   return nova;
 }
 
+// Decide qual Origin liberar: a de produção (env.FRONTEND_URL) sempre, e
+// qualquer endereço de localhost/127.0.0.1 (em qualquer porta) durante
+// desenvolvimento local. Se a origem da requisição não bater com nenhuma
+// dessas, cai para env.FRONTEND_URL mesmo (a requisição vai ser bloqueada
+// pelo navegador, como deveria).
+function resolverOrigemPermitida(request, env) {
+  const origemFrontendProducao = env.FRONTEND_URL || "*";
+  const origemRequisicao = request.headers.get("Origin") || "";
+  const ehLocalhost = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origemRequisicao);
+
+  if (ehLocalhost) return origemRequisicao;
+  if (origemRequisicao === origemFrontendProducao) return origemRequisicao;
+  return origemFrontendProducao;
+}
+
 export default {
   async fetch(request, env, ctx) {
-    const frontendUrl = env.FRONTEND_URL || "*";
+    const frontendUrl = resolverOrigemPermitida(request, env);
 
     // Preflight CORS — responde antes de qualquer lógica de rota
     if (request.method === "OPTIONS") {
@@ -40,6 +57,7 @@ export default {
           "Access-Control-Allow-Origin": frontendUrl,
           "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
           "Access-Control-Allow-Headers": "Content-Type, Authorization",
+          "Vary": "Origin",
         },
       });
     }

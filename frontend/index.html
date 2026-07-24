@@ -153,6 +153,14 @@
 
           <!-- LINHA 2, COLUNA DIREITA: tudo analítico — o "controle" de verdade -->
           <div class="area-controle">
+            <div class="card resumo-categorias" id="card-despesas-fixas" style="display: none">
+              <div class="despesas-fixas-cabecalho">
+                <span class="resumo-categorias-titulo">Despesas fixas</span>
+                <button type="button" id="btn-nova-despesa-fixa" class="btn-link-adicionar">+ Nova</button>
+              </div>
+              <div id="lista-despesas-fixas-painel"></div>
+            </div>
+
             <div class="card resumo-categorias" id="resumo-categorias" style="display: none">
               <span class="resumo-categorias-titulo">Para onde foi o dinheiro</span>
               <div id="lista-categorias-resumo"></div>
@@ -166,14 +174,6 @@
             <div class="card resumo-categorias" id="card-por-autor" style="display: none">
               <span class="resumo-categorias-titulo">Quem gastou quanto</span>
               <div id="lista-autores-resumo"></div>
-            </div>
-
-            <div class="card resumo-categorias" id="card-despesas-fixas" style="display: none">
-              <div class="despesas-fixas-cabecalho">
-                <span class="resumo-categorias-titulo">Despesas fixas</span>
-                <button type="button" id="btn-nova-despesa-fixa" class="btn-link-adicionar">+ Nova</button>
-              </div>
-              <div id="lista-despesas-fixas-painel"></div>
             </div>
 
             <div class="card resumo-categorias" id="card-compras-parceladas" style="display: none">
