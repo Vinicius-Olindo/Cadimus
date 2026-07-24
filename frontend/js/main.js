@@ -395,6 +395,7 @@ function selecionarCarteira(id) {
   const inputOculto = document.getElementById("seletor-carteira");
   if (!inputOculto) return;
 
+  autorFiltroAtivo = null;
   inputOculto.value = id;
   document.querySelectorAll(".tab-carteira").forEach((t) => {
     t.classList.toggle("ativo", t.dataset.valor === String(id));
@@ -1493,14 +1494,23 @@ function renderizarListaLancamentos() {
   if (!container) return;
 
   const termo = termoBuscaAtual.trim().toLowerCase();
-  const filtrados = termo
+  let filtrados = termo
     ? ultimoLoteLancamentos.filter((l) => l.descricao.toLowerCase().includes(termo) || l.categoria.toLowerCase().includes(termo))
     : ultimoLoteLancamentos;
+
+  if (autorFiltroAtivo) {
+    filtrados = filtrados.filter((l) => l.criado_por_nome === autorFiltroAtivo);
+  }
 
   container.innerHTML = "";
 
   if (filtrados.length === 0) {
-    container.appendChild(criarAvisoListaVazia(termo ? `Nada encontrado para "${termoBuscaAtual.trim()}".` : undefined));
+    const mensagem = termo
+      ? `Nada encontrado para "${termoBuscaAtual.trim()}".`
+      : autorFiltroAtivo
+        ? `${autorFiltroAtivo} não tem lançamentos aqui.`
+        : undefined;
+    container.appendChild(criarAvisoListaVazia(mensagem));
     return;
   }
 
@@ -1790,23 +1800,46 @@ function renderizarComparacaoMesAnterior(atual, anterior) {
 }
 
 // --- QUEM GASTOU QUANTO (útil na carteira compartilhada) ---
+// Gera uma cor estável por pessoa (mesmo nome sempre cai na mesma cor),
+// usada tanto na barra quanto no "avatar" de iniciais.
+const PALETA_AUTORES = ["#d99c4c", "#5fa8d3", "#8fbf7f", "#c97fb0", "#e0a85c", "#7fb3c9", "#b98fc9", "#c98f7f"];
+function corDoAutor(nome) {
+  let hash = 0;
+  for (let i = 0; i < nome.length; i++) {
+    hash = (hash * 31 + nome.charCodeAt(i)) >>> 0;
+  }
+  return PALETA_AUTORES[hash % PALETA_AUTORES.length];
+}
+
+let autorFiltroAtivo = null;
+
 function renderizarResumoAutores(dados) {
   const card = document.getElementById("card-por-autor");
   const container = document.getElementById("lista-autores-resumo");
   if (!card || !container) return;
 
   const totais = {};
+  const contagens = {};
+  const fotos = {};
   dados.forEach((l) => {
     if (l.tipo !== "despesa" || l.status !== "pago") return;
     const nome = l.criado_por_nome || "?";
     totais[nome] = (totais[nome] || 0) + l.valor;
+    contagens[nome] = (contagens[nome] || 0) + 1;
+    if (l.criado_por_foto) fotos[nome] = l.criado_por_foto;
   });
 
   const autores = Object.entries(totais).sort((a, b) => b[1] - a[1]);
 
+  // Se a pessoa que estava filtrada não lançou mais nada no período atual, limpa o filtro
+  if (autorFiltroAtivo && !totais[autorFiltroAtivo]) {
+    autorFiltroAtivo = null;
+  }
+
   // Só faz sentido mostrar quando mais de uma pessoa lançou algo (ex: carteira individual não precisa)
   if (autores.length < 2) {
     card.style.display = "none";
+    autorFiltroAtivo = null;
     return;
   }
 
@@ -1814,22 +1847,44 @@ function renderizarResumoAutores(dados) {
   container.innerHTML = "";
 
   const somaTotal = autores.reduce((soma, [, valor]) => soma + valor, 0);
+  const nomeUsuarioLogado = obterUsuarioLogado()?.nome;
 
   autores.forEach(([nome, valor]) => {
     const percentual = Math.round((valor / somaTotal) * 100);
-    const cor = typeof corDoAutor === "function" ? corDoAutor(nome) : "var(--cor-marca)";
+    const cor = corDoAutor(nome);
+    const qtd = contagens[nome];
+    const ehVoce = nome === nomeUsuarioLogado;
+    const foto = fotos[nome];
 
     const linha = document.createElement("div");
-    linha.className = "categoria-barra-linha";
+    linha.className = "categoria-barra-linha autor-barra-linha";
+    if (autorFiltroAtivo === nome) linha.classList.add("autor-barra-ativa");
+    linha.title = "Clique para filtrar a lista só com os lançamentos dessa pessoa";
+
+    const avatarHtml = foto
+      ? `<img class="autor-avatar" src="${foto}" alt="" />`
+      : `<span class="autor-avatar autor-avatar-inicial" style="background:${cor}">${nome.charAt(0).toUpperCase()}</span>`;
+
     linha.innerHTML = `
       <div class="categoria-barra-topo">
-        <strong>${nome}</strong>
+        <span class="autor-nome-wrapper">
+          ${avatarHtml}
+          <strong>${nome}${ehVoce ? " (você)" : ""}</strong>
+          <span class="autor-qtd-lancamentos">${qtd} ${qtd === 1 ? "lançamento" : "lançamentos"}</span>
+        </span>
         <span class="categoria-barra-valor">${formatadorBRL.format(valor)} · ${percentual}%</span>
       </div>
       <div class="categoria-barra-trilho">
         <div class="categoria-barra-preenchimento" style="background: ${cor}" data-largura="${percentual}"></div>
       </div>
     `;
+
+    linha.addEventListener("click", () => {
+      autorFiltroAtivo = autorFiltroAtivo === nome ? null : nome;
+      renderizarResumoAutores(ultimoLoteLancamentos);
+      renderizarListaLancamentos();
+    });
+
     container.appendChild(linha);
   });
 
