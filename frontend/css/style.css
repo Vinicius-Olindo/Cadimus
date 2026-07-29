@@ -1823,6 +1823,170 @@ label {
 }
 
 /* ==========================================
+   MODAL: IMPORTAÇÃO DE EXTRATO
+   ========================================== */
+.modal-importar {
+  max-width: 560px;
+}
+
+.importar-dropzone {
+  border: 2px dashed var(--cor-pauta-forte);
+  border-radius: var(--raio-md);
+  padding: 32px 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--cor-texto-suave);
+  transition: border-color 0.15s, background 0.15s;
+  cursor: pointer;
+  margin-bottom: 16px;
+}
+
+.importar-dropzone svg {
+  opacity: 0.5;
+  margin-bottom: 4px;
+}
+
+.importar-dropzone-span {
+  font-weight: 600;
+  font-size: 0.88rem;
+}
+
+.importar-dropzone-sub {
+  font-size: 0.76rem;
+  opacity: 0.6;
+}
+
+.importar-dropzone.dragover {
+  border-color: var(--cor-marca);
+  background: color-mix(in srgb, var(--cor-marca) 6%, transparent);
+}
+
+.importar-preview {
+  margin-bottom: 16px;
+}
+
+.importar-preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.importar-info-arquivo {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--cor-texto);
+}
+
+.importar-tabela-container {
+  max-height: 300px;
+  overflow-y: auto;
+  border: var(--borda) solid var(--cor-pauta-forte);
+  border-radius: var(--raio-md);
+}
+
+.importar-tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.importar-tabela th {
+  position: sticky;
+  top: 0;
+  background: var(--cor-superficie);
+  text-align: left;
+  padding: 8px 10px;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--cor-texto-suave);
+  font-weight: 600;
+  border-bottom: var(--borda) solid var(--cor-pauta-forte);
+}
+
+.importar-tabela td {
+  padding: 7px 10px;
+  border-bottom: var(--borda) solid var(--cor-pauta-forte);
+  vertical-align: middle;
+}
+
+.importar-tabela tr:last-child td {
+  border-bottom: none;
+}
+
+.importar-tabela tr:hover {
+  background: color-mix(in srgb, var(--cor-marca) 4%, transparent);
+}
+
+.importar-th-check {
+  width: 32px;
+  text-align: center !important;
+}
+
+.importar-td-check {
+  text-align: center;
+}
+
+.importar-td-check input {
+  width: auto;
+  cursor: pointer;
+}
+
+.importar-td-valor {
+  font-family: var(--fonte-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.importar-td-valor.importar-despesa {
+  color: var(--cor-despesa);
+}
+
+.importar-td-valor.importar-receita {
+  color: var(--cor-receita);
+}
+
+.importar-td-categoria select {
+  padding: 4px 6px;
+  font-size: 0.76rem;
+  border-radius: var(--raio-sm);
+  min-width: 100px;
+}
+
+.importar-preview-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+#importar-resumo {
+  font-size: 0.78rem;
+  color: var(--cor-texto-suave);
+  font-weight: 600;
+}
+
+.btn-importar-confirmar {
+  background: var(--cor-marca);
+  color: var(--cor-superficie-alta);
+  padding: 10px 20px;
+  border-radius: var(--raio-md);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.btn-importar-confirmar:hover {
+  background: var(--cor-marca-forte);
+}
+
+/* ==========================================
    TOAST — notificação flutuante
    ========================================== */
 .toast-container {

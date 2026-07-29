@@ -87,6 +87,10 @@
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3h16v18l-3-2-2 2-2-2-2 2-2-2-2 2-3-2Z"/><path d="M8 8h8M8 12h8M8 16h4"/></svg>
                 <span class="btn-topo-label">Parceladas</span>
               </button>
+              <button id="btn-importar-extrato" class="btn-topo-icone" title="Importar extrato">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <span class="btn-topo-label">Importar</span>
+              </button>
               <div class="acoes-topo-divider"></div>
               <button id="btn-admin" class="btn-topo-icone" style="display: none" title="Configurações">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
@@ -563,6 +567,49 @@
       </div>
     </div>
 
+    <!-- MODAL: IMPORTAR EXTRATO -->
+    <div id="modal-importar" class="modal-overlay" style="display: none">
+      <div class="modal-content modal-importar">
+        <h3>Importar extrato</h3>
+        <p class="modal-subtitulo">Arraste ou selecione um arquivo .OFX ou .CSV do seu banco.</p>
+
+        <div id="importar-dropzone" class="importar-dropzone">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <span>Solte o arquivo aqui</span>
+          <span class="importar-dropzone-sub">ou</span>
+          <label for="importar-arquivo" class="botao-arquivo">Selecionar arquivo</label>
+          <input type="file" id="importar-arquivo" accept=".ofx,.qif,.csv" hidden />
+        </div>
+
+        <div id="importar-preview" class="importar-preview" style="display: none">
+          <div class="importar-preview-header">
+            <span id="importar-info-arquivo" class="importar-info-arquivo"></span>
+            <button type="button" id="importar-limpar" class="btn-link-adicionar">Limpar</button>
+          </div>
+          <div class="importar-tabela-container">
+            <table class="importar-tabela">
+              <thead>
+                <tr>
+                  <th class="importar-th-check"><input type="checkbox" id="importar-marcar-todos" checked /></th>
+                  <th>Data</th>
+                  <th>Descrição</th>
+                  <th>Valor</th>
+                  <th>Categoria</th>
+                </tr>
+              </thead>
+              <tbody id="importar-lista"></tbody>
+            </table>
+          </div>
+          <div class="importar-preview-footer">
+            <span id="importar-resumo"></span>
+            <button type="button" id="importar-confirmar" class="btn-importar-confirmar">Importar selecionados</button>
+          </div>
+        </div>
+
+        <button type="button" id="btn-fechar-modal-importar">Fechar</button>
+      </div>
+    </div>
+
     <!-- MODAL: AVISO (substitui alert()) -->
     <div id="modal-aviso" class="modal-overlay" style="display: none">
       <div class="modal-content modal-compacto">
@@ -584,6 +631,7 @@
 
     <script src="js/auth.js"></script>
     <script src="js/components.js"></script>
+    <script src="js/importar.js"></script>
     <script src="js/main.js"></script>
   </body>
 </html>
