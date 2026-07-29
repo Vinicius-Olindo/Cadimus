@@ -8,10 +8,10 @@ let recorrentesCarregadas = [];
 // CARREGAR LISTA
 // ==========================================
 async function carregarPainelRecorrentes() {
-  const container = document.getElementById("lista-recorrentes-admin");
-  const badge = document.getElementById("badge-recorrentes");
+  const card = document.getElementById("card-recorrentes");
+  const container = document.getElementById("lista-recorrentes-painel");
   const carteiraId = document.getElementById("seletor-carteira").value;
-  if (!container || !carteiraId) return;
+  if (!card || !container || !carteiraId) return;
 
   try {
     const resposta = await fetch(`${API_URL}/api/lancamentos-recorrentes?carteira_id=${carteiraId}`, { headers: headersAutenticados(false) });
@@ -20,13 +20,12 @@ async function carregarPainelRecorrentes() {
 
     recorrentesCarregadas = await resposta.json();
 
-    if (badge) badge.textContent = recorrentesCarregadas.length;
-
     if (recorrentesCarregadas.length === 0) {
-      container.innerHTML = '<div class="estado-vazio-admin"><div class="icone-vazio">🔄</div><p>Nenhuma recorrência cadastrada.<br>Crie a primeira acima.</p></div>';
+      card.style.display = "none";
       return;
     }
 
+    card.style.display = "flex";
     container.innerHTML = "";
 
     const NOMES_FREQUENCIA = { semanal: "Semanal", quinzenal: "Quinzenal", mensal: "Mensal", trimestral: "Trimestral", anual: "Anual" };
@@ -34,8 +33,7 @@ async function carregarPainelRecorrentes() {
 
     recorrentesCarregadas.forEach((rec) => {
       const valorFormatado = formatadorBRL.format(rec.valor);
-      const nomeFreq = NOMES_FREQUENCIA[rec.frequencia] || rec.frequencia || "Mensal";
-      let detalhe = nomeFreq;
+      let detalhe = `${NOMES_FREQUENCIA[rec.frequencia]}`;
       if (rec.frequencia === "semanal") {
         detalhe += ` · ${NOMES_DIAS[rec.dia_semana || 0]}`;
       } else {
@@ -78,7 +76,7 @@ async function carregarPainelRecorrentes() {
 // ==========================================
 function configurarModalRecorrencia() {
   const modal = document.getElementById("modal-recorrencia");
-  const btnAbrir = document.getElementById("btn-nova-recorrencia-admin");
+  const btnAbrir = document.getElementById("btn-nova-recorrencia");
   const btnFechar = document.getElementById("btn-fechar-modal-recorrencia");
   const form = document.getElementById("form-recorrencia");
   const selFrequencia = document.getElementById("recorrencia-frequencia");

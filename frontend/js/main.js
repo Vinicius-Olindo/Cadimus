@@ -1976,6 +1976,7 @@ async function carregarLancamentos() {
 
   carregarPainelDespesasFixas();
   carregarPainelComprasParceladas();
+  carregarPainelRecorrentes();
   const promiseMetas = carregarMetas();
 
   // Marca esta chamada como "a mais recente". Se outra começar antes dela terminar,
@@ -2606,7 +2607,6 @@ function configurarSubAbasAdmin() {
 
       if (tab.dataset.painel === "painel-categorias") carregarListaCategorias();
       if (tab.dataset.painel === "painel-usuarios") carregarUsuarios();
-      if (tab.dataset.painel === "painel-recorrentes") carregarPainelRecorrentes();
     });
   });
 }
