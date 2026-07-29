@@ -1,7 +1,7 @@
 {
-  "name": "Cadimus - Caderno de Contas",
+  "name": "Gestor Financeiro",
   "short_name": "Cadimus",
-  "description": "Caderno de contas para a casa e para o seu bolso.",
+  "description": "Gestor financeiro para a casa e para o seu bolso.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
