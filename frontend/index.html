@@ -203,12 +203,6 @@
               <div id="lista-compras-parceladas-painel"></div>
             </div>
 
-            <div class="card resumo-categorias" id="card-recorrentes" style="display: none">
-              <div class="despesas-fixas-cabecalho">
-                <span class="resumo-categorias-titulo">Recorrências</span>
-                <button type="button" id="btn-nova-recorrencia" class="btn-link-adicionar">+ Nova</button>
-              </div>
-              <div id="lista-recorrentes-painel"></div>
             </div>
           </div>
         </div>
@@ -226,6 +220,7 @@
         <div class="admin-tabs">
           <button type="button" class="tab-admin ativo" data-painel="painel-usuarios">Usuários <span class="badge-contador" id="badge-usuarios"></span></button>
           <button type="button" class="tab-admin" data-painel="painel-categorias">Categorias <span class="badge-contador" id="badge-categorias"></span></button>
+          <button type="button" class="tab-admin" data-painel="painel-recorrentes">Recorrências <span class="badge-contador" id="badge-recorrentes"></span></button>
           <button type="button" class="tab-admin" data-painel="painel-sistema">Sistema</button>
         </div>
 
@@ -282,6 +277,18 @@
             <input type="text" id="busca-categorias" placeholder="Buscar categoria..." />
           </div>
           <div class="lista-lancamentos" id="lista-categorias"></div>
+        </div>
+
+        <!-- PAINEL: RECORRÊNCIAS -->
+        <div id="painel-recorrentes" class="painel-admin" style="display: none">
+          <div class="card">
+            <h3>Nova recorrência</h3>
+            <p class="modal-subtitulo" style="margin-bottom: 14px;">
+              Lançamentos que se repetem automaticamente com frequência definida (semanal, quinzenal, mensal, etc).
+            </p>
+            <button type="button" id="btn-nova-recorrencia-admin" class="btn-link-adicionar">+ Nova recorrência</button>
+          </div>
+          <div id="lista-recorrentes-admin"></div>
         </div>
 
         <!-- PAINEL: SISTEMA (zona de perigo) -->
