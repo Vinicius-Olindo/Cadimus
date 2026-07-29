@@ -25,6 +25,72 @@ function tratarSessaoExpirada(resposta) {
 }
 
 // ==========================================
+// FOCUS TRAP — mantém o Tab preso dentro do modal aberto
+// ==========================================
+let modalFocoAtivo = null;
+let trapHandler = null;
+
+function trapFoco(modal) {
+  liberarFoco();
+  modalFocoAtivo = modal;
+  const anterior = document.activeElement;
+
+  function aoTeclar(e) {
+    if (e.key === "Escape") {
+      const btnFechar = modal.querySelector("[id^='btn-fechar-modal'], #btn-aviso-ok, #btn-confirmacao-cancelar, #btn-fechar-modal-meta");
+      if (btnFechar) btnFechar.click();
+      return;
+    }
+    if (e.key !== "Tab") return;
+
+    const alvos = modal.querySelectorAll(
+      'button:not([disabled]):not([style*="display: none"]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+    if (alvos.length === 0) return;
+
+    const primeiro = alvos[0];
+    const ultimo = alvos[alvos.length - 1];
+
+    if (e.shiftKey) {
+      if (document.activeElement === primeiro) {
+        e.preventDefault();
+        ultimo.focus();
+      }
+    } else {
+      if (document.activeElement === ultimo) {
+        e.preventDefault();
+        primeiro.focus();
+      }
+    }
+  }
+
+  trapHandler = aoTeclar;
+  document.addEventListener("keydown", aoTeclar);
+
+  requestAnimationFrame(() => {
+    const focavel = modal.querySelector(
+      'input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), button:not([disabled])'
+    );
+    if (focavel) focavel.focus();
+  });
+
+  return () => {
+    document.removeEventListener("keydown", aoTeclar);
+    trapHandler = null;
+    modalFocoAtivo = null;
+    if (anterior && anterior.focus) anterior.focus();
+  };
+}
+
+function liberarFoco() {
+  if (trapHandler) {
+    document.removeEventListener("keydown", trapHandler);
+    trapHandler = null;
+    modalFocoAtivo = null;
+  }
+}
+
+// ==========================================
 // AVISO E CONFIRMAÇÃO EM MODAL (no lugar de alert()/confirm() nativos)
 // ==========================================
 function mostrarAviso(mensagem) {
@@ -39,9 +105,11 @@ function mostrarAviso(mensagem) {
 
     texto.textContent = mensagem;
     modal.style.display = "flex";
+    const liberar = trapFoco(modal);
 
     function aoFechar() {
       modal.style.display = "none";
+      liberar();
       btnOk.removeEventListener("click", aoFechar);
       resolve();
     }
@@ -65,9 +133,11 @@ function pedirConfirmacao(mensagem, opcoes = {}) {
     btnConfirmar.textContent = opcoes.textoConfirmar || "Confirmar";
     btnConfirmar.classList.toggle("confirmacao-perigo", Boolean(opcoes.perigo));
     modal.style.display = "flex";
+    const liberar = trapFoco(modal);
 
     function limpar() {
       modal.style.display = "none";
+      liberar();
       btnConfirmar.removeEventListener("click", aoConfirmar);
       btnCancelar.removeEventListener("click", aoCancelar);
     }
@@ -405,7 +475,10 @@ function selecionarCarteira(id) {
 // --- MODAL: NOVA CARTEIRA ---
 function abrirModalCarteira() {
   const modal = document.getElementById("modal-carteira");
-  if (modal) modal.style.display = "flex";
+  if (modal) {
+    modal.style.display = "flex";
+    trapFoco(modal);
+  }
 }
 
 function configurarModalCarteira() {
@@ -458,6 +531,7 @@ function configurarModalCarteira() {
 
   btnFechar.addEventListener("click", () => {
     modal.style.display = "none";
+    liberarFoco();
     form.reset();
     campoMembros.style.display = "none";
   });
@@ -519,6 +593,7 @@ async function abrirModalGerenciarMembros(carteira) {
   document.getElementById("gerenciar-membros-carteira-id").value = carteira.id;
   document.getElementById("btn-excluir-carteira").dataset.nome = carteira.nome;
   modal.style.display = "flex";
+  trapFoco(modal);
 
   // Carteira individual não tem com quem compartilhar — só mostra a zona de excluir
   if (carteira.tipo !== "compartilhada") {
@@ -581,6 +656,7 @@ function configurarModalGerenciarMembros() {
 
   btnFechar.addEventListener("click", () => {
     modal.style.display = "none";
+    liberarFoco();
   });
 
   btnExcluir.addEventListener("click", async () => {
@@ -662,6 +738,7 @@ function fecharModalDespesaFixa() {
   const form = document.getElementById("form-despesa-fixa");
 
   modal.style.display = "none";
+  liberarFoco();
   form.reset();
   document.getElementById("fixa-editando-id").value = "";
   document.getElementById("titulo-modal-fixa").innerText = "Despesas fixas";
@@ -683,6 +760,7 @@ async function abrirModalDespesasFixas() {
   document.getElementById("btn-salvar-fixa").innerText = "Adicionar";
   await popularSelectCategorias(document.getElementById("fixa-categoria"));
   modal.style.display = "flex";
+  trapFoco(modal);
 }
 
 async function editarDespesaFixa(id) {
@@ -706,6 +784,7 @@ async function editarDespesaFixa(id) {
   document.getElementById("titulo-modal-fixa").innerText = `Editando "${fixa.descricao}"`;
   document.getElementById("btn-salvar-fixa").innerText = "Salvar edição";
   modal.style.display = "flex";
+  trapFoco(modal);
 }
 
 function configurarModalDespesasFixas() {
@@ -923,6 +1002,7 @@ async function abrirModalComprasParceladas() {
   }
 
   modal.style.display = "flex";
+  trapFoco(modal);
 }
 
 function configurarModalComprasParceladas() {
@@ -959,6 +1039,7 @@ function configurarModalComprasParceladas() {
 
   btnFechar.addEventListener("click", () => {
     modal.style.display = "none";
+    liberarFoco();
     form.reset();
     preview.style.display = "none";
   });
@@ -1174,6 +1255,7 @@ function abrirModalMeta(categoria, valorAtual) {
   document.getElementById("meta-valor").value = valorAtual || "";
   document.getElementById("btn-remover-meta").style.display = valorAtual ? "inline-block" : "none";
   modal.style.display = "flex";
+  trapFoco(modal);
 }
 
 function configurarModalMeta() {
@@ -1186,6 +1268,7 @@ function configurarModalMeta() {
 
   btnFechar.addEventListener("click", () => {
     modal.style.display = "none";
+    liberarFoco();
   });
 
   form.addEventListener("submit", async (evento) => {
@@ -1308,6 +1391,7 @@ function fecharModalLancamento() {
   const campoCategoriaNova = document.getElementById("categoria-nova");
 
   modal.style.display = "none";
+  liberarFoco();
   form.reset();
   document.getElementById("lancamento-editando-id").value = "";
   document.getElementById("titulo-modal-lancamento").innerText = "Novo lançamento";
@@ -1329,6 +1413,7 @@ async function abrirModalNovoLancamento() {
   document.getElementById("btn-salvar-lancamento").innerText = "Salvar";
   document.getElementById("data-compra").valueAsDate = new Date();
   document.getElementById("modal-lancamento").style.display = "flex";
+  trapFoco(document.getElementById("modal-lancamento"));
 }
 
 async function editarLancamento(id) {
@@ -1350,6 +1435,7 @@ async function editarLancamento(id) {
   document.getElementById("titulo-modal-lancamento").innerText = "Editar lançamento";
   document.getElementById("btn-salvar-lancamento").innerText = "Salvar edição";
   document.getElementById("modal-lancamento").style.display = "flex";
+  trapFoco(document.getElementById("modal-lancamento"));
 }
 
 function configurarModal() {
@@ -2019,6 +2105,7 @@ function configurarZonaDePerigo() {
 
   function fecharModalZerarDados() {
     modal.style.display = "none";
+    liberarFoco();
     campoConfirmacao.value = "";
     btnConfirmar.disabled = true;
   }
@@ -2027,6 +2114,7 @@ function configurarZonaDePerigo() {
     campoConfirmacao.value = "";
     btnConfirmar.disabled = true;
     modal.style.display = "flex";
+    trapFoco(modal);
   });
 
   btnFechar.addEventListener("click", fecharModalZerarDados);
@@ -2439,6 +2527,7 @@ function abrirModalRenomearCategoria(id, nomeAtual) {
   document.getElementById("categoria-renomear-id").value = id;
   document.getElementById("categoria-novo-nome").value = nomeAtual;
   modal.style.display = "flex";
+  trapFoco(modal);
 }
 
 function configurarModalRenomearCategoria() {
@@ -2450,6 +2539,7 @@ function configurarModalRenomearCategoria() {
 
   btnFechar.addEventListener("click", () => {
     modal.style.display = "none";
+    liberarFoco();
   });
 
   form.addEventListener("submit", async (evento) => {

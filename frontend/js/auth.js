@@ -119,11 +119,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const formEsqueciSenha = document.getElementById("form-esqueci-senha");
 
   document.getElementById("link-esqueci-senha")?.addEventListener("click", () => {
-    if (modalEsqueciSenha) modalEsqueciSenha.style.display = "flex";
+    if (modalEsqueciSenha) {
+      modalEsqueciSenha.style.display = "flex";
+      trapFoco(modalEsqueciSenha);
+    }
   });
 
   document.getElementById("btn-fechar-modal-esqueci-senha")?.addEventListener("click", () => {
-    if (modalEsqueciSenha) modalEsqueciSenha.style.display = "none";
+    if (modalEsqueciSenha) {
+      modalEsqueciSenha.style.display = "none";
+      liberarFoco();
+    }
     formEsqueciSenha?.reset();
   });
 
