@@ -12,10 +12,6 @@ export async function gerarLancamentosFixosDoMes(env, carteiraIds, ano, mes) {
   const mesNum = Number(mes);
   if (!anoNum || !mesNum || !carteiraIds || carteiraIds.length === 0) return;
 
-  const hoje = new Date();
-  const ehPeriodoFuturo = anoNum > hoje.getUTCFullYear() || (anoNum === hoje.getUTCFullYear() && mesNum > hoje.getUTCMonth() + 1);
-  if (ehPeriodoFuturo) return;
-
   const { results: fixas } = await env.DB.prepare(
     `SELECT * FROM despesas_fixas WHERE ativo = 1 AND carteira_id IN (${carteiraIds.map(() => "?").join(",")})`,
   )
