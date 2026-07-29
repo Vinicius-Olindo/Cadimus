@@ -36,8 +36,10 @@ export async function processarLancamentos(request, env, ctx) {
         return new Response(JSON.stringify([]), { status: 200 });
       }
 
+      const despesaFixaId = url.searchParams.get("despesa_fixa_id");
+
       // Antes de listar, garante que as despesas fixas ativas e as parcelas do mês já foram geradas
-      if (mes && ano) {
+      if (mes && ano && !despesaFixaId) {
         const carteirasAlvo = carteiraId ? [Number(carteiraId)] : carteirasPermitidas;
         await gerarLancamentosFixosDoMes(env, carteirasAlvo, ano, mes);
         await gerarLancamentosParceladosDoMes(env, carteirasAlvo, ano, mes);
@@ -63,6 +65,11 @@ export async function processarLancamentos(request, env, ctx) {
       if (mes && ano) {
         query += ` AND strftime('%m', l.data_compra) = ? AND strftime('%Y', l.data_compra) = ?`;
         params.push(mes.padStart(2, "0"), ano);
+      }
+
+      if (despesaFixaId) {
+        query += ` AND l.despesa_fixa_id = ?`;
+        params.push(despesaFixaId);
       }
 
       query += ` ORDER BY l.data_compra DESC`;

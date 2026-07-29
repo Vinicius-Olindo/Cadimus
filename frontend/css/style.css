@@ -1515,6 +1515,64 @@ label {
   margin-bottom: 18px;
 }
 
+/* Modal histórico de pagamentos */
+.modal-historico {
+  max-width: 500px;
+}
+
+.historico-fixa-lista {
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: 14px;
+}
+
+.historico-fixa-linha {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--cor-pauta-forte);
+}
+
+.historico-fixa-linha:last-child {
+  border-bottom: none;
+}
+
+.historico-fixa-data {
+  font-size: 0.8rem;
+  color: var(--cor-texto-suave);
+}
+
+.historico-fixa-valor {
+  font-family: var(--fonte-mono);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.historico-fixa-status {
+  font-size: 0.72rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.historico-fixa-status.status-pago {
+  background: color-mix(in srgb, var(--cor-receita) 15%, transparent);
+  color: var(--cor-receita);
+}
+
+.historico-fixa-status.status-pendente {
+  background: color-mix(in srgb, var(--cor-pendente) 15%, transparent);
+  color: var(--cor-pendente);
+}
+
+.historico-fixa-vazio {
+  text-align: center;
+  color: var(--cor-texto-suave);
+  font-size: 0.82rem;
+  padding: 24px 0;
+}
+
 .parcelada-preview {
   font-family: var(--fonte-mono);
   font-size: 0.85rem;

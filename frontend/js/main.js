@@ -827,6 +827,14 @@ function configurarModalDespesasFixas() {
   btnAbrirDoCard?.addEventListener("click", abrirModalDespesasFixas);
   btnFechar.addEventListener("click", fecharModalDespesaFixa);
 
+  // Modal de histórico
+  const modalHistorico = document.getElementById("modal-historico-fixa");
+  const btnFecharHistorico = document.getElementById("btn-fechar-modal-historico-fixa");
+  btnFecharHistorico?.addEventListener("click", () => {
+    modalHistorico.style.display = "none";
+    liberarFoco();
+  });
+
   form.addEventListener("submit", async (evento) => {
     evento.preventDefault();
 
@@ -918,6 +926,7 @@ async function carregarPainelDespesasFixas() {
         <div class="item-valores">
           ${badgeAviso}
           <span class="item-status ${fixa.ativo ? "status-pago" : "status-pendente"}">${fixa.ativo ? "Ativa" : "Pausada"}</span>
+          <button type="button" class="btn-editar-usuario btn-historico-fixa" data-id="${fixa.id}" data-descricao="${escaparHtml(fixa.descricao)}">Histórico</button>
           <button type="button" class="btn-editar-usuario btn-editar-fixa" data-id="${fixa.id}">Editar</button>
           <button type="button" class="btn-editar-usuario btn-alternar-fixa" data-id="${fixa.id}">${fixa.ativo ? "Pausar" : "Ativar"}</button>
           <button type="button" class="btn-excluir-conta" data-id="${fixa.id}">Excluir</button>
@@ -928,6 +937,9 @@ async function carregarPainelDespesasFixas() {
 
     container.querySelectorAll(".btn-editar-fixa").forEach((btn) => {
       btn.addEventListener("click", () => editarDespesaFixa(Number(btn.dataset.id)));
+    });
+    container.querySelectorAll(".btn-historico-fixa").forEach((btn) => {
+      btn.addEventListener("click", () => abrirHistoricoFixa(Number(btn.dataset.id), btn.dataset.descricao));
     });
     container.querySelectorAll(".btn-alternar-fixa").forEach((btn) => {
       btn.addEventListener("click", () => alternarDespesaFixa(Number(btn.dataset.id)));
@@ -1004,6 +1016,57 @@ async function excluirDespesaFixa(id) {
     }
   } catch (erro) {
     await mostrarAviso("Erro de conexão.");
+  }
+}
+
+// --- HISTÓRICO DE PAGAMENTOS (DESPESA FIXA) ---
+async function abrirHistoricoFixa(fixaId, descricao) {
+  const modal = document.getElementById("modal-historico-fixa");
+  const titulo = document.getElementById("titulo-historico-fixa");
+  const lista = document.getElementById("historico-fixa-lista");
+  if (!modal || !titulo || !lista) return;
+
+  titulo.textContent = `Histórico — ${descricao}`;
+  lista.innerHTML = '<p class="historico-fixa-vazio">Carregando...</p>';
+  modal.style.display = "flex";
+  trapFoco(modal);
+
+  try {
+    const resposta = await fetch(`${API_URL}/api/lancamentos?despesa_fixa_id=${fixaId}`, {
+      headers: headersAutenticados(false),
+    });
+
+    if (!resposta.ok) {
+      lista.innerHTML = '<p class="historico-fixa-vazio">Erro ao carregar histórico.</p>';
+      return;
+    }
+
+    const lancamentos = await resposta.json();
+
+    if (lancamentos.length === 0) {
+      lista.innerHTML = '<p class="historico-fixa-vazio">Nenhum pagamento registrado ainda.</p>';
+      return;
+    }
+
+    lista.innerHTML = "";
+    lancamentos.forEach((l) => {
+      const dataFormatada = new Date(l.data_compra + "T12:00:00").toLocaleDateString("pt-BR");
+      const valorFormatado = formatadorBRL.format(l.valor);
+      const classeTipo = l.tipo === "receita" ? "texto-receita" : "texto-despesa";
+      const sinal = l.tipo === "receita" ? "+" : "-";
+      const classeStatus = l.status === "pago" ? "status-pago" : "status-pendente";
+
+      const linha = document.createElement("div");
+      linha.className = "historico-fixa-linha";
+      linha.innerHTML = `
+        <span class="historico-fixa-data">${dataFormatada}</span>
+        <span class="historico-fixa-valor ${classeTipo}">${sinal} ${valorFormatado}</span>
+        <span class="historico-fixa-status ${classeStatus}">${l.status === "pago" ? "Pago" : "Pendente"}</span>
+      `;
+      lista.appendChild(linha);
+    });
+  } catch (erro) {
+    lista.innerHTML = '<p class="historico-fixa-vazio">Erro de conexão.</p>';
   }
 }
 
