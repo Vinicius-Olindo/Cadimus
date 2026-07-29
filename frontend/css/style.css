@@ -880,9 +880,15 @@ button:active {
 /* Gráfico comparativo receitas vs despesas (6 meses) */
 .comparativo-grafico {
   display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding-top: 6px;
+}
+
+.comparativo-barras-container {
+  display: flex;
   align-items: flex-end;
   gap: 8px;
-  padding-top: 10px;
 }
 
 .comparativo-coluna {
@@ -896,7 +902,7 @@ button:active {
 
 .comparativo-barras {
   width: 100%;
-  height: 70px;
+  height: 90px;
   display: flex;
   align-items: flex-end;
   gap: 2px;

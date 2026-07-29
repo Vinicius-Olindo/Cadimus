@@ -2127,6 +2127,9 @@ function renderizarComparativo6Meses(meses, dados, mesAtualIdx, anoAtual) {
 
   const maiorValor = Math.max(...dados.map((d) => Math.max(d.receitas, d.despesas)), 1);
 
+  const barrasContainer = document.createElement("div");
+  barrasContainer.className = "comparativo-barras-container";
+
   meses.forEach(({ ano, mes }, i) => {
     const alturaRec = Math.round((dados[i].receitas / maiorValor) * 100);
     const alturaDesp = Math.round((dados[i].despesas / maiorValor) * 100);
@@ -2141,8 +2144,10 @@ function renderizarComparativo6Meses(meses, dados, mesAtualIdx, anoAtual) {
       </div>
       <span class="comparativo-rotulo">${NOMES_MESES_ABREV[mes]}</span>
     `;
-    container.appendChild(coluna);
+    barrasContainer.appendChild(coluna);
   });
+
+  container.appendChild(barrasContainer);
 
   // Legenda
   const legenda = document.createElement("div");
