@@ -7,7 +7,7 @@ import { processarUsuarios } from "./routes/usuarios.js";
 import { processarCategorias } from "./routes/categorias.js";
 import { processarCarteiras } from "./routes/carteiras.js";
 import { processarDespesasFixas } from "./routes/despesasFixas.js";
-import { processarMetas } from "./routes/metas.js";
+import { processarMetas, processarMetaDepositos } from "./routes/metas.js";
 import { processarComprasParceladas } from "./routes/comprasParceladas.js";
 import { processarLimpezaDados } from "./routes/manutencao.js";
 
@@ -99,6 +99,9 @@ export default {
       // ==========================================
       // ROTA 7: METAS POR CATEGORIA
       // ==========================================
+      if (url.pathname.startsWith("/api/metas-depositos")) {
+        return comCors(await processarMetaDepositos(request, env, ctx), frontendUrl, request);
+      }
       if (url.pathname.startsWith("/api/metas")) {
         return comCors(await processarMetas(request, env, ctx), frontendUrl, request);
       }

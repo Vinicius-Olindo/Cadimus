@@ -1573,6 +1573,126 @@ label {
   padding: 24px 0;
 }
 
+/* Modal de depósito em meta */
+.modal-meta-deposito {
+  max-width: 420px;
+}
+
+.meta-deposito-resumo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  background: var(--cor-fundo-alt);
+  border-radius: var(--raio-md);
+  margin-bottom: 14px;
+}
+
+.meta-deposito-resumo-label {
+  font-size: 0.78rem;
+  color: var(--cor-texto-suave);
+}
+
+.meta-deposito-resumo-valor {
+  font-family: var(--fonte-mono);
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.meta-deposito-progresso {
+  height: 10px;
+  border-radius: 999px;
+  background: var(--cor-pauta-forte);
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+.meta-deposito-progresso-barra {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--cor-receita);
+  transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.meta-deposito-progresso-barra.barra-estourou {
+  background: var(--cor-despesa);
+}
+
+.meta-deposito-info {
+  font-size: 0.72rem;
+  color: var(--cor-texto-suave);
+  text-align: center;
+  margin-bottom: 14px;
+}
+
+.btn-meta-depositar {
+  width: 100%;
+  padding: 10px;
+  border-radius: var(--raio-md);
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+.historico-deposito-linha {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--cor-pauta-forte);
+}
+
+.historico-deposito-linha:last-child {
+  border-bottom: none;
+}
+
+.historico-deposito-data {
+  font-size: 0.78rem;
+  color: var(--cor-texto-suave);
+}
+
+.historico-deposito-desc {
+  font-size: 0.78rem;
+  color: var(--cor-texto);
+  flex: 1;
+  margin: 0 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.historico-deposito-valor {
+  font-family: var(--fonte-mono);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--cor-receita);
+  white-space: nowrap;
+}
+
+.historico-deposito-excluir {
+  background: none;
+  border: none;
+  color: var(--cor-despesa);
+  cursor: pointer;
+  padding: 2px 4px;
+  font-size: 0.72rem;
+  opacity: 0.6;
+  transition: opacity 0.15s;
+}
+
+.historico-deposito-excluir:hover {
+  opacity: 1;
+}
+
+.barra-meta-clicavel {
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.barra-meta-clicavel:hover {
+  transform: scale(1.01);
+}
+
 .parcelada-preview {
   font-family: var(--fonte-mono);
   font-size: 0.85rem;
