@@ -91,6 +91,28 @@ function liberarFoco() {
 }
 
 // ==========================================
+// TOAST — notificação flutuante de feedback
+// ==========================================
+function mostrarToast(mensagem, tipo = "sucesso", duracao = 2500) {
+  let container = document.querySelector(".toast-container");
+  if (!container) {
+    container = document.createElement("div");
+    container.className = "toast-container";
+    document.body.appendChild(container);
+  }
+
+  const toast = document.createElement("div");
+  toast.className = `toast toast-${tipo}`;
+  toast.textContent = mensagem;
+  container.appendChild(toast);
+
+  setTimeout(() => {
+    toast.classList.add("toast-saindo");
+    toast.addEventListener("animationend", () => toast.remove());
+  }, duracao);
+}
+
+// ==========================================
 // AVISO E CONFIRMAÇÃO EM MODAL (no lugar de alert()/confirm() nativos)
 // ==========================================
 function mostrarAviso(mensagem) {
@@ -567,6 +589,7 @@ function configurarModalCarteira() {
         campoMembros.style.display = "none";
         await carregarCarteiras();
         selecionarCarteira(novaCarteira.id);
+        mostrarToast("Carteira criada");
       } else {
         const erro = await resposta.json();
         await mostrarAviso(`Erro ao criar carteira: ${erro.erro}`);
@@ -683,8 +706,10 @@ function configurarModalGerenciarMembros() {
 
       if (resposta.ok) {
         modal.style.display = "none";
+        liberarFoco();
         carteirasDoUsuario = await (await fetch(`${API_URL}/api/carteiras`, { headers: headersAutenticados(false) })).json();
         renderizarTabsCarteira();
+        mostrarToast("Carteira excluída", "info");
       } else {
         const erro = await resposta.json();
         await mostrarAviso(`Erro: ${erro.erro}`);
@@ -717,6 +742,8 @@ function configurarModalGerenciarMembros() {
 
       if (resposta.ok) {
         modal.style.display = "none";
+        liberarFoco();
+        mostrarToast("Membros atualizados");
       } else {
         const erro = await resposta.json();
         await mostrarAviso(`Erro: ${erro.erro}`);
@@ -837,7 +864,8 @@ function configurarModalDespesasFixas() {
       if (resposta.ok) {
         fecharModalDespesaFixa();
         carregarPainelDespesasFixas();
-        carregarLancamentos(); // se o mês atual já bateu o vencimento, aparece na hora
+        carregarLancamentos();
+        mostrarToast(idEdicao ? "Despesa fixa atualizada" : "Despesa fixa criada");
       } else {
         const erro = await resposta.json();
         await mostrarAviso(`Erro: ${erro.erro}`);
@@ -946,6 +974,7 @@ async function alternarDespesaFixa(id) {
 
     if (resposta.ok) {
       carregarPainelDespesasFixas();
+      mostrarToast(alvo.ativo ? "Despesa fixa pausada" : "Despesa fixa ativada", "info");
     } else {
       const erro = await resposta.json();
       await mostrarAviso(`Erro: ${erro.erro}`);
@@ -968,6 +997,7 @@ async function excluirDespesaFixa(id) {
 
     if (resposta.ok) {
       carregarPainelDespesasFixas();
+      mostrarToast("Despesa fixa excluída", "info");
     } else {
       const erro = await resposta.json();
       await mostrarAviso(`Erro: ${erro.erro}`);
@@ -1091,8 +1121,10 @@ function configurarModalComprasParceladas() {
         form.reset();
         preview.style.display = "none";
         modal.style.display = "none";
+        liberarFoco();
         carregarPainelComprasParceladas();
-        carregarLancamentos(); // se a parcela já bate no mês visível, aparece na hora
+        carregarLancamentos();
+        mostrarToast("Compra parcelada criada");
       } else {
         const erro = await resposta.json();
         await mostrarAviso(`Erro: ${erro.erro}`);
@@ -1192,6 +1224,7 @@ async function alternarComprasParcelada(id) {
 
     if (resposta.ok) {
       carregarPainelComprasParceladas();
+      mostrarToast(alvo.ativo ? "Compra parcelada cancelada" : "Compra parcelada reativada", "info");
     } else {
       const erro = await resposta.json();
       await mostrarAviso(`Erro: ${erro.erro}`);
@@ -1214,6 +1247,7 @@ async function excluirComprasParcelada(id) {
 
     if (resposta.ok) {
       carregarPainelComprasParceladas();
+      mostrarToast("Compra parcelada excluída", "info");
     } else {
       const erro = await resposta.json();
       await mostrarAviso(`Erro: ${erro.erro}`);
@@ -1323,8 +1357,10 @@ function configurarModalMeta() {
 
       if (resposta.ok) {
         modal.style.display = "none";
+        liberarFoco();
         await carregarMetas();
         carregarLancamentos();
+        mostrarToast("Meta removida", "info");
       } else {
         const erro = await resposta.json();
         await mostrarAviso(`Erro: ${erro.erro}`);
@@ -1529,6 +1565,7 @@ function configurarModal() {
       if (resposta.ok) {
         fecharModalLancamento();
         carregarLancamentos();
+        mostrarToast(idEdicao ? "Lançamento atualizado" : "Lançamento salvo");
       } else {
         const erro = await resposta.json();
         await mostrarAviso(`Erro ao salvar: ${erro.erro}`);
@@ -1808,6 +1845,7 @@ async function alternarStatusLancamento(id, statusAtual) {
 
     if (resposta.ok) {
       carregarLancamentos();
+      mostrarToast(novoStatus === "pago" ? "Marcado como pago" : "Marcado como pendente", "info");
     } else {
       const erro = await resposta.json();
       await mostrarAviso(`Não foi possível atualizar: ${erro.erro}`);
@@ -2031,6 +2069,7 @@ async function apagarLancamento(id) {
 
     if (resposta.ok) {
       carregarLancamentos();
+      mostrarToast("Lançamento excluído", "info");
     } else {
       const erro = await resposta.json();
       await mostrarAviso(`Não foi possível apagar: ${erro.erro}`);
@@ -2274,6 +2313,7 @@ function configurarFormularioUsuario() {
       if (resposta.ok) {
         sairModoEdicaoUsuario();
         carregarUsuarios();
+        mostrarToast(idEdicao ? "Usuário atualizado" : "Usuário criado");
       } else {
         const erro = await resposta.json();
         await mostrarAviso(`Erro: ${erro.erro}`);
@@ -2386,6 +2426,7 @@ async function excluirUsuario(id, botao) {
 
     if (resposta.ok) {
       carregarUsuarios();
+      mostrarToast("Usuário excluído", "info");
     } else {
       const erro = await resposta.json();
       await mostrarAviso(`Não foi possível excluir: ${erro.erro}`);
@@ -2427,6 +2468,7 @@ function configurarFormularioCategoria() {
       if (resposta.ok) {
         form.reset();
         carregarListaCategorias();
+        mostrarToast("Categoria criada");
       } else {
         const erro = await resposta.json();
         await mostrarAviso(`Erro: ${erro.erro}`);
@@ -2500,6 +2542,7 @@ async function excluirCategoria(id, botao) {
 
     if (resposta.ok) {
       carregarListaCategorias();
+      mostrarToast("Categoria excluída", "info");
     } else {
       const erro = await resposta.json();
       await mostrarAviso(`Não foi possível excluir: ${erro.erro}`);
@@ -2563,7 +2606,9 @@ function configurarModalRenomearCategoria() {
 
       if (resposta.ok) {
         modal.style.display = "none";
+        liberarFoco();
         carregarListaCategorias();
+        mostrarToast("Categoria renomeada");
       } else {
         const erro = await resposta.json();
         await mostrarAviso(`Erro: ${erro.erro}`);
