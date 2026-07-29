@@ -1257,7 +1257,7 @@ async function carregarPainelComprasParceladas() {
       }
 
       const div = document.createElement("div");
-      div.className = `linha-item linha-usuario ${classeDestaque}`.trim();
+      div.className = "linha-item linha-usuario";
       div.innerHTML = `
         <div class="item-info-principal linha-usuario-info">
           <span class="item-descricao">${escaparHtml(compra.descricao)}</span>
