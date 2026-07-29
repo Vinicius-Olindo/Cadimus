@@ -1207,7 +1207,7 @@ button.item-status:active {
 }
 
 .login-link-info {
-  color: var(--text-muted, #888);
+  color: var(--cor-texto-suave);
   font-size: 0.85rem;
   cursor: default;
 }
