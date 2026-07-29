@@ -168,6 +168,9 @@ export async function processarLogin(request, env, ctx) {
     // Login certo: limpa o histórico de tentativas erradas desse usuário
     await env.DB.prepare(`DELETE FROM tentativas_login WHERE identificador = ?`).bind(identificador).run();
 
+    // Registra o último acesso
+    await env.DB.prepare(`UPDATE usuarios SET ultimo_acesso = datetime('now') WHERE id = ?`).bind(userDB.id).run();
+
     // Gera e persiste um token de sessão real (antes o token era descartado)
     const tokenSessao = await criarSessao(env, userDB.id);
 

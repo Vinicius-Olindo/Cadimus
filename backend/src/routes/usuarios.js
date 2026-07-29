@@ -91,7 +91,7 @@ export async function processarUsuarios(request, env, ctx) {
   // ==========================================
   if (metodo === "GET") {
     try {
-      const query = `SELECT id, nome_usuario, perfil, nome, telefone, email, foto_perfil FROM usuarios ORDER BY id ASC`;
+      const query = `SELECT id, nome_usuario, perfil, nome, telefone, email, foto_perfil, criado_em, ultimo_acesso FROM usuarios ORDER BY id ASC`;
       const { results } = await env.DB.prepare(query).all();
       return new Response(JSON.stringify(results), { status: 200 });
     } catch (erro) {

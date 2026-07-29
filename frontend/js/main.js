@@ -24,6 +24,16 @@ function tratarSessaoExpirada(resposta) {
   return false;
 }
 
+function formatarDataHora(dataISO) {
+  if (!dataISO) return "—";
+  try {
+    const d = new Date(dataISO + (dataISO.includes("T") ? "" : "T00:00:00"));
+    return d.toLocaleDateString("pt-BR") + " às " + d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  } catch {
+    return "—";
+  }
+}
+
 // ==========================================
 // FOCUS TRAP — mantém o Tab preso dentro do modal aberto
 // ==========================================
@@ -2881,6 +2891,9 @@ async function carregarUsuarios() {
               <span class="item-status status-pago">${escaparHtml(user.perfil.toUpperCase())}</span>
             </div>
             <span class="linha-usuario-detalhe">@${escaparHtml(user.nome_usuario)}${user.email ? ` · ${escaparHtml(user.email)}` : ""}</span>
+            <span class="linha-usuario-detalhe">
+              Criado em ${formatarDataHora(user.criado_em)}${user.ultimo_acesso ? ` · Último acesso: ${formatarDataHora(user.ultimo_acesso)}` : " · Nunca acessou"}
+            </span>
           </div>
           <div class="item-valores">
             <button type="button" class="btn-editar-usuario" data-id="${user.id}">Editar</button>
