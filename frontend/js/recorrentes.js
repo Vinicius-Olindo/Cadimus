@@ -33,7 +33,8 @@ async function carregarPainelRecorrentes() {
 
     recorrentesCarregadas.forEach((rec) => {
       const valorFormatado = formatadorBRL.format(rec.valor);
-      let detalhe = `${NOMES_FREQUENCIA[rec.frequencia]}`;
+      const nomeFreq = NOMES_FREQUENCIA[rec.frequencia] || rec.frequencia || "Mensal";
+      let detalhe = nomeFreq;
       if (rec.frequencia === "semanal") {
         detalhe += ` · ${NOMES_DIAS[rec.dia_semana || 0]}`;
       } else {

@@ -1953,12 +1953,15 @@ label {
 .linha-usuario {
   padding: 10px 14px;
   gap: 10px;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   align-items: center;
+  overflow: hidden;
 }
 
 .linha-usuario .item-info-principal {
   min-width: 140px;
+  flex: 1;
+  min-width: 0;
 }
 
 /* Categorias: nome + selo cabem numa linha só. Usuários agora tem uma
@@ -1986,10 +1989,9 @@ label {
 
 .linha-usuario .item-valores {
   gap: 6px;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   justify-content: flex-end;
   align-items: center;
-  margin-left: auto;
 }
 
 .linha-usuario-detalhe {
@@ -2294,11 +2296,12 @@ label {
   }
 
   .linha-usuario {
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     align-items: center;
   }
 
   .linha-usuario .item-valores {
+    width: 100%;
     justify-content: flex-end;
     align-items: center;
   }
