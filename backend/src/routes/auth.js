@@ -153,7 +153,7 @@ export async function processarLogin(request, env, ctx) {
     // Busca o usuário pelo nome_usuario, sem diferenciar maiúsculas/minúsculas — teclados
     // de celular costumam capitalizar a primeira letra sozinhos, e o cadastro/edição de
     // usuário já trata "Vinicius" e "vinicius" como o mesmo nome (ver usuarios.js)
-    const query = `SELECT id, nome_usuario, perfil, nome, foto_perfil, senha_hash FROM usuarios WHERE LOWER(nome_usuario) = LOWER(?)`;
+    const query = `SELECT id, nome_usuario, perfil, nome, foto_perfil, senha_hash, ativo FROM usuarios WHERE LOWER(nome_usuario) = LOWER(?)`;
     const { results } = await env.DB.prepare(query).bind(usuario).all();
 
     const userDB = results[0];
@@ -163,6 +163,11 @@ export async function processarLogin(request, env, ctx) {
       // Registra a tentativa errada (mesmo se o usuário nem existir — evita revelar quais contas existem)
       await env.DB.prepare(`INSERT INTO tentativas_login (identificador) VALUES (?)`).bind(identificador).run();
       return new Response(JSON.stringify({ erro: "Usuário ou senha incorretos." }), { status: 401 });
+    }
+
+    // Bloqueia login de usuário inativo
+    if (userDB.ativo === 0) {
+      return new Response(JSON.stringify({ erro: "Sua conta foi desativada. Fale com um administrador." }), { status: 403 });
     }
 
     // Login certo: limpa o histórico de tentativas erradas desse usuário

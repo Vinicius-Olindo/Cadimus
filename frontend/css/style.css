@@ -2148,6 +2148,52 @@ label {
   border-color: var(--cor-marca);
 }
 
+/* Botão toggle ativo/inativo */
+.btn-toggle-ativo {
+  padding: 6px 12px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  border: var(--borda) solid;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-toggle-ativo.ativo {
+  background: color-mix(in srgb, var(--cor-receita) 12%, transparent);
+  color: var(--cor-receita);
+  border-color: color-mix(in srgb, var(--cor-receita) 40%, transparent);
+}
+
+.btn-toggle-ativo.ativo:hover {
+  background: color-mix(in srgb, var(--cor-receita) 20%, transparent);
+}
+
+.btn-toggle-ativo.inativo {
+  background: transparent;
+  color: var(--cor-texto-suave);
+  border-color: var(--cor-pauta-forte);
+}
+
+.btn-toggle-ativo.inativo:hover {
+  background: var(--cor-superficie);
+  color: var(--cor-receita);
+  border-color: var(--cor-receita);
+}
+
+.btn-toggle-ativo:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Usuário inativo: opacidade reduzida no card inteiro */
+.linha-inativa {
+  opacity: 0.55;
+}
+
+.linha-inativa:hover {
+  opacity: 0.85;
+}
+
 /* Botão de exclusão de contas — propositalmente destacado, é uma ação irreversível */
 .btn-excluir-conta {
   background: transparent;

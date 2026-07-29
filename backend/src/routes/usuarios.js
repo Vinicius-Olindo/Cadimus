@@ -91,7 +91,7 @@ export async function processarUsuarios(request, env, ctx) {
   // ==========================================
   if (metodo === "GET") {
     try {
-      const query = `SELECT id, nome_usuario, perfil, nome, telefone, email, foto_perfil, criado_em, ultimo_acesso FROM usuarios ORDER BY id ASC`;
+      const query = `SELECT id, nome_usuario, perfil, nome, telefone, email, foto_perfil, criado_em, ultimo_acesso, ativo FROM usuarios ORDER BY id ASC`;
       const { results } = await env.DB.prepare(query).all();
       return new Response(JSON.stringify(results), { status: 200 });
     } catch (erro) {
@@ -243,6 +243,47 @@ export async function processarUsuarios(request, env, ctx) {
       return new Response(JSON.stringify({ mensagem: "Usuário atualizado com sucesso!" }), { status: 200 });
     } catch (erro) {
       return new Response(JSON.stringify({ erro: "Erro ao atualizar.", detalhe: erro.message }), { status: 500 });
+    }
+  }
+
+  // ==========================================
+  // TOGGLE ATIVO/INATIVO
+  // ==========================================
+  if (metodo === "PATCH") {
+    try {
+      const id = url.searchParams.get("id");
+      if (!id) {
+        return new Response(JSON.stringify({ erro: "ID não fornecido." }), { status: 400 });
+      }
+
+      if (Number(id) === usuarioLogado.id) {
+        return new Response(JSON.stringify({ erro: "Você não pode desativar a própria conta." }), { status: 400 });
+      }
+
+      const { results: alvo } = await env.DB.prepare(`SELECT id, perfil, ativo FROM usuarios WHERE id = ?`).bind(id).all();
+      if (alvo.length === 0) {
+        return new Response(JSON.stringify({ erro: "Usuário não encontrado." }), { status: 404 });
+      }
+
+      // Impede desativar o último superadmin
+      if (alvo[0].perfil === "superadmin" && alvo[0].ativo === 1) {
+        const { results: contagem } = await env.DB.prepare(`SELECT COUNT(*) AS total FROM usuarios WHERE perfil = 'superadmin' AND ativo = 1`).all();
+        if (contagem[0].total <= 1) {
+          return new Response(JSON.stringify({ erro: "Não é possível desativar o único administrador ativo do sistema." }), { status: 400 });
+        }
+      }
+
+      const novoStatus = alvo[0].ativo === 1 ? 0 : 1;
+      await env.DB.prepare(`UPDATE usuarios SET ativo = ? WHERE id = ?`).bind(novoStatus, id).run();
+
+      // Se desativou, invalida todas as sessões do usuário
+      if (novoStatus === 0) {
+        await env.DB.prepare(`DELETE FROM sessoes WHERE usuario_id = ?`).bind(id).run();
+      }
+
+      return new Response(JSON.stringify({ ativo: novoStatus, mensagem: novoStatus === 1 ? "Usuário ativado." : "Usuário desativado." }), { status: 200 });
+    } catch (erro) {
+      return new Response(JSON.stringify({ erro: "Erro ao alterar status.", detalhe: erro.message }), { status: 500 });
     }
   }
 

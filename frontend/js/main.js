@@ -2877,9 +2877,10 @@ async function carregarUsuarios() {
 
       filtrados.forEach((user) => {
         const ehVoceMesmo = user.id === usuarioLogado.id;
+        const ehAtivo = user.ativo !== 0;
 
         const div = document.createElement("div");
-        div.className = "linha-item linha-usuario";
+        div.className = "linha-item linha-usuario" + (ehAtivo ? "" : " linha-inativa");
         const avatarHtml = user.foto_perfil
           ? `<img class="avatar-lista" src="${escaparHtml(user.foto_perfil)}" alt="" />`
           : `<div class="avatar-lista avatar-vazio">${escaparHtml((user.nome || user.nome_usuario).charAt(0).toUpperCase())}</div>`;
@@ -2896,11 +2897,16 @@ async function carregarUsuarios() {
             </span>
           </div>
           <div class="item-valores">
+            <button type="button" class="btn-toggle-ativo ${ehAtivo ? "ativo" : "inativo"}" data-id="${user.id}" ${ehVoceMesmo ? "disabled title='Você não pode desativar a própria conta'" : ""}>${ehAtivo ? "Ativo" : "Inativo"}</button>
             <button type="button" class="btn-editar-usuario" data-id="${user.id}">Editar</button>
             <button type="button" class="btn-excluir-conta" data-id="${user.id}" ${ehVoceMesmo ? "disabled" : ""} title="${ehVoceMesmo ? "Você não pode excluir a própria conta" : "Excluir usuário"}">Excluir</button>
           </div>
         `;
         container.appendChild(div);
+      });
+
+      container.querySelectorAll(".btn-toggle-ativo").forEach((btn) => {
+        btn.addEventListener("click", () => alternarStatusUsuario(Number(btn.dataset.id), btn));
       });
 
       container.querySelectorAll(".btn-editar-usuario").forEach((btn) => {
@@ -2923,6 +2929,42 @@ async function carregarUsuarios() {
     }
   } catch (erro) {
     container.innerHTML = '<div class="estado-vazio-admin" style="color: var(--cor-despesa);"><div class="icone-vazio">⚠️</div><p>Erro ao carregar usuários.</p></div>';
+  }
+}
+
+async function alternarStatusUsuario(id, botao) {
+  const ehAtivo = botao.classList.contains("ativo");
+  const acao = ehAtivo ? "desativar" : "ativar";
+  const msg = ehAtivo
+    ? "Desativar esta conta? O usuário não conseguirá mais fazer login."
+    : "Reativar esta conta? O usuário poderá fazer login novamente.";
+
+  if (!(await pedirConfirmacao(msg, { textoConfirmar: ehAtivo ? "Desativar" : "Ativar", perigo: ehAtivo }))) return;
+
+  botao.disabled = true;
+  botao.innerText = "Alterando...";
+
+  try {
+    const resposta = await fetch(`${API_URL}/api/usuarios?id=${id}`, {
+      method: "PATCH",
+      headers: headersAutenticados(false),
+    });
+
+    if (tratarSessaoExpirada(resposta)) return;
+
+    if (resposta.ok) {
+      carregarUsuarios();
+      mostrarToast(resposta.ok ? `Usuário ${acao === "ativar" ? "ativado" : "desativado"}` : "Erro");
+    } else {
+      const erro = await resposta.json();
+      await mostrarAviso(`Não foi possível ${acao}: ${erro.erro}`);
+      botao.disabled = false;
+      botao.innerText = ehAtivo ? "Ativo" : "Inativo";
+    }
+  } catch (erro) {
+    await mostrarAviso("Erro ao se conectar com o servidor.");
+    botao.disabled = false;
+    botao.innerText = ehAtivo ? "Ativo" : "Inativo";
   }
 }
 
