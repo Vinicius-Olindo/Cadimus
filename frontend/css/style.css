@@ -1821,6 +1821,76 @@ label {
   margin-top: -6px;
 }
 
+/* Busca admin */
+.campo-busca-admin {
+  margin-bottom: 14px;
+}
+
+.campo-busca-admin input {
+  width: 100%;
+  padding: 10px 14px;
+  border: var(--borda) solid var(--cor-pauta-forte);
+  border-radius: 999px;
+  background: var(--cor-superficie);
+  color: var(--cor-texto);
+  font-size: 0.85rem;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.campo-busca-admin input:focus {
+  border-color: var(--cor-foco);
+}
+
+.campo-busca-admin input::placeholder {
+  color: var(--cor-texto-suave);
+}
+
+/* Badge contador nos tabs */
+.badge-contador {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--cor-texto-suave);
+  color: var(--cor-superficie-alta);
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-left: 4px;
+}
+
+.badge-contador:empty {
+  display: none;
+}
+
+/* Estado vazio admin */
+.estado-vazio-admin {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--cor-texto-suave);
+}
+
+.estado-vazio-admin .icone-vazio {
+  font-size: 2rem;
+  margin-bottom: 8px;
+  opacity: 0.5;
+}
+
+.estado-vazio-admin p {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+/* Linhas filtradas (hidden via JS) */
+.linha-item.filtrada-fora {
+  display: none !important;
+}
+
 .form-usuario-acoes {
   display: flex;
   gap: 8px;

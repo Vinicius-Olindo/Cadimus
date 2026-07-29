@@ -2831,56 +2831,85 @@ function sairModoEdicaoUsuario() {
 
 async function carregarUsuarios() {
   const container = document.getElementById("lista-usuarios");
+  const badge = document.getElementById("badge-usuarios");
+  const campoBusca = document.getElementById("busca-usuarios");
   if (!container) return;
 
-  container.innerHTML = '<div style="text-align: center; padding: 2rem;">Carregando usuários...</div>';
+  container.innerHTML = '<div class="estado-vazio-admin"><div class="icone-vazio">👤</div><p>Carregando usuários...</p></div>';
 
   try {
     const resposta = await fetch(`${API_URL}/api/usuarios`, { headers: headersAutenticados(false) });
     if (tratarSessaoExpirada(resposta)) return;
     const dados = await resposta.json();
 
+    if (badge) badge.textContent = dados.length;
     container.innerHTML = "";
+
+    if (dados.length === 0) {
+      container.innerHTML = '<div class="estado-vazio-admin"><div class="icone-vazio">👤</div><p>Nenhum usuário cadastrado.</p></div>';
+      return;
+    }
 
     const usuarioLogado = obterUsuarioLogado();
 
-    dados.forEach((user) => {
-      const ehVoceMesmo = user.id === usuarioLogado.id;
+    function renderizarListaUsuarios(filtro) {
+      container.innerHTML = "";
+      const termo = (filtro || "").toLowerCase();
+      const filtrados = termo ? dados.filter((u) => {
+        const texto = `${u.nome || ""} ${u.nome_usuario || ""} ${u.email || ""}`.toLowerCase();
+        return texto.includes(termo);
+      }) : dados;
 
-      const div = document.createElement("div");
-      div.className = "linha-item linha-usuario";
-      const avatarHtml = user.foto_perfil
-        ? `<img class="avatar-lista" src="${escaparHtml(user.foto_perfil)}" alt="" />`
-        : `<div class="avatar-lista avatar-vazio">${escaparHtml((user.nome || user.nome_usuario).charAt(0).toUpperCase())}</div>`;
-      div.innerHTML = `
-        ${avatarHtml}
-        <div class="item-info-principal linha-usuario-info">
-          <div class="linha-usuario-nome-linha">
-            <span class="item-descricao">${escaparHtml(user.nome || user.nome_usuario)}${ehVoceMesmo ? " (você)" : ""}</span>
-            <span class="item-status status-pago">${escaparHtml(user.perfil.toUpperCase())}</span>
+      if (filtrados.length === 0) {
+        container.innerHTML = '<div class="estado-vazio-admin"><div class="icone-vazio">🔍</div><p>Nenhum usuário encontrado para "' + escaparHtml(termo) + '"</p></div>';
+        return;
+      }
+
+      filtrados.forEach((user) => {
+        const ehVoceMesmo = user.id === usuarioLogado.id;
+
+        const div = document.createElement("div");
+        div.className = "linha-item linha-usuario";
+        const avatarHtml = user.foto_perfil
+          ? `<img class="avatar-lista" src="${escaparHtml(user.foto_perfil)}" alt="" />`
+          : `<div class="avatar-lista avatar-vazio">${escaparHtml((user.nome || user.nome_usuario).charAt(0).toUpperCase())}</div>`;
+        div.innerHTML = `
+          ${avatarHtml}
+          <div class="item-info-principal linha-usuario-info">
+            <div class="linha-usuario-nome-linha">
+              <span class="item-descricao">${escaparHtml(user.nome || user.nome_usuario)}${ehVoceMesmo ? " (você)" : ""}</span>
+              <span class="item-status status-pago">${escaparHtml(user.perfil.toUpperCase())}</span>
+            </div>
+            <span class="linha-usuario-detalhe">@${escaparHtml(user.nome_usuario)}${user.email ? ` · ${escaparHtml(user.email)}` : ""}</span>
           </div>
-          <span class="linha-usuario-detalhe">@${escaparHtml(user.nome_usuario)}${user.email ? ` · ${escaparHtml(user.email)}` : ""}</span>
-        </div>
-        <div class="item-valores">
-          <button type="button" class="btn-editar-usuario" data-id="${user.id}">Editar</button>
-          <button type="button" class="btn-excluir-conta" data-id="${user.id}" ${ehVoceMesmo ? "disabled" : ""} title="${ehVoceMesmo ? "Você não pode excluir a própria conta" : "Excluir usuário"}">Excluir</button>
-        </div>
-      `;
-      container.appendChild(div);
-    });
-
-    container.querySelectorAll(".btn-editar-usuario").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const alvo = dados.find((u) => u.id === Number(btn.dataset.id));
-        if (alvo) entrarModoEdicaoUsuario(alvo);
+          <div class="item-valores">
+            <button type="button" class="btn-editar-usuario" data-id="${user.id}">Editar</button>
+            <button type="button" class="btn-excluir-conta" data-id="${user.id}" ${ehVoceMesmo ? "disabled" : ""} title="${ehVoceMesmo ? "Você não pode excluir a própria conta" : "Excluir usuário"}">Excluir</button>
+          </div>
+        `;
+        container.appendChild(div);
       });
-    });
 
-    container.querySelectorAll(".btn-excluir-conta").forEach((btn) => {
-      btn.addEventListener("click", () => excluirUsuario(Number(btn.dataset.id), btn));
-    });
+      container.querySelectorAll(".btn-editar-usuario").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const alvo = dados.find((u) => u.id === Number(btn.dataset.id));
+          if (alvo) entrarModoEdicaoUsuario(alvo);
+        });
+      });
+
+      container.querySelectorAll(".btn-excluir-conta").forEach((btn) => {
+        btn.addEventListener("click", () => excluirUsuario(Number(btn.dataset.id), btn));
+      });
+    }
+
+    renderizarListausuarios = renderizarListaUsuarios;
+    renderizarListaUsuarios("");
+
+    if (campoBusca) {
+      campoBusca.oninput = () => renderizarListaUsuarios(campoBusca.value);
+    }
   } catch (erro) {
-    container.innerHTML = '<p style="color: var(--cor-despesa); padding: 1rem;">Erro ao carregar usuários.</p>';
+    container.innerHTML = '<div class="estado-vazio-admin" style="color: var(--cor-despesa);"><div class="icone-vazio">⚠️</div><p>Erro ao carregar usuários.</p></div>';
   }
 }
 
@@ -2958,45 +2987,64 @@ function configurarFormularioCategoria() {
 
 async function carregarListaCategorias() {
   const container = document.getElementById("lista-categorias");
+  const badge = document.getElementById("badge-categorias");
+  const campoBusca = document.getElementById("busca-categorias");
   if (!container) return;
 
-  container.innerHTML = '<div style="text-align: center; padding: 2rem;">Carregando categorias...</div>';
+  container.innerHTML = '<div class="estado-vazio-admin"><div class="icone-vazio">🏷️</div><p>Carregando categorias...</p></div>';
 
   try {
     const resposta = await fetch(`${API_URL}/api/categorias`, { headers: headersAutenticados(false) });
     if (tratarSessaoExpirada(resposta)) return;
     const categorias = await resposta.json();
 
+    if (badge) badge.textContent = categorias.length;
     container.innerHTML = "";
 
     if (categorias.length === 0) {
-      container.innerHTML = '<p style="padding: 1rem; color: var(--cor-texto-suave);">Nenhuma categoria cadastrada.</p>';
+      container.innerHTML = '<div class="estado-vazio-admin"><div class="icone-vazio">🏷️</div><p>Nenhuma categoria cadastrada.<br>Crie a primeira acima.</p></div>';
       return;
     }
 
-    categorias.forEach((cat) => {
-      const div = document.createElement("div");
-      div.className = "linha-item linha-usuario";
-      div.innerHTML = `
-        <div class="item-info-principal linha-usuario-info">
-          <span class="item-descricao">${escaparHtml(cat.nome)}</span>
-        </div>
-        <div class="item-valores">
-          <button type="button" class="btn-editar-usuario" data-id="${cat.id}" data-nome="${escaparHtml(cat.nome)}" title="Renomear categoria">Editar</button>
-          <button type="button" class="btn-excluir-conta" data-id="${cat.id}" title="Excluir categoria">Excluir</button>
-        </div>
-      `;
-      container.appendChild(div);
-    });
+    function renderizarListaCategorias(filtro) {
+      container.innerHTML = "";
+      const termo = (filtro || "").toLowerCase();
+      const filtradas = termo ? categorias.filter((c) => c.nome.toLowerCase().includes(termo)) : categorias;
 
-    container.querySelectorAll(".btn-editar-usuario").forEach((btn) => {
-      btn.addEventListener("click", () => abrirModalRenomearCategoria(Number(btn.dataset.id), btn.dataset.nome));
-    });
-    container.querySelectorAll(".btn-excluir-conta").forEach((btn) => {
-      btn.addEventListener("click", () => excluirCategoria(Number(btn.dataset.id), btn));
-    });
+      if (filtradas.length === 0) {
+        container.innerHTML = '<div class="estado-vazio-admin"><div class="icone-vazio">🔍</div><p>Nenhuma categoria encontrada para "' + escaparHtml(termo) + '"</p></div>';
+        return;
+      }
+
+      filtradas.forEach((cat) => {
+        const div = document.createElement("div");
+        div.className = "linha-item linha-usuario";
+        div.innerHTML = `
+          <div class="item-info-principal linha-usuario-info">
+            <span class="item-descricao">${escaparHtml(cat.nome)}</span>
+          </div>
+          <div class="item-valores">
+            <button type="button" class="btn-editar-usuario" data-id="${cat.id}" data-nome="${escaparHtml(cat.nome)}" title="Renomear categoria">Editar</button>
+            <button type="button" class="btn-excluir-conta" data-id="${cat.id}" title="Excluir categoria">Excluir</button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+
+      container.querySelectorAll(".btn-editar-usuario").forEach((btn) => {
+        btn.addEventListener("click", () => abrirModalRenomearCategoria(Number(btn.dataset.id), btn.dataset.nome));
+      });
+      container.querySelectorAll(".btn-excluir-conta").forEach((btn) => {
+        btn.addEventListener("click", () => excluirCategoria(Number(btn.dataset.id), btn));
+      });
+    }
+
+    renderizarListaCategorias("");
+    if (campoBusca) {
+      campoBusca.oninput = () => renderizarListaCategorias(campoBusca.value);
+    }
   } catch (erro) {
-    container.innerHTML = '<p style="color: var(--cor-despesa); padding: 1rem;">Erro ao carregar categorias.</p>';
+    container.innerHTML = '<div class="estado-vazio-admin" style="color: var(--cor-despesa);"><div class="icone-vazio">⚠️</div><p>Erro ao carregar categorias.</p></div>';
   }
 }
 

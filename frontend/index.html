@@ -224,8 +224,8 @@
         </header>
 
         <div class="admin-tabs">
-          <button type="button" class="tab-admin ativo" data-painel="painel-usuarios">Usuários</button>
-          <button type="button" class="tab-admin" data-painel="painel-categorias">Categorias</button>
+          <button type="button" class="tab-admin ativo" data-painel="painel-usuarios">Usuários <span class="badge-contador" id="badge-usuarios"></span></button>
+          <button type="button" class="tab-admin" data-painel="painel-categorias">Categorias <span class="badge-contador" id="badge-categorias"></span></button>
           <button type="button" class="tab-admin" data-painel="painel-sistema">Sistema</button>
         </div>
 
@@ -263,6 +263,9 @@
               </div>
             </form>
           </div>
+          <div class="campo-busca-admin">
+            <input type="text" id="busca-usuarios" placeholder="Buscar por nome, @login ou e-mail..." />
+          </div>
           <div class="lista-lancamentos" id="lista-usuarios"></div>
         </div>
 
@@ -274,6 +277,9 @@
               <input type="text" id="nome-nova-categoria" placeholder="Ex: Assinaturas" required />
               <button type="submit">Adicionar</button>
             </form>
+          </div>
+          <div class="campo-busca-admin">
+            <input type="text" id="busca-categorias" placeholder="Buscar categoria..." />
           </div>
           <div class="lista-lancamentos" id="lista-categorias"></div>
         </div>
