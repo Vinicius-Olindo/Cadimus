@@ -1953,7 +1953,8 @@ label {
 .linha-usuario {
   padding: 10px 14px;
   gap: 10px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  align-items: center;
 }
 
 .linha-usuario .item-info-principal {
@@ -1987,6 +1988,8 @@ label {
   gap: 6px;
   flex-wrap: nowrap;
   justify-content: flex-end;
+  align-items: center;
+  margin-left: auto;
 }
 
 .linha-usuario-detalhe {
@@ -2142,6 +2145,10 @@ label {
   padding: 5px 10px;
   font-size: 0.72rem;
   white-space: nowrap;
+  line-height: 1;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
 }
 
 .btn-editar-usuario:hover {
@@ -2158,6 +2165,10 @@ label {
   cursor: pointer;
   transition: all 0.15s;
   white-space: nowrap;
+  line-height: 1;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
 }
 
 .btn-toggle-ativo.ativo {
@@ -2206,6 +2217,10 @@ label {
   font-weight: 700;
   box-shadow: none;
   white-space: nowrap;
+  line-height: 1;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
 }
 
 .btn-excluir-conta:hover {
@@ -2279,11 +2294,13 @@ label {
   }
 
   .linha-usuario {
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    align-items: center;
   }
 
   .linha-usuario .item-valores {
     justify-content: flex-end;
+    align-items: center;
   }
 
   .stat-grid {
