@@ -1060,6 +1060,14 @@ button:active {
   color: var(--cor-texto-suave);
   text-transform: uppercase;
   letter-spacing: 0.6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.item-status {
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .item-valores {
@@ -1958,7 +1966,6 @@ label {
 }
 
 .linha-usuario .item-info-principal {
-  min-width: 140px;
   flex: 1;
   min-width: 0;
 }
@@ -1990,9 +1997,10 @@ label {
 
 .linha-usuario .item-valores {
   gap: 6px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: flex-end;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .linha-usuario-detalhe {
