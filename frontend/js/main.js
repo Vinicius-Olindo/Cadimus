@@ -1116,6 +1116,14 @@ function configurarModalComprasParceladas() {
   btnAbrirTopo?.addEventListener("click", abrirModalComprasParceladas);
   btnAbrirDoCard?.addEventListener("click", abrirModalComprasParceladas);
 
+  // Modal de histórico
+  const modalHistorico = document.getElementById("modal-historico-parcela");
+  const btnFecharHistorico = document.getElementById("btn-fechar-modal-historico-parcela");
+  btnFecharHistorico?.addEventListener("click", () => {
+    modalHistorico.style.display = "none";
+    liberarFoco();
+  });
+
   function atualizarPreview() {
     const total = parseFloat(campoValorTotal.value);
     const parcelas = parseInt(campoTotalParcelas.value, 10);
@@ -1249,7 +1257,7 @@ async function carregarPainelComprasParceladas() {
       }
 
       const div = document.createElement("div");
-      div.className = "linha-item linha-usuario";
+      div.className = `linha-item linha-usuario ${classeDestaque}`.trim();
       div.innerHTML = `
         <div class="item-info-principal linha-usuario-info">
           <span class="item-descricao">${escaparHtml(compra.descricao)}</span>
@@ -1257,17 +1265,21 @@ async function carregarPainelComprasParceladas() {
         </div>
         <div class="item-valores">
           <span class="item-status ${compra.ativo && !concluida ? "status-pago" : "status-pendente"}">${compra.ativo ? (concluida ? "Concluída" : "Ativa") : "Cancelada"}</span>
-          ${!concluida ? `<button type="button" class="btn-editar-usuario" data-id="${compra.id}">${compra.ativo ? "Cancelar" : "Reativar"}</button>` : ""}
-          <button type="button" class="btn-excluir-conta" data-id="${compra.id}">Excluir</button>
+          <button type="button" class="fixa-btn btn-historico-parcela" data-id="${compra.id}" data-descricao="${escaparHtml(compra.descricao)}">Histórico</button>
+          ${!concluida ? `<button type="button" class="fixa-btn btn-alternar-parcela" data-id="${compra.id}">${compra.ativo ? "Cancelar" : "Reativar"}</button>` : ""}
+          <button type="button" class="fixa-btn-excluir btn-excluir-parcela" data-id="${compra.id}">Excluir</button>
         </div>
       `;
       container.appendChild(div);
     });
 
-    container.querySelectorAll(".btn-editar-usuario").forEach((btn) => {
+    container.querySelectorAll(".btn-historico-parcela").forEach((btn) => {
+      btn.addEventListener("click", () => abrirHistoricoParcela(Number(btn.dataset.id), btn.dataset.descricao));
+    });
+    container.querySelectorAll(".btn-alternar-parcela").forEach((btn) => {
       btn.addEventListener("click", () => alternarComprasParcelada(Number(btn.dataset.id)));
     });
-    container.querySelectorAll(".btn-excluir-conta").forEach((btn) => {
+    container.querySelectorAll(".btn-excluir-parcela").forEach((btn) => {
       btn.addEventListener("click", () => excluirComprasParcelada(Number(btn.dataset.id)));
     });
   } catch (erro) {
@@ -1323,6 +1335,59 @@ async function excluirComprasParcelada(id) {
   }
 }
 
+// --- HISTÓRICO DE PARCELAS (COMPRA PARCELADA) ---
+async function abrirHistoricoParcela(compraId, descricao) {
+  const modal = document.getElementById("modal-historico-parcela");
+  const titulo = document.getElementById("titulo-historico-parcela");
+  const lista = document.getElementById("historico-parcela-lista");
+  if (!modal || !titulo || !lista) return;
+
+  titulo.textContent = `Histórico — ${descricao}`;
+  lista.innerHTML = '<p class="historico-fixa-vazio">Carregando...</p>';
+  modal.style.display = "flex";
+  trapFoco(modal);
+
+  try {
+    const resposta = await fetch(`${API_URL}/api/lancamentos?compra_parcelada_id=${compraId}`, {
+      headers: headersAutenticados(false),
+    });
+
+    if (!resposta.ok) {
+      lista.innerHTML = '<p class="historico-fixa-vazio">Erro ao carregar histórico.</p>';
+      return;
+    }
+
+    const lancamentos = await resposta.json();
+
+    if (lancamentos.length === 0) {
+      lista.innerHTML = '<p class="historico-fixa-vazio">Nenhuma parcela registrada ainda.</p>';
+      return;
+    }
+
+    lista.innerHTML = "";
+    lancamentos.forEach((l) => {
+      const dataFormatada = new Date(l.data_compra + "T12:00:00").toLocaleDateString("pt-BR");
+      const valorFormatado = formatadorBRL.format(l.valor);
+      const classeTipo = l.tipo === "receita" ? "texto-receita" : "texto-despesa";
+      const sinal = l.tipo === "receita" ? "+" : "-";
+      const classeStatus = l.status === "pago" ? "status-pago" : "status-pendente";
+
+      const linha = document.createElement("div");
+      linha.className = "historico-fixa-linha";
+      linha.innerHTML = `
+        <span class="historico-fixa-data">${dataFormatada}</span>
+        <span class="historico-fixa-valor ${classeTipo}">${sinal} ${valorFormatado}</span>
+        <span class="historico-fixa-status ${classeStatus}">${l.status === "pago" ? "Pago" : "Pendente"}</span>
+      `;
+      lista.appendChild(linha);
+    });
+  } catch (erro) {
+    lista.innerHTML = '<p class="historico-fixa-vazio">Erro de conexão.</p>';
+  }
+}
+
+// ==========================================
+// METAS POR CATEGORIA (ex: "Quero gastar no máximo R$500 com Delivery")
 // ==========================================
 // METAS POR CATEGORIA (orçamento)
 // ==========================================
