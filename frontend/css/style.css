@@ -1955,13 +1955,18 @@ label {
   gap: 10px;
   flex-wrap: wrap;
   align-items: center;
-  overflow: hidden;
 }
 
 .linha-usuario .item-info-principal {
   min-width: 140px;
   flex: 1;
   min-width: 0;
+}
+
+.linha-usuario .item-descricao {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
 }
 
 /* Categorias: nome + selo cabem numa linha só. Usuários agora tem uma
@@ -1981,10 +1986,6 @@ label {
   gap: 4px;
   flex: 1;
   min-width: 0;
-}
-
-.linha-usuario .item-descricao {
-  white-space: normal;
 }
 
 .linha-usuario .item-valores {
