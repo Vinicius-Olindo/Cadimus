@@ -1985,7 +1985,7 @@ label {
 
 .linha-usuario .item-valores {
   gap: 6px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: flex-end;
 }
 
@@ -2139,8 +2139,9 @@ label {
   background: transparent;
   color: var(--cor-texto-suave);
   border: var(--borda) solid var(--cor-pauta-forte);
-  padding: 6px 12px;
-  font-size: 0.76rem;
+  padding: 5px 10px;
+  font-size: 0.72rem;
+  white-space: nowrap;
 }
 
 .btn-editar-usuario:hover {
@@ -2150,12 +2151,13 @@ label {
 
 /* Botão toggle ativo/inativo */
 .btn-toggle-ativo {
-  padding: 6px 12px;
-  font-size: 0.76rem;
+  padding: 5px 10px;
+  font-size: 0.72rem;
   font-weight: 700;
   border: var(--borda) solid;
   cursor: pointer;
   transition: all 0.15s;
+  white-space: nowrap;
 }
 
 .btn-toggle-ativo.ativo {
@@ -2199,10 +2201,11 @@ label {
   background: transparent;
   color: var(--cor-despesa);
   border: var(--borda) solid color-mix(in srgb, var(--cor-despesa) 40%, transparent);
-  padding: 6px 14px;
-  font-size: 0.76rem;
+  padding: 5px 10px;
+  font-size: 0.72rem;
   font-weight: 700;
   box-shadow: none;
+  white-space: nowrap;
 }
 
 .btn-excluir-conta:hover {
@@ -2280,7 +2283,6 @@ label {
   }
 
   .linha-usuario .item-valores {
-    width: 100%;
     justify-content: flex-end;
   }
 
