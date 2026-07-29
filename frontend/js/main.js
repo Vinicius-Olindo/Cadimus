@@ -2452,8 +2452,11 @@ function configurarZonaDePerigo() {
 
       if (resposta.ok) {
         fecharModalZerarDados();
+        cacheTendencia.clear();
+        cacheComparativo6.clear();
         await mostrarAviso("Todos os dados financeiros foram apagados. As categorias voltaram ao padrão.");
         carregarListaCategorias();
+        carregarLancamentos();
       } else {
         const erro = await resposta.json();
         await mostrarAviso(`Erro: ${erro.erro}`);
