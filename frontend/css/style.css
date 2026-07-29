@@ -1762,6 +1762,88 @@ label {
   color: var(--cor-texto-suave);
 }
 
+/* Botões de despesas fixas */
+.fixa-item {
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 0;
+}
+
+.fixa-item .item-info-principal {
+  padding-left: 0;
+  border-left: none;
+}
+
+.fixa-botoes {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.fixa-btn-toggle {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: var(--borda) solid var(--cor-pauta-forte);
+  background: transparent;
+  color: var(--cor-texto-suave);
+  cursor: pointer;
+  transition: all 0.15s;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.fixa-btn-toggle.fixa-ativa {
+  background: color-mix(in srgb, var(--cor-receita) 15%, transparent);
+  border-color: var(--cor-receita);
+  color: var(--cor-receita);
+}
+
+.fixa-btn-toggle.fixa-pausada {
+  background: color-mix(in srgb, var(--cor-texto-suave) 10%, transparent);
+}
+
+.fixa-btn-toggle:hover {
+  transform: scale(1.1);
+}
+
+.fixa-btn {
+  font-size: 0.72rem;
+  padding: 5px 10px;
+  border-radius: var(--raio-sm);
+  border: var(--borda) solid var(--cor-pauta-forte);
+  background: transparent;
+  color: var(--cor-texto-suave);
+  cursor: pointer;
+  transition: all 0.12s;
+  white-space: nowrap;
+}
+
+.fixa-btn:hover {
+  background: var(--cor-fundo-alt);
+  color: var(--cor-texto);
+}
+
+.fixa-btn-excluir {
+  font-size: 0.72rem;
+  padding: 5px 10px;
+  border-radius: var(--raio-sm);
+  border: var(--borda) solid color-mix(in srgb, var(--cor-despesa) 40%, transparent);
+  background: transparent;
+  color: var(--cor-despesa);
+  cursor: pointer;
+  transition: all 0.12s;
+  white-space: nowrap;
+}
+
+.fixa-btn-excluir:hover {
+  background: color-mix(in srgb, var(--cor-despesa) 10%, transparent);
+}
+
 /* Avatar na listagem de usuários */
 .avatar-lista {
   flex: 0 0 auto;

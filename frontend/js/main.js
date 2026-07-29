@@ -917,19 +917,22 @@ async function carregarPainelDespesasFixas() {
       const classeDestaque = aviso ? (aviso.atrasado ? "linha-vencimento-atrasado" : "linha-vencimento-proximo") : "";
 
       const div = document.createElement("div");
-      div.className = `linha-item linha-usuario ${classeDestaque}`.trim();
+      div.className = `linha-item linha-usuario fixa-item ${classeDestaque}`.trim();
       div.innerHTML = `
         <div class="item-info-principal linha-usuario-info">
           <span class="item-descricao">${escaparHtml(fixa.descricao)}</span>
           <span class="item-categoria">Todo dia ${fixa.dia_vencimento} · ${valorFormatado}</span>
         </div>
-        <div class="item-valores">
+        <div class="item-valores fixa-botoes">
           ${badgeAviso}
-          <span class="item-status ${fixa.ativo ? "status-pago" : "status-pendente"}">${fixa.ativo ? "Ativa" : "Pausada"}</span>
-          <button type="button" class="btn-editar-usuario btn-historico-fixa" data-id="${fixa.id}" data-descricao="${escaparHtml(fixa.descricao)}">Histórico</button>
-          <button type="button" class="btn-editar-usuario btn-editar-fixa" data-id="${fixa.id}">Editar</button>
-          <button type="button" class="btn-editar-usuario btn-alternar-fixa" data-id="${fixa.id}">${fixa.ativo ? "Pausar" : "Ativar"}</button>
-          <button type="button" class="btn-excluir-conta" data-id="${fixa.id}">Excluir</button>
+          <button type="button" class="fixa-btn-toggle btn-alternar-fixa ${fixa.ativo ? "fixa-ativa" : "fixa-pausada"}" data-id="${fixa.id}" title="${fixa.ativo ? "Pausar" : "Ativar"}">
+            ${fixa.ativo
+              ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>'
+              : '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>'}
+          </button>
+          <button type="button" class="fixa-btn btn-historico-fixa" data-id="${fixa.id}" data-descricao="${escaparHtml(fixa.descricao)}">Histórico</button>
+          <button type="button" class="fixa-btn btn-editar-fixa" data-id="${fixa.id}">Editar</button>
+          <button type="button" class="fixa-btn-excluir btn-excluir-conta" data-id="${fixa.id}">Excluir</button>
         </div>
       `;
       container.appendChild(div);
