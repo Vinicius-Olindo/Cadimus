@@ -1988,6 +1988,107 @@ label {
 }
 
 /* ==========================================
+   MODAL EXPORTAR
+   ========================================== */
+.modal-exportar {
+  max-width: 520px;
+}
+
+.exportar-opcoes {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.exportar-formato {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 14px 10px;
+  border: var(--borda) solid var(--cor-pauta-forte);
+  border-radius: var(--raio-md);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.exportar-formato:has(input:checked) {
+  border-color: var(--cor-marca);
+  background: var(--cor-fundo-alt);
+}
+
+.exportar-formato input {
+  display: none;
+}
+
+.exportar-formato-label {
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.exportar-formato-desc {
+  font-size: 0.72rem;
+  color: var(--cor-texto-suave);
+  text-align: center;
+}
+
+.exportar-filtros {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.exportar-campo label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: var(--cor-texto-suave);
+}
+
+.exportar-campo select,
+.exportar-campo input[type="date"] {
+  width: 100%;
+  padding: 8px 10px;
+  border: var(--borda) solid var(--cor-pauta-forte);
+  border-radius: var(--raio-sm);
+  background: var(--cor-fundo-alt);
+  color: var(--cor-texto);
+  font-size: 0.82rem;
+  box-sizing: border-box;
+}
+
+.exportar-periodo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.exportar-periodo input {
+  flex: 1;
+}
+
+.exportar-periodo-sep {
+  font-size: 0.78rem;
+  color: var(--cor-texto-suave);
+}
+
+.exportar-resumo {
+  font-size: 0.78rem;
+  color: var(--cor-texto-suave);
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+.exportar-botoes {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+/* ==========================================
    TOAST — notificação flutuante
    ========================================== */
 .toast-container {
