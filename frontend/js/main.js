@@ -1964,6 +1964,7 @@ async function carregarLancamentos() {
 
   carregarPainelDespesasFixas();
   carregarPainelComprasParceladas();
+  carregarPainelRecorrentes();
   const promiseMetas = carregarMetas();
 
   // Marca esta chamada como "a mais recente". Se outra começar antes dela terminar,

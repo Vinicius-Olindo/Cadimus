@@ -5,6 +5,7 @@ import { obterUsuarioDaSessao } from "../utils/sessao.js";
 import { obterCarteirasDoUsuario } from "../utils/carteiras.js";
 import { gerarLancamentosFixosDoMes } from "../utils/despesasFixas.js";
 import { gerarLancamentosParceladosDoMes } from "../utils/comprasParceladas.js";
+import { gerarLancamentosRecorrentesDoMes } from "../utils/lancamentosRecorrentes.js";
 
 export async function processarLancamentos(request, env, ctx) {
   const metodo = request.method;
@@ -38,12 +39,14 @@ export async function processarLancamentos(request, env, ctx) {
 
       const despesaFixaId = url.searchParams.get("despesa_fixa_id");
       const compraParceladaId = url.searchParams.get("compra_parcelada_id");
+      const recorrenciaId = url.searchParams.get("recorrencia_id");
 
       // Antes de listar, garante que as despesas fixas ativas e as parcelas do mês já foram geradas
-      if (mes && ano && !despesaFixaId && !compraParceladaId) {
+      if (mes && ano && !despesaFixaId && !compraParceladaId && !recorrenciaId) {
         const carteirasAlvo = carteiraId ? [Number(carteiraId)] : carteirasPermitidas;
         await gerarLancamentosFixosDoMes(env, carteirasAlvo, ano, mes);
         await gerarLancamentosParceladosDoMes(env, carteirasAlvo, ano, mes);
+        await gerarLancamentosRecorrentesDoMes(env, carteirasAlvo, ano, mes);
       }
 
       let query = `
@@ -76,6 +79,11 @@ export async function processarLancamentos(request, env, ctx) {
       if (compraParceladaId) {
         query += ` AND l.compra_parcelada_id = ?`;
         params.push(compraParceladaId);
+      }
+
+      if (recorrenciaId) {
+        query += ` AND l.recorrencia_id = ?`;
+        params.push(recorrenciaId);
       }
 
       query += ` ORDER BY l.data_compra DESC`;

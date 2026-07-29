@@ -9,6 +9,7 @@ import { processarCarteiras } from "./routes/carteiras.js";
 import { processarDespesasFixas } from "./routes/despesasFixas.js";
 import { processarMetas, processarMetaDepositos } from "./routes/metas.js";
 import { processarComprasParceladas } from "./routes/comprasParceladas.js";
+import { processarLancamentosRecorrentes } from "./routes/lancamentosRecorrentes.js";
 import { processarLimpezaDados } from "./routes/manutencao.js";
 
 // ==========================================
@@ -111,6 +112,13 @@ export default {
       // ==========================================
       if (url.pathname.startsWith("/api/compras-parceladas")) {
         return comCors(await processarComprasParceladas(request, env, ctx), frontendUrl, request);
+      }
+
+      // ==========================================
+      // ROTA 10: LANÇAMENTOS RECORRENTES
+      // ==========================================
+      if (url.pathname.startsWith("/api/lancamentos-recorrentes")) {
+        return comCors(await processarLancamentosRecorrentes(request, env, ctx), frontendUrl, request);
       }
 
       // ==========================================

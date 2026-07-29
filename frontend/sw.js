@@ -16,6 +16,7 @@ const ARQUIVOS_PARA_CACHE = [
   "./js/components.js",
   "./js/importar.js",
   "./js/exportar.js",
+  "./js/recorrentes.js",
   "./js/main.js",
   "./assets/icon-192.png",
   "./assets/icon-512.png",
