@@ -1763,24 +1763,6 @@ label {
 }
 
 /* Botões de despesas fixas */
-.fixa-item {
-  flex-direction: column;
-  gap: 8px;
-  padding: 12px 0;
-}
-
-.fixa-item .item-info-principal {
-  padding-left: 0;
-  border-left: none;
-}
-
-.fixa-botoes {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
 .fixa-btn-toggle {
   width: 30px;
   height: 30px;
@@ -1795,6 +1777,7 @@ label {
   transition: all 0.15s;
   padding: 0;
   flex-shrink: 0;
+  align-self: center;
 }
 
 .fixa-btn-toggle.fixa-ativa {
