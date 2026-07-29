@@ -19,8 +19,15 @@ import { processarLimpezaDados } from "./routes/manutencao.js";
 // Se a variável não estiver definida (ex.: ambiente local sem .dev.vars),
 // cai para "*" para não quebrar o desenvolvimento.
 // ==========================================
-function comCors(resposta, frontendUrl) {
-  const origem = frontendUrl || "*";
+function resolverOrigemPermitida(request, frontendUrl) {
+  if (!frontendUrl || frontendUrl === "*") return "*";
+  const permitidas = frontendUrl.split(",").map((u) => u.trim());
+  const origem = request.headers.get("Origin") || "";
+  return permitidas.includes(origem) ? origem : permitidas[0];
+}
+
+function comCors(resposta, frontendUrl, request) {
+  const origem = resolverOrigemPermitida(request, frontendUrl);
   const nova = new Response(resposta.body, resposta);
   nova.headers.set("Access-Control-Allow-Origin", origem);
   nova.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
@@ -37,7 +44,7 @@ export default {
     if (request.method === "OPTIONS") {
       return new Response(null, {
         headers: {
-          "Access-Control-Allow-Origin": frontendUrl,
+          "Access-Control-Allow-Origin": resolverOrigemPermitida(request, frontendUrl),
           "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
           "Access-Control-Allow-Headers": "Content-Type, Authorization",
         },
@@ -51,69 +58,69 @@ export default {
       // ROTA 1: LOGIN
       // ==========================================
       if (url.pathname.startsWith("/api/auth")) {
-        return comCors(await processarLogin(request, env, ctx), frontendUrl);
+        return comCors(await processarLogin(request, env, ctx), frontendUrl, request);
       }
 
       // ==========================================
       // ROTA 2: LANÇAMENTOS
       // ==========================================
       if (url.pathname.startsWith("/api/lancamentos")) {
-        return comCors(await processarLancamentos(request, env, ctx), frontendUrl);
+        return comCors(await processarLancamentos(request, env, ctx), frontendUrl, request);
       }
 
       // ==========================================
       // ROTA 3: USUÁRIOS (Painel Admin)
       // ==========================================
       if (url.pathname.startsWith("/api/usuarios")) {
-        return comCors(await processarUsuarios(request, env, ctx), frontendUrl);
+        return comCors(await processarUsuarios(request, env, ctx), frontendUrl, request);
       }
 
       // ==========================================
       // ROTA 4: CATEGORIAS
       // ==========================================
       if (url.pathname.startsWith("/api/categorias")) {
-        return comCors(await processarCategorias(request, env, ctx), frontendUrl);
+        return comCors(await processarCategorias(request, env, ctx), frontendUrl, request);
       }
 
       // ==========================================
       // ROTA 5: CARTEIRAS (CONTAS)
       // ==========================================
       if (url.pathname.startsWith("/api/carteiras")) {
-        return comCors(await processarCarteiras(request, env, ctx), frontendUrl);
+        return comCors(await processarCarteiras(request, env, ctx), frontendUrl, request);
       }
 
       // ==========================================
       // ROTA 6: DESPESAS FIXAS
       // ==========================================
       if (url.pathname.startsWith("/api/despesas-fixas")) {
-        return comCors(await processarDespesasFixas(request, env, ctx), frontendUrl);
+        return comCors(await processarDespesasFixas(request, env, ctx), frontendUrl, request);
       }
 
       // ==========================================
       // ROTA 7: METAS POR CATEGORIA
       // ==========================================
       if (url.pathname.startsWith("/api/metas")) {
-        return comCors(await processarMetas(request, env, ctx), frontendUrl);
+        return comCors(await processarMetas(request, env, ctx), frontendUrl, request);
       }
 
       // ==========================================
       // ROTA 8: COMPRAS PARCELADAS
       // ==========================================
       if (url.pathname.startsWith("/api/compras-parceladas")) {
-        return comCors(await processarComprasParceladas(request, env, ctx), frontendUrl);
+        return comCors(await processarComprasParceladas(request, env, ctx), frontendUrl, request);
       }
 
       // ==========================================
       // ROTA 9: MANUTENÇÃO (zerar todos os dados — só superadmin)
       // ==========================================
       if (url.pathname.startsWith("/api/admin/zerar-dados")) {
-        return comCors(await processarLimpezaDados(request, env, ctx), frontendUrl);
+        return comCors(await processarLimpezaDados(request, env, ctx), frontendUrl, request);
       }
     } catch (erro) {
       return new Response(JSON.stringify({ erro: "Erro interno no servidor", detalhe: erro.message }), {
         status: 500,
         headers: {
-          "Access-Control-Allow-Origin": frontendUrl,
+          "Access-Control-Allow-Origin": resolverOrigemPermitida(request, frontendUrl),
           "Content-Type": "application/json",
         },
       });
