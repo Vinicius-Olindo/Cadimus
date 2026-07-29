@@ -1728,15 +1728,56 @@ label {
    PAINEL ADMIN
    ========================================== */
 #admin-section .card form {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+#admin-section .card form .campo-foto-perfil {
+  grid-column: 1 / -1;
+}
+
+#admin-section .card form .form-usuario-acoes {
+  grid-column: 1 / -1;
 }
 
 #admin-section .card input,
 #admin-section .card select {
+  width: 100%;
+  min-width: 0;
+  padding: 10px 14px;
+  border: var(--borda) solid var(--cor-pauta-forte);
+  border-radius: var(--raio-md);
+  background: var(--cor-fundo);
+  color: var(--cor-texto);
+  font-size: 0.88rem;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+#admin-section .card input:focus,
+#admin-section .card select:focus {
+  border-color: var(--cor-foco);
+}
+
+#admin-section .card input::placeholder {
+  color: var(--cor-texto-suave);
+}
+
+/* Form de categorias: input + botão em linha */
+#form-nova-categoria {
+  display: flex !important;
+  gap: 10px;
+}
+
+#form-nova-categoria input {
   flex: 1;
-  min-width: 120px;
+}
+
+#form-nova-categoria button {
+  flex-shrink: 0;
+  padding: 10px 20px;
 }
 
 #lista-usuarios .linha-item {
@@ -1783,6 +1824,7 @@ label {
 
 .painel-admin .card {
   margin-bottom: 22px;
+  padding: 24px;
 }
 
 .painel-admin .card h3 {
@@ -2108,22 +2150,24 @@ label {
 
 /* Botão de exclusão de contas — propositalmente destacado, é uma ação irreversível */
 .btn-excluir-conta {
-  background: var(--cor-despesa);
-  color: var(--cor-superficie-alta);
-  border: none;
+  background: transparent;
+  color: var(--cor-despesa);
+  border: var(--borda) solid color-mix(in srgb, var(--cor-despesa) 40%, transparent);
   padding: 6px 14px;
   font-size: 0.76rem;
   font-weight: 700;
-  box-shadow: 0 3px 10px -4px var(--cor-despesa);
+  box-shadow: none;
 }
 
 .btn-excluir-conta:hover {
-  background: color-mix(in srgb, var(--cor-despesa) 85%, black);
+  background: color-mix(in srgb, var(--cor-despesa) 10%, transparent);
+  border-color: var(--cor-despesa);
 }
 
 .btn-excluir-conta:disabled {
-  background: var(--cor-pauta-forte);
-  color: var(--cor-texto-suave);
+  background: transparent;
+  color: var(--cor-pauta-forte);
+  border-color: var(--cor-pauta-forte);
   box-shadow: none;
   cursor: not-allowed;
   transform: none;
@@ -2219,6 +2263,15 @@ label {
   #btn-novo-gasto {
     font-size: 0.78rem;
     padding: 8px 16px;
+  }
+
+  /* Admin: formulário em coluna única no mobile */
+  #admin-section .card form {
+    grid-template-columns: 1fr;
+  }
+
+  .painel-admin .card {
+    padding: 18px;
   }
 }
 
