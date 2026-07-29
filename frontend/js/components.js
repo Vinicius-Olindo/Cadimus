@@ -2,6 +2,12 @@
 // components.js - Fábrica de Elementos HTML
 // ==========================================
 
+function escaparHtml(texto) {
+  const div = document.createElement("div");
+  div.appendChild(document.createTextNode(texto));
+  return div.innerHTML;
+}
+
 const MESES_ABREV_COMPONENTES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
 
 const ICONE_LAPIS =
@@ -44,8 +50,8 @@ function criarLinhaLancamento(lancamento) {
   const inicialAutor = nomeAutor.charAt(0).toUpperCase();
   const corAutor = corDoAutor(nomeAutor);
   const carimboAutorHtml = lancamento.criado_por_foto
-    ? `<img class="carimbo-autor carimbo-autor-foto" src="${lancamento.criado_por_foto}" alt="" title="Lançado por ${nomeAutor}" />`
-    : `<span class="carimbo-autor" style="--cor-autor: ${corAutor}" title="Lançado por ${nomeAutor}">${inicialAutor}</span>`;
+    ? `<img class="carimbo-autor carimbo-autor-foto" src="${escaparHtml(lancamento.criado_por_foto)}" alt="" title="Lançado por ${escaparHtml(nomeAutor)}" />`
+    : `<span class="carimbo-autor" style="--cor-autor: ${corAutor}" title="Lançado por ${escaparHtml(nomeAutor)}">${inicialAutor}</span>`;
 
   // Só quem criou o lançamento (ou um admin) pode editar/excluir — o backend também garante isso,
   // aqui é só pra não mostrar botões que vão falhar ao clicar
@@ -65,8 +71,8 @@ function criarLinhaLancamento(lancamento) {
         </div>
         <div class="linha-corpo">
             <div class="item-info-principal">
-                <span class="item-descricao">${lancamento.descricao}</span>
-                <span class="item-categoria">${lancamento.categoria}</span>
+                <span class="item-descricao">${escaparHtml(lancamento.descricao)}</span>
+                <span class="item-categoria">${escaparHtml(lancamento.categoria)}</span>
             </div>
             <div class="item-valores">
                 ${carimboAutorHtml}

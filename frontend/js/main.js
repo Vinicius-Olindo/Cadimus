@@ -321,7 +321,7 @@ function renderizarTabsCarteira() {
       ? `<svg class="tab-carteira-icone" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`
       : `<svg class="tab-carteira-icone" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`;
 
-    btn.innerHTML = svgIcone + `<span class="tab-carteira-nome">${carteira.nome}</span>`;
+    btn.innerHTML = svgIcone + `<span class="tab-carteira-nome">${escaparHtml(carteira.nome)}</span>`;
     btn.addEventListener("click", () => selecionarCarteira(carteira.id));
     wrapper.appendChild(btn);
 
@@ -444,7 +444,7 @@ function configurarModalCarteira() {
           (colega) => `
         <label class="opcao-membro">
           <input type="checkbox" class="checkbox-membro-carteira" value="${colega.id}" checked />
-          ${colega.nome || colega.nome_usuario}
+          ${escaparHtml(colega.nome || colega.nome_usuario)}
         </label>
       `,
         )
@@ -561,7 +561,7 @@ async function abrirModalGerenciarMembros(carteira) {
         return `
           <label class="opcao-membro ${jaAdmin ? "opcao-membro-desabilitada" : ""}">
             <input type="checkbox" class="checkbox-gerenciar-membro" value="${colega.id}" ${marcado ? "checked" : ""} ${jaAdmin ? "disabled" : ""} />
-            ${colega.nome || colega.nome_usuario}${jaAdmin ? " (admin)" : ""}
+            ${escaparHtml(colega.nome || colega.nome_usuario)}${jaAdmin ? " (admin)" : ""}
           </label>
         `;
       })
@@ -805,7 +805,7 @@ async function carregarPainelDespesasFixas() {
       div.className = `linha-item linha-usuario ${classeDestaque}`.trim();
       div.innerHTML = `
         <div class="item-info-principal linha-usuario-info">
-          <span class="item-descricao">${fixa.descricao}</span>
+          <span class="item-descricao">${escaparHtml(fixa.descricao)}</span>
           <span class="item-categoria">Todo dia ${fixa.dia_vencimento} · ${valorFormatado}</span>
         </div>
         <div class="item-valores">
@@ -1073,7 +1073,7 @@ async function carregarPainelComprasParceladas() {
       div.className = "linha-item linha-usuario";
       div.innerHTML = `
         <div class="item-info-principal linha-usuario-info">
-          <span class="item-descricao">${compra.descricao}</span>
+          <span class="item-descricao">${escaparHtml(compra.descricao)}</span>
           <span class="item-categoria">${rotuloParcela} · ${valorFormatado}/mês</span>
         </div>
         <div class="item-valores">
@@ -1683,8 +1683,8 @@ function renderizarResumoCategorias(totaisPorCategoria) {
     linha.className = "categoria-barra-linha";
     linha.innerHTML = `
       <div class="categoria-barra-topo">
-        <strong class="${categoria !== "Outras" ? "categoria-barra-nome" : ""}" data-categoria="${categoria}" data-meta="${meta ? meta.valor_limite : ""}">
-          ${categoria} ${iconeMeta}
+        <strong class="${categoria !== "Outras" ? "categoria-barra-nome" : ""}" data-categoria="${escaparHtml(categoria)}" data-meta="${meta ? meta.valor_limite : ""}">
+          ${escaparHtml(categoria)} ${iconeMeta}
         </strong>
         <span class="categoria-barra-valor">${textoValor}</span>
       </div>
@@ -1823,7 +1823,7 @@ function renderizarResumoAutores(dados) {
     linha.className = "categoria-barra-linha";
     linha.innerHTML = `
       <div class="categoria-barra-topo">
-        <strong>${nome}</strong>
+        <strong>${escaparHtml(nome)}</strong>
         <span class="categoria-barra-valor">${formatadorBRL.format(valor)} · ${percentual}%</span>
       </div>
       <div class="categoria-barra-trilho">
@@ -2248,16 +2248,16 @@ async function carregarUsuarios() {
       const div = document.createElement("div");
       div.className = "linha-item linha-usuario";
       const avatarHtml = user.foto_perfil
-        ? `<img class="avatar-lista" src="${user.foto_perfil}" alt="" />`
-        : `<div class="avatar-lista avatar-vazio">${(user.nome || user.nome_usuario).charAt(0).toUpperCase()}</div>`;
+        ? `<img class="avatar-lista" src="${escaparHtml(user.foto_perfil)}" alt="" />`
+        : `<div class="avatar-lista avatar-vazio">${escaparHtml((user.nome || user.nome_usuario).charAt(0).toUpperCase())}</div>`;
       div.innerHTML = `
         ${avatarHtml}
         <div class="item-info-principal linha-usuario-info">
           <div class="linha-usuario-nome-linha">
-            <span class="item-descricao">${user.nome || user.nome_usuario}${ehVoceMesmo ? " (você)" : ""}</span>
-            <span class="item-status status-pago">${user.perfil.toUpperCase()}</span>
+            <span class="item-descricao">${escaparHtml(user.nome || user.nome_usuario)}${ehVoceMesmo ? " (você)" : ""}</span>
+            <span class="item-status status-pago">${escaparHtml(user.perfil.toUpperCase())}</span>
           </div>
-          <span class="linha-usuario-detalhe">@${user.nome_usuario}${user.email ? ` · ${user.email}` : ""}</span>
+          <span class="linha-usuario-detalhe">@${escaparHtml(user.nome_usuario)}${user.email ? ` · ${escaparHtml(user.email)}` : ""}</span>
         </div>
         <div class="item-valores">
           <button type="button" class="btn-editar-usuario" data-id="${user.id}">Editar</button>
@@ -2375,10 +2375,10 @@ async function carregarListaCategorias() {
       div.className = "linha-item linha-usuario";
       div.innerHTML = `
         <div class="item-info-principal linha-usuario-info">
-          <span class="item-descricao">${cat.nome}</span>
+          <span class="item-descricao">${escaparHtml(cat.nome)}</span>
         </div>
         <div class="item-valores">
-          <button type="button" class="btn-editar-usuario" data-id="${cat.id}" data-nome="${cat.nome}" title="Renomear categoria">Editar</button>
+          <button type="button" class="btn-editar-usuario" data-id="${cat.id}" data-nome="${escaparHtml(cat.nome)}" title="Renomear categoria">Editar</button>
           <button type="button" class="btn-excluir-conta" data-id="${cat.id}" title="Excluir categoria">Excluir</button>
         </div>
       `;
