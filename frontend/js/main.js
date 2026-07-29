@@ -27,7 +27,9 @@ function tratarSessaoExpirada(resposta) {
 function formatarDataHora(dataISO) {
   if (!dataISO) return "—";
   try {
-    const d = new Date(dataISO + (dataISO.includes("T") ? "" : "T00:00:00"));
+    const normalizado = dataISO.replace(" ", "T");
+    const d = new Date(normalizado);
+    if (isNaN(d.getTime())) return "—";
     return d.toLocaleDateString("pt-BR") + " às " + d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
   } catch {
     return "—";
