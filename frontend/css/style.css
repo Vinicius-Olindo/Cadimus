@@ -977,11 +977,12 @@ button:active {
 
 .linha-item {
   display: flex;
-  align-items: stretch;
-  gap: 14px;
+  align-items: flex-start;
+  gap: 10px;
   border-bottom: var(--borda) solid var(--cor-pauta-forte);
   animation: entrar-linha 0.25s ease backwards;
   transition: background-color 0.12s ease;
+  padding: 10px 14px;
 }
 
 .linha-item:hover {
@@ -1060,9 +1061,6 @@ button:active {
   color: var(--cor-texto-suave);
   text-transform: uppercase;
   letter-spacing: 0.6px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .item-status {
@@ -1959,21 +1957,15 @@ label {
 
 /* Linhas de usuário / categoria no painel admin */
 .linha-usuario {
-  padding: 10px 14px;
-  gap: 10px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+}
+
+.linha-usuario .item-valores {
+  gap: 6px;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
   align-items: center;
-}
-
-.linha-usuario .item-info-principal {
-  flex: 1;
-  min-width: 0;
-}
-
-.linha-usuario .item-descricao {
-  white-space: normal;
-  overflow: visible;
-  text-overflow: unset;
+  flex-shrink: 0;
 }
 
 /* Categorias: nome + selo cabem numa linha só. Usuários agora tem uma
@@ -1993,14 +1985,6 @@ label {
   gap: 4px;
   flex: 1;
   min-width: 0;
-}
-
-.linha-usuario .item-valores {
-  gap: 6px;
-  flex-wrap: nowrap;
-  justify-content: flex-end;
-  align-items: center;
-  flex-shrink: 0;
 }
 
 .linha-usuario-detalhe {

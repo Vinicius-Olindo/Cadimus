@@ -939,7 +939,7 @@ async function carregarPainelDespesasFixas() {
         </button>
         <div class="item-info-principal linha-usuario-info">
           <span class="item-descricao">${escaparHtml(fixa.descricao)}</span>
-          <span class="item-categoria">Todo dia ${fixa.dia_vencimento} · ${valorFormatado}</span>
+          <span class="item-categoria">${valorFormatado} · Dia ${fixa.dia_vencimento}</span>
         </div>
         <div class="item-valores">
           ${badgeAviso}
