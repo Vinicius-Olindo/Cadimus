@@ -1697,6 +1697,8 @@ async function carregarLancamentos() {
       renderizarResumoAutores([]);
       carregarComparacaoMesAnterior(0);
       carregarTendencia();
+      carregarComparativo6Meses();
+      document.getElementById("card-poupanca").style.display = "none";
       return;
     }
 
@@ -1751,6 +1753,8 @@ async function carregarLancamentos() {
     renderizarResumoAutores(dados);
     carregarComparacaoMesAnterior(totalDespesas);
     carregarTendencia();
+    carregarComparativo6Meses();
+    calcularTaxaPoupanca(totalReceitas, totalDespesas);
   } catch (erro) {
     if (idDestaRequisicao !== ultimaRequisicaoLancamentos) return;
     console.error("Erro:", erro);
@@ -2052,6 +2056,139 @@ function renderizarTendencia(meses, totais, mesAtualIdx, anoAtual) {
       barra.style.height = `${barra.dataset.altura}%`;
     });
   });
+}
+
+
+// --- COMPARATIVO 6 MESES (RECEITAS vs DESPESAS) ---
+let ultimaRequisicaoComparativo6 = 0;
+const cacheComparativo6 = new Map();
+
+async function carregarComparativo6Meses() {
+  const carteiraId = document.getElementById("seletor-carteira").value;
+  const campoMes = document.getElementById("filtro-mes");
+  if (!carteiraId || !campoMes || !campoMes.dataset.ano) return;
+
+  const idRequisicao = ++ultimaRequisicaoComparativo6;
+
+  const anoBase = Number(campoMes.dataset.ano);
+  const mesBase = Number(campoMes.dataset.mes);
+
+  const meses = [];
+  for (let i = 5; i >= 0; i--) {
+    let m = mesBase - i;
+    let a = anoBase;
+    while (m < 0) { m += 12; a -= 1; }
+    meses.push({ ano: a, mes: m });
+  }
+
+  const dados = await Promise.all(
+    meses.map(async ({ ano, mes }) => {
+      const chave = `${carteiraId}:${ano}-${String(mes + 1).padStart(2, "0")}`;
+      if (cacheComparativo6.has(chave)) return cacheComparativo6.get(chave);
+
+      try {
+        const resposta = await fetch(`${API_URL}/api/lancamentos?carteira_id=${carteiraId}&mes=${mes + 1}&ano=${ano}`, {
+          headers: headersAutenticados(false),
+        });
+        if (!resposta.ok) return { receitas: 0, despesas: 0 };
+        const dadosMes = await resposta.json();
+        let receitas = 0, despesas = 0;
+        dadosMes.forEach((l) => {
+          if (l.status === "pendente") return;
+          if (l.tipo === "receita") receitas += l.valor;
+          else despesas += l.valor;
+        });
+        const resultado = { receitas, despesas };
+        cacheComparativo6.set(chave, resultado);
+        return resultado;
+      } catch {
+        return { receitas: 0, despesas: 0 };
+      }
+    }),
+  );
+
+  if (idRequisicao !== ultimaRequisicaoComparativo6) return;
+  renderizarComparativo6Meses(meses, dados, mesBase, anoBase);
+}
+
+function renderizarComparativo6Meses(meses, dados, mesAtualIdx, anoAtual) {
+  const card = document.getElementById("card-comparativo");
+  const container = document.getElementById("grafico-comparativo");
+  if (!card || !container) return;
+
+  const algumValor = dados.some((d) => d.receitas > 0 || d.despesas > 0);
+  if (!algumValor) {
+    card.style.display = "none";
+    return;
+  }
+
+  card.style.display = "flex";
+  container.innerHTML = "";
+
+  const maiorValor = Math.max(...dados.map((d) => Math.max(d.receitas, d.despesas)), 1);
+
+  meses.forEach(({ ano, mes }, i) => {
+    const alturaRec = Math.round((dados[i].receitas / maiorValor) * 100);
+    const alturaDesp = Math.round((dados[i].despesas / maiorValor) * 100);
+    const ehMesAtual = mes === mesAtualIdx && ano === anoAtual;
+
+    const coluna = document.createElement("div");
+    coluna.className = "comparativo-coluna";
+    coluna.innerHTML = `
+      <div class="comparativo-barras">
+        <div class="comparativo-barra comparativo-barra-receita ${ehMesAtual ? "comparativo-barra-atual" : ""}" data-altura="${alturaRec}"></div>
+        <div class="comparativo-barra comparativo-barra-despesa ${ehMesAtual ? "comparativo-barra-atual" : ""}" data-altura="${alturaDesp}"></div>
+      </div>
+      <span class="comparativo-rotulo">${NOMES_MESES_ABREV[mes]}</span>
+    `;
+    container.appendChild(coluna);
+  });
+
+  // Legenda
+  const legenda = document.createElement("div");
+  legenda.className = "comparativo-legenda";
+  legenda.innerHTML = `
+    <span class="comparativo-legenda-item"><span class="comparativo-legenda-dot" style="background: var(--cor-receita)"></span>Receitas</span>
+    <span class="comparativo-legenda-item"><span class="comparativo-legenda-dot" style="background: var(--cor-despesa)"></span>Despesas</span>
+  `;
+  container.appendChild(legenda);
+
+  requestAnimationFrame(() => {
+    container.querySelectorAll(".comparativo-barra").forEach((barra) => {
+      barra.style.height = `${barra.dataset.altura}%`;
+    });
+  });
+}
+
+
+// --- TAXA DE POUPANÇA ---
+function calcularTaxaPoupanca(totalReceitas, totalDespesas) {
+  const card = document.getElementById("card-poupanca");
+  const valorEl = document.getElementById("taxa-poupanca");
+  const descEl = document.getElementById("poupanca-desc");
+  if (!card || !valorEl || !descEl) return;
+
+  if (totalReceitas <= 0) {
+    card.style.display = "none";
+    return;
+  }
+
+  const economia = totalReceitas - totalDespesas;
+  const taxa = Math.round((economia / totalReceitas) * 100);
+
+  card.style.display = "flex";
+  valorEl.textContent = `${taxa}%`;
+  valorEl.style.color = taxa >= 0 ? "var(--cor-receita)" : "var(--cor-despesa)";
+
+  if (taxa >= 20) {
+    descEl.textContent = "Excelente! Você está economizando bem.";
+  } else if (taxa >= 10) {
+    descEl.textContent = "Bom. Tente aumentar para 20%.";
+  } else if (taxa > 0) {
+    descEl.textContent = "Espere um pouco mais da entrada.";
+  } else {
+    descEl.textContent = "Gastos maiores que receitas este mês.";
+  }
 }
 
 

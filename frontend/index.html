@@ -146,6 +146,11 @@
               <span class="stat-rotulo">Saldo do período</span>
               <span class="stat-valor" id="saldo-total">R$ 0,00</span>
             </div>
+            <div class="card stat-card" id="card-poupanca" style="display: none">
+              <span class="stat-rotulo">Taxa de poupança</span>
+              <span class="stat-valor" id="taxa-poupanca" style="color: var(--cor-receita)">0%</span>
+              <span class="stat-desc" id="poupanca-desc"></span>
+            </div>
           </div>
 
           <!-- LINHA 2, COLUNA ESQUERDA: os lançamentos em si -->
@@ -170,6 +175,11 @@
             <div class="card resumo-categorias" id="card-tendencia" style="display: none">
               <span class="resumo-categorias-titulo">Tendência (6 meses)</span>
               <div id="grafico-tendencia" class="tendencia-grafico"></div>
+            </div>
+
+            <div class="card resumo-categorias" id="card-comparativo" style="display: none">
+              <span class="resumo-categorias-titulo">Receitas vs Despesas (6 meses)</span>
+              <div id="grafico-comparativo" class="comparativo-grafico"></div>
             </div>
 
             <div class="card resumo-categorias" id="card-por-autor" style="display: none">
