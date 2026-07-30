@@ -78,7 +78,7 @@ function alternarTelas(estaLogado) {
     sAdmin.style.display = "none";
 
     const u = obterUsuarioLogado();
-    bAdmin.style.display = u.perfil === "superadmin" ? "inline-block" : "none";
+    if (bAdmin) bAdmin.style.display = u.perfil === "superadmin" ? "inline-block" : "none";
     atualizarAvatarTopo(u);
     if (window.carregarCarteiras) window.carregarCarteiras();
   } else {
