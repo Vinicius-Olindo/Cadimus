@@ -46,6 +46,24 @@ function atualizarAvatarTopo(usuario) {
     avatar.style.backgroundImage = "";
     avatar.textContent = nomeExibicao.charAt(0).toUpperCase();
   }
+
+  const ddNome = document.getElementById("dropdown-avatar-nome");
+  const ddEmail = document.getElementById("dropdown-avatar-email");
+  const ddFoto = document.getElementById("dropdown-avatar-img");
+  if (ddNome) ddNome.textContent = nomeExibicao;
+  if (ddEmail) ddEmail.textContent = usuario.usuario || "";
+  if (ddFoto) {
+    ddFoto.title = nomeExibicao;
+    if (usuario.foto_perfil) {
+      ddFoto.classList.remove("avatar-vazio");
+      ddFoto.style.backgroundImage = `url("${usuario.foto_perfil}")`;
+      ddFoto.textContent = "";
+    } else {
+      ddFoto.classList.add("avatar-vazio");
+      ddFoto.style.backgroundImage = "";
+      ddFoto.textContent = nomeExibicao.charAt(0).toUpperCase();
+    }
+  }
 }
 
 function alternarTelas(estaLogado) {
@@ -95,22 +113,54 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
-  document.getElementById("btn-logout")?.addEventListener("click", async () => {
-    const token = obterToken();
-    if (token) {
-      try {
-        await fetch(`${API_URL}/api/auth`, {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
-        });
-      } catch (erro) {
-        // Mesmo se a chamada falhar, seguimos limpando a sessão local
-        console.error("Erro ao encerrar sessão no servidor:", erro);
+
+  const btnAvatar = document.getElementById("btn-avatar-perfil");
+  const dropdownAvatar = document.getElementById("dropdown-avatar");
+  if (btnAvatar && dropdownAvatar) {
+    btnAvatar.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const aberto = dropdownAvatar.style.display === "block";
+      dropdownAvatar.style.display = aberto ? "none" : "block";
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!dropdownAvatar.contains(e.target) && e.target !== btnAvatar && !btnAvatar.contains(e.target)) {
+        dropdownAvatar.style.display = "none";
       }
-    }
-    limparSessao();
-    alternarTelas(false);
-  });
+    });
+
+    document.getElementById("dropdown-btn-perfil")?.addEventListener("click", () => {
+      dropdownAvatar.style.display = "none";
+      document.getElementById("btn-avatar-perfil")?.click();
+    });
+
+    document.getElementById("dropdown-btn-config")?.addEventListener("click", () => {
+      dropdownAvatar.style.display = "none";
+      const btnAdmin = document.getElementById("btn-admin");
+      if (btnAdmin) {
+        btnAdmin.style.display = "inline-block";
+        btnAdmin.click();
+        btnAdmin.style.display = "none";
+      }
+    });
+
+    document.getElementById("dropdown-btn-sair")?.addEventListener("click", async () => {
+      dropdownAvatar.style.display = "none";
+      const token = obterToken();
+      if (token) {
+        try {
+          await fetch(`${API_URL}/api/auth`, {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${token}` },
+          });
+        } catch (erro) {
+          console.error("Erro ao encerrar sessão no servidor:", erro);
+        }
+      }
+      limparSessao();
+      alternarTelas(false);
+    });
+  }
 
   // ==========================================
   // ESQUECI MINHA SENHA

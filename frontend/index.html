@@ -128,27 +128,35 @@
                 <span class="btn-topo-label">Alertas</span>
                 <span class="notificacao-badge" id="notificacao-badge"></span>
               </button>
-              <button id="btn-admin" class="btn-topo-icone" style="display: none" title="Configurações">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="12" r="3" />
-                  <path
-                    d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"
-                  />
-                </svg>
-                <span class="btn-topo-label">Configurações</span>
-              </button>
               <div class="acoes-topo-divider"></div>
-              <button id="btn-logout" class="btn-topo-sair">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                  <polyline points="16 17 21 12 16 7" />
-                  <line x1="21" y1="12" x2="9" y2="12" />
-                </svg>
-                Sair
-              </button>
-              <button id="btn-avatar-perfil" class="btn-avatar-perfil" title="Meu perfil" aria-label="Perfil do usuário">
-                <div id="avatar-usuario-logado" class="avatar-topo avatar-vazio" title=""></div>
-              </button>
+              <div class="avatar-dropdown-wrapper">
+                <button id="btn-avatar-perfil" class="btn-avatar-perfil" title="Meu perfil" aria-label="Perfil do usuário">
+                  <div id="avatar-usuario-logado" class="avatar-topo avatar-vazio" title=""></div>
+                </button>
+                <div id="dropdown-avatar" class="dropdown-avatar" style="display: none">
+                  <div class="dropdown-avatar-header">
+                    <div id="dropdown-avatar-img" class="dropdown-avatar-foto avatar-vazio"></div>
+                    <div class="dropdown-avatar-info">
+                      <span class="dropdown-avatar-nome" id="dropdown-avatar-nome">Usuário</span>
+                      <span class="dropdown-avatar-email" id="dropdown-avatar-email"></span>
+                    </div>
+                  </div>
+                  <div class="dropdown-avatar-divider"></div>
+                  <button type="button" class="dropdown-avatar-item" id="dropdown-btn-perfil">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    Meu perfil
+                  </button>
+                  <button type="button" class="dropdown-avatar-item" id="dropdown-btn-config">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+                    Configurações
+                  </button>
+                  <div class="dropdown-avatar-divider"></div>
+                  <button type="button" class="dropdown-avatar-item dropdown-avatar-sair" id="dropdown-btn-sair">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    Sair
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
           <div class="top-bar-linha2">

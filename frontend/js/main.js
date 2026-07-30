@@ -324,7 +324,7 @@ function inicializarDarkMode() {
   btnTheme.className = "btn-topo-icone btn-topo-icone-only";
   btnTheme.title = "Alternar tema";
 
-  areaAcoes.insertBefore(btnTheme, document.getElementById("btn-logout"));
+  areaAcoes.insertBefore(btnTheme, document.querySelector(".avatar-dropdown-wrapper"));
 
   function atualizarIconeTema() {
     // Mostra o ícone do modo que a pessoa vai ATIVAR ao clicar (convenção comum)
