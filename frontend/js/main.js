@@ -932,24 +932,20 @@ async function carregarPainelDespesasFixas() {
       const div = document.createElement("div");
       div.className = `linha-item linha-usuario ${classeDestaque}`.trim();
       div.innerHTML = `
-        <div class="fixa-col-toggle">
-          <button type="button" class="fixa-btn-toggle btn-alternar-fixa ${fixa.ativo ? "fixa-ativa" : "fixa-pausada"}" data-id="${fixa.id}" title="${fixa.ativo ? "Pausar" : "Ativar"}">
-            ${fixa.ativo
-              ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>'
-              : '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>'}
-          </button>
-        </div>
-        <div class="fixa-col-info">
-          <div class="fixa-linha-nome">
-            <span class="item-descricao">${escaparHtml(fixa.descricao)}</span>
-            <div class="fixa-botoes">
-              ${badgeAviso}
-              <button type="button" class="fixa-btn btn-historico-fixa" data-id="${fixa.id}" data-descricao="${escaparHtml(fixa.descricao)}">Histórico</button>
-              <button type="button" class="fixa-btn btn-editar-fixa" data-id="${fixa.id}">Editar</button>
-              <button type="button" class="fixa-btn-excluir btn-excluir-conta" data-id="${fixa.id}">Excluir</button>
-            </div>
-          </div>
+        <button type="button" class="fixa-btn-toggle btn-alternar-fixa ${fixa.ativo ? "fixa-ativa" : "fixa-pausada"}" data-id="${fixa.id}" title="${fixa.ativo ? "Pausar" : "Ativar"}">
+          ${fixa.ativo
+            ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>'
+            : '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>'}
+        </button>
+        <div class="fixa-conteudo">
+          <span class="item-descricao">${escaparHtml(fixa.descricao)}</span>
           <span class="item-categoria">${valorFormatado} · Dia ${fixa.dia_vencimento}</span>
+          <div class="fixa-botoes">
+            ${badgeAviso}
+            <button type="button" class="fixa-btn btn-historico-fixa" data-id="${fixa.id}" data-descricao="${escaparHtml(fixa.descricao)}">Histórico</button>
+            <button type="button" class="fixa-btn btn-editar-fixa" data-id="${fixa.id}">Editar</button>
+            <button type="button" class="fixa-btn-excluir btn-excluir-conta" data-id="${fixa.id}">Excluir</button>
+          </div>
         </div>
       `;
       container.appendChild(div);
@@ -1276,17 +1272,15 @@ async function carregarPainelComprasParceladas() {
       const div = document.createElement("div");
       div.className = "linha-item linha-usuario";
       div.innerHTML = `
-        <div class="fixa-col-info">
-          <div class="fixa-linha-nome">
-            <span class="item-descricao">${escaparHtml(compra.descricao)}</span>
-            <div class="fixa-botoes">
-              <span class="item-status ${compra.ativo && !concluida ? "status-pago" : "status-pendente"}">${compra.ativo ? (concluida ? "Concluída" : "Ativa") : "Cancelada"}</span>
-              <button type="button" class="fixa-btn btn-historico-parcela" data-id="${compra.id}" data-descricao="${escaparHtml(compra.descricao)}">Histórico</button>
-              ${!concluida ? `<button type="button" class="fixa-btn btn-alternar-parcela" data-id="${compra.id}">${compra.ativo ? "Cancelar" : "Reativar"}</button>` : ""}
-              <button type="button" class="fixa-btn-excluir btn-excluir-parcela" data-id="${compra.id}">Excluir</button>
-            </div>
-          </div>
+        <div class="fixa-conteudo">
+          <span class="item-descricao">${escaparHtml(compra.descricao)}</span>
           <span class="item-categoria">${rotuloParcela} · ${valorFormatado}/mês</span>
+          <div class="fixa-botoes">
+            <span class="item-status ${compra.ativo && !concluida ? "status-pago" : "status-pendente"}">${compra.ativo ? (concluida ? "Concluída" : "Ativa") : "Cancelada"}</span>
+            <button type="button" class="fixa-btn btn-historico-parcela" data-id="${compra.id}" data-descricao="${escaparHtml(compra.descricao)}">Histórico</button>
+            ${!concluida ? `<button type="button" class="fixa-btn btn-alternar-parcela" data-id="${compra.id}">${compra.ativo ? "Cancelar" : "Reativar"}</button>` : ""}
+            <button type="button" class="fixa-btn-excluir btn-excluir-parcela" data-id="${compra.id}">Excluir</button>
+          </div>
         </div>
       `;
       container.appendChild(div);
