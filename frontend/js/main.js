@@ -205,6 +205,7 @@ document.addEventListener("DOMContentLoaded", () => {
   inicializarDarkMode();
   configurarMonitoresDeFiltro();
   configurarBuscaLancamentos();
+  configurarNotificacoes();
   configurarModal();
   configurarModalCarteira();
   configurarModalGerenciarMembros();
@@ -966,6 +967,8 @@ async function carregarPainelDespesasFixas() {
   } catch (erro) {
     console.error("Erro ao carregar despesas fixas:", erro);
   }
+
+  renderizarNotificacoes();
 }
 
 // Calcula se o vencimento está próximo (até 3 dias), hoje, ou já passou (até 3 dias atrás)
@@ -1307,6 +1310,8 @@ async function carregarPainelComprasParceladas() {
   } catch (erro) {
     console.error("Erro ao carregar compras parceladas:", erro);
   }
+
+  renderizarNotificacoes();
 }
 
 async function alternarComprasParcelada(id) {
@@ -2063,6 +2068,104 @@ function configurarBuscaLancamentos() {
   ["filtro-tipo", "filtro-status", "filtro-categoria-lancamento"].forEach((id) => {
     const el = document.getElementById(id);
     if (el) el.addEventListener("change", renderizarListaLancamentos);
+  });
+}
+
+// --- NOTIFICAÇÕES DE VENCIMENTO ---
+function verificarNotificacoes() {
+  const notificacoes = [];
+  const hoje = new Date();
+  const diaAtual = hoje.getDate();
+  const mesAtual = hoje.getMonth();
+  const anoAtual = hoje.getFullYear();
+
+  despesasFixasCarregadas.forEach((fixa) => {
+    if (!fixa.ativo) return;
+    const aviso = calcularAvisoVencimento(fixa.dia_vencimento);
+    if (aviso) {
+      notificacoes.push({
+        tipo: "fixa",
+        descricao: fixa.descricao,
+        valor: fixa.valor,
+        dia: fixa.dia_vencimento,
+        texto: aviso.texto,
+        atrasado: aviso.atrasado,
+        urgencia: aviso.atrasado ? 0 : diaAtual === fixa.dia_vencimento ? 1 : 2,
+      });
+    }
+  });
+
+  comprasParceladasCarregadas.forEach((compra) => {
+    if (!compra.ativo) return;
+    const aviso = calcularAvisoVencimento(compra.dia_vencimento);
+    if (aviso) {
+      notificacoes.push({
+        tipo: "parcelada",
+        descricao: compra.descricao,
+        valor: compra.valor_parcela,
+        dia: compra.dia_vencimento,
+        texto: aviso.texto,
+        atrasado: aviso.atrasado,
+        urgencia: aviso.atrasado ? 0 : diaAtual === compra.dia_vencimento ? 1 : 2,
+      });
+    }
+  });
+
+  notificacoes.sort((a, b) => a.urgencia - b.urgencia);
+  return notificacoes;
+}
+
+function renderizarNotificacoes() {
+  const notificacoes = verificarNotificacoes();
+  const badge = document.getElementById("notificacao-badge");
+  const lista = document.getElementById("lista-notificacoes");
+
+  if (notificacoes.length === 0) {
+    badge.style.display = "none";
+    lista.innerHTML = '<div class="notificacao-vazio">Nenhum vencimento próximo.</div>';
+    return;
+  }
+
+  badge.style.display = "flex";
+  badge.textContent = notificacoes.length;
+
+  lista.innerHTML = notificacoes.map((n) => {
+    const iconeClasse = n.atrasado ? "atrasado" : n.urgencia === 1 ? "hoje" : "proximo";
+    const svgIcone = n.atrasado
+      ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>'
+      : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
+    const tipoLabel = n.tipo === "fixa" ? "Fixa" : "Parcelada";
+    const valorFormatado = formatadorBRL.format(n.valor);
+
+    return `
+      <div class="notificacao-item">
+        <div class="notificacao-icone ${iconeClasse}">${svgIcone}</div>
+        <div class="notificacao-info">
+          <div class="notificacao-descricao">${escaparHtml(n.descricao)}</div>
+          <div class="notificacao-detalhe">${tipoLabel} · Dia ${n.dia} · ${n.texto}</div>
+        </div>
+        <span class="notificacao-valor">${valorFormatado}</span>
+      </div>
+    `;
+  }).join("");
+}
+
+function configurarNotificacoes() {
+  const btn = document.getElementById("btn-notificacoes");
+  const painel = document.getElementById("painel-notificacoes");
+  if (!btn || !painel) return;
+
+  btn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const aberto = painel.style.display !== "none";
+    painel.style.display = aberto ? "none" : "block";
+    if (!aberto) renderizarNotificacoes();
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!painel.contains(e.target) && e.target !== btn) {
+      painel.style.display = "none";
+    }
   });
 }
 

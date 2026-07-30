@@ -101,6 +101,7 @@ button {
   gap: 8px;
   align-items: center;
   flex-wrap: wrap;
+  position: relative;
 }
 
 .avatar-topo {
@@ -268,6 +269,132 @@ button:active {
   align-items: center;
   gap: 5px;
   padding: 6px 12px;
+
+/* Notificações */
+.btn-notificacoes {
+  position: relative;
+}
+
+.notificacao-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--cor-despesa);
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.painel-notificacoes {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  width: 300px;
+  max-height: 360px;
+  overflow-y: auto;
+  background: var(--cor-fundo);
+  border: 1px solid var(--cor-pauta-forte);
+  border-radius: var(--raio-botoes);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  z-index: 200;
+}
+
+.painel-notificacoes-header {
+  padding: 12px 14px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--cor-texto-suave);
+  border-bottom: 1px solid var(--cor-pauta-forte);
+}
+
+.painel-notificacoes-lista {
+  padding: 6px;
+}
+
+.notificacao-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px;
+  border-radius: var(--raio-botoes);
+  transition: background 0.15s;
+}
+
+.notificacao-item:hover {
+  background: color-mix(in srgb, var(--cor-marca) 5%, transparent);
+}
+
+.notificacao-icone {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notificacao-icone.atrasado {
+  background: color-mix(in srgb, var(--cor-despesa) 18%, transparent);
+  color: var(--cor-despesa);
+}
+
+.notificacao-icone.hoje {
+  background: color-mix(in srgb, var(--cor-pendente) 18%, transparent);
+  color: var(--cor-pendente);
+}
+
+.notificacao-icone.proximo {
+  background: color-mix(in srgb, var(--cor-receita) 18%, transparent);
+  color: var(--cor-receita);
+}
+
+.notificacao-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.notificacao-descricao {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--cor-texto);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.notificacao-detalhe {
+  font-size: 0.72rem;
+  color: var(--cor-texto-suave);
+  margin-top: 2px;
+}
+
+.notificacao-valor {
+  font-family: var(--fonte-mono);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--cor-texto);
+  white-space: nowrap;
+}
+
+.notificacao-vazio {
+  padding: 24px 14px;
+  text-align: center;
+  color: var(--cor-texto-suave);
+  font-size: 0.82rem;
+  font-style: italic;
+}
   font-size: 0.8rem;
   background: transparent;
   color: var(--cor-texto-suave);
