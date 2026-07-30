@@ -2081,8 +2081,6 @@ function verificarNotificacoes() {
   const notificacoes = [];
   const hoje = new Date();
   const diaAtual = hoje.getDate();
-  const mesAtual = hoje.getMonth();
-  const anoAtual = hoje.getFullYear();
 
   despesasFixasCarregadas.forEach((fixa) => {
     if (!fixa.ativo) return;
@@ -2116,6 +2114,37 @@ function verificarNotificacoes() {
     }
   });
 
+  ultimoLoteLancamentos.forEach((lanc) => {
+    if (lanc.status === "pago") return;
+    const dataLanc = new Date(lanc.data_compra + "T12:00:00");
+    const diffMs = hoje - dataLanc;
+    const diffDias = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    let texto = null;
+    let atrasado = false;
+
+    if (diffDias === 0) {
+      texto = "Vence hoje";
+    } else if (diffDias > 0 && diffDias <= 3) {
+      texto = `Vence em ${diffDias} dia${diffDias > 1 ? "s" : ""}`;
+    } else if (diffDias < 0 && diffDias >= -3) {
+      texto = `Venceu há ${Math.abs(diffDias)} dia${Math.abs(diffDias) > 1 ? "s" : ""}`;
+      atrasado = true;
+    }
+
+    if (texto) {
+      notificacoes.push({
+        tipo: "lancamento",
+        descricao: lanc.descricao,
+        valor: lanc.valor,
+        dia: dataLanc.getUTCDate(),
+        texto,
+        atrasado,
+        urgencia: atrasado ? 0 : diffDias === 0 ? 1 : 2,
+      });
+    }
+  });
+
   notificacoes.sort((a, b) => a.urgencia - b.urgencia);
   return notificacoes;
 }
@@ -2138,7 +2167,7 @@ function renderizarNotificacoes() {
     const svgIcone = n.atrasado
       ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>'
       : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
-    const tipoLabel = n.tipo === "fixa" ? "Fixa" : "Parcelada";
+    const tipoLabel = n.tipo === "fixa" ? "Fixa" : n.tipo === "parcelada" ? "Parcelada" : "Lançamento";
     const valorFormatado = formatadorBRL.format(n.valor);
 
     return `
