@@ -123,8 +123,8 @@ export async function processarLancamentos(request, env, ctx) {
 
       const query = `
                 INSERT INTO lancamentos 
-                (descricao, valor, data_compra, tipo, categoria, meio_pagamento, status, carteira_id, criado_por)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                (descricao, valor, data_compra, tipo, categoria, meio_pagamento, status, carteira_id, criado_por, nota)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             `;
       await env.DB.prepare(query)
         .bind(
@@ -137,6 +137,7 @@ export async function processarLancamentos(request, env, ctx) {
           dados.status,
           dados.carteira_id,
           usuarioLogado.id, // criado_por vem da sessão, nunca do corpo enviado pelo cliente
+          dados.nota || "",
         )
         .run();
 
@@ -165,7 +166,7 @@ export async function processarLancamentos(request, env, ctx) {
       }
 
       const dados = await request.json();
-      const camposPermitidos = ["descricao", "valor", "data_compra", "tipo", "categoria", "meio_pagamento", "status"];
+      const camposPermitidos = ["descricao", "valor", "data_compra", "tipo", "categoria", "meio_pagamento", "status", "nota"];
       const camposEnviados = Object.keys(dados).filter((campo) => camposPermitidos.includes(campo));
 
       // Marcar pago/pendente é livre pra quem acessa a carteira. Editar os detalhes

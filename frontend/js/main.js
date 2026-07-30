@@ -1833,6 +1833,7 @@ async function editarLancamento(id) {
   document.getElementById("categoria").value = lancamento.categoria;
   document.getElementById("meio-pagamento").value = lancamento.meio_pagamento;
   document.getElementById("status-pagamento").value = lancamento.status;
+  document.getElementById("nota-lancamento").value = lancamento.nota || "";
 
   document.getElementById("titulo-modal-lancamento").innerText = "Editar lançamento";
   document.getElementById("btn-salvar-lancamento").innerText = "Salvar edição";
@@ -1912,6 +1913,7 @@ function configurarModal() {
         meio_pagamento: document.getElementById("meio-pagamento").value,
         status: document.getElementById("status-pagamento").value,
         carteira_id: carteiraId,
+        nota: document.getElementById("nota-lancamento").value.trim(),
       };
 
       const resposta = idEdicao

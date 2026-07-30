@@ -1234,6 +1234,21 @@ button:active {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.item-nota-indicator {
+  flex-shrink: 0;
+  color: var(--cor-texto-suave);
+  opacity: 0.6;
+  cursor: help;
+}
+
+.item-nota-indicator:hover {
+  opacity: 1;
+  color: var(--cor-pendente);
 }
 
 .item-categoria {
@@ -1610,6 +1625,35 @@ label {
 
 .campo {
   margin-bottom: 12px;
+}
+
+.campo-optional {
+  font-weight: 400;
+  font-size: 0.78rem;
+  color: var(--cor-texto-suave);
+}
+
+textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: var(--borda) solid var(--cor-pauta-forte);
+  border-radius: var(--raio-botoes);
+  background: var(--cor-fundo);
+  color: var(--cor-texto);
+  font-family: inherit;
+  font-size: 0.88rem;
+  resize: vertical;
+  min-height: 48px;
+}
+
+textarea:focus {
+  outline: 2px solid var(--cor-pauta-forte);
+  outline-offset: 1px;
+}
+
+textarea::placeholder {
+  color: var(--cor-texto-suave);
+  opacity: 0.7;
 }
 
 .lista-membros-carteira {
