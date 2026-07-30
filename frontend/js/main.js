@@ -2677,6 +2677,7 @@ function renderizarResumoCategorias(totaisPorCategoria) {
           ${escaparHtml(categoria)} ${iconeMeta}
         </strong>
         <span class="categoria-barra-valor">${textoValor}</span>
+        ${meta && meta.data_limite && meta.falta > 0 ? `<span class="badge-semana">~${formatadorBRL.format(meta.guarda_semanal)}/sem.</span>` : ""}
       </div>
       <div class="categoria-barra-trilho ${meta ? "barra-meta-clicavel" : ""}" data-categoria="${escaparHtml(categoria)}" data-meta="${meta ? meta.valor_limite : ""}">
         <div class="categoria-barra-preenchimento ${classeCor}" data-largura="${percentualLargura}"></div>

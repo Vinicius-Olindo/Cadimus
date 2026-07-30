@@ -1014,6 +1014,18 @@ button:active {
   font-variant-numeric: tabular-nums;
 }
 
+.badge-semana {
+  font-family: var(--fonte-mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--cor-receita);
+  background: rgba(16, 185, 129, 0.12);
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  margin-left: 0.5rem;
+  white-space: nowrap;
+}
+
 .categoria-barra-trilho {
   height: 7px;
   border-radius: 999px;
