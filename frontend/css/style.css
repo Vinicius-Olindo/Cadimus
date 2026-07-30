@@ -271,25 +271,22 @@ button:active {
   padding: 6px 12px;
 
 /* Notificações */
-.btn-notificacoes {
-  position: relative;
-}
-
 .notificacao-badge {
   position: absolute;
-  top: 2px;
-  right: 2px;
-  min-width: 16px;
-  height: 16px;
-  padding: 0 4px;
-  border-radius: 999px;
+  top: 4px;
+  right: 6px;
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border-radius: 50%;
   background: var(--cor-despesa);
-  color: #fff;
-  font-size: 0.6rem;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  border: 2px solid var(--cor-fundo);
+  display: none;
+}
+
+.notificacao-badge.com-alertas {
+  display: block;
+}
   line-height: 1;
 }
 
