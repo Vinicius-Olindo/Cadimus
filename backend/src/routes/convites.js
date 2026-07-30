@@ -148,10 +148,14 @@ export async function processarConvites(request, env, ctx) {
 // Aceita o convite e cria o usuário
 // ==========================================
 async function aceitarConvite(body, env) {
-  const { token, senha, nome } = body;
+  const { token, senha, nome, usuario } = body;
 
   if (!token || !senha) {
     return new Response(JSON.stringify({ erro: "Token e senha são obrigatórios." }), { status: 400 });
+  }
+
+  if (!usuario || !usuario.trim()) {
+    return new Response(JSON.stringify({ erro: "Escolha um nome de usuário." }), { status: 400 });
   }
 
   if (senha.length < 6) {
@@ -160,7 +164,7 @@ async function aceitarConvite(body, env) {
 
   try {
     const { results } = await env.DB.prepare(
-      `SELECT id, nome, email, perfil, expira_em, usado_em FROM convites WHERE token = ?`
+      `SELECT id, nome, email, perfil, criado_por, expira_em, usado_em FROM convites WHERE token = ?`
     ).bind(token).all();
 
     if (results.length === 0) {
@@ -177,8 +181,7 @@ async function aceitarConvite(body, env) {
       return new Response(JSON.stringify({ erro: "Este convite expirou. Solicite um novo." }), { status: 410 });
     }
 
-    // Gera nome de usuário a partir do e-mail (parte antes do @)
-    const nomeUsuario = convite.email.split("@")[0];
+    const nomeUsuario = usuario.trim();
 
     // Verifica se o nome de usuário já existe
     const { results: usuarioExistente } = await env.DB.prepare(
@@ -187,18 +190,17 @@ async function aceitarConvite(body, env) {
 
     if (usuarioExistente.length > 0) {
       return new Response(JSON.stringify({ 
-        erro: "Já existe um usuário com esse nome. Escolha outro nome de usuário.",
-        sugestao: true 
+        erro: "Esse nome de usuário já está em uso. Escolha outro."
       }), { status: 409 });
     }
 
     const senhaHash = await hashSenha(senha);
     const nomeFinal = nome || convite.nome;
 
-    // Cria o usuário
+    // Cria o usuário com criado_por do admin que gerou o convite
     const resultado = await env.DB.prepare(
-      `INSERT INTO usuarios (nome_usuario, senha_hash, perfil, nome, email) VALUES (?, ?, ?, ?, ?)`
-    ).bind(nomeUsuario, senhaHash, convite.perfil, nomeFinal, convite.email).run();
+      `INSERT INTO usuarios (nome_usuario, senha_hash, perfil, nome, email, criado_por) VALUES (?, ?, ?, ?, ?, ?)`
+    ).bind(nomeUsuario, senhaHash, convite.perfil, nomeFinal, convite.email, convite.criado_por).run();
 
     // Marca convite como usado
     await env.DB.prepare(

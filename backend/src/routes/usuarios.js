@@ -91,8 +91,16 @@ export async function processarUsuarios(request, env, ctx) {
   // ==========================================
   if (metodo === "GET") {
     try {
-      const query = `SELECT id, nome_usuario, perfil, nome, telefone, email, foto_perfil, criado_em, ultimo_acesso, ativo FROM usuarios ORDER BY id ASC`;
-      const { results } = await env.DB.prepare(query).all();
+      // Superadmin vê todos; outros só veem quem eles criaram
+      let query;
+      let binds = [];
+      if (usuarioLogado.perfil === "superadmin") {
+        query = `SELECT id, nome_usuario, perfil, nome, telefone, email, foto_perfil, criado_em, ultimo_acesso, ativo, criado_por FROM usuarios ORDER BY id ASC`;
+      } else {
+        query = `SELECT id, nome_usuario, perfil, nome, telefone, email, foto_perfil, criado_em, ultimo_acesso, ativo, criado_por FROM usuarios WHERE criado_por = ? ORDER BY id ASC`;
+        binds = [usuarioLogado.id];
+      }
+      const { results } = await env.DB.prepare(query).bind(...binds).all();
       return new Response(JSON.stringify(results), { status: 200 });
     } catch (erro) {
       return new Response(JSON.stringify({ erro: "Erro ao buscar usuários." }), { status: 500 });
@@ -130,9 +138,9 @@ export async function processarUsuarios(request, env, ctx) {
       // Nunca mais gravamos a senha em texto puro
       const senhaHash = await hashSenha(dados.senha);
 
-      const query = `INSERT INTO usuarios (nome_usuario, senha_hash, perfil, nome, telefone, email, foto_perfil) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+      const query = `INSERT INTO usuarios (nome_usuario, senha_hash, perfil, nome, telefone, email, foto_perfil, criado_por) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
       const resultadoUsuario = await env.DB.prepare(query)
-        .bind(dados.usuario, senhaHash, perfil, cadastrais.nome, cadastrais.telefone ?? null, cadastrais.email, cadastrais.foto_perfil ?? null)
+        .bind(dados.usuario, senhaHash, perfil, cadastrais.nome, cadastrais.telefone ?? null, cadastrais.email, cadastrais.foto_perfil ?? null, usuarioLogado.id)
         .run();
       const novoUsuarioId = resultadoUsuario.meta.last_row_id;
 
