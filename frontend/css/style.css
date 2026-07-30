@@ -722,6 +722,8 @@ button:active {
   font-weight: 700;
   font-size: 1.1rem;
   color: var(--cor-texto);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 #btn-novo-gasto {
