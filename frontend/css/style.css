@@ -2360,7 +2360,7 @@ textarea::placeholder {
 
 #admin-section .card input:focus,
 #admin-section .card select:focus {
-  border-color: var(--cor-foco);
+  border-color: var(--cor-marca);
 }
 
 #admin-section .card input::placeholder {
@@ -2484,7 +2484,7 @@ textarea::placeholder {
 }
 
 .campo-busca-admin input:focus {
-  border-color: var(--cor-foco);
+  border-color: var(--cor-marca);
 }
 
 .campo-busca-admin input::placeholder {
@@ -2502,9 +2502,9 @@ textarea::placeholder {
   gap: 6px;
   padding: 10px 16px;
   background: var(--cor-fundo);
-  border: var(--borda) solid var(--cor-foco);
+  border: var(--borda) solid var(--cor-marca);
   border-radius: 999px;
-  color: var(--cor-foco);
+  color: var(--cor-marca);
   font-size: 0.85rem;
   font-weight: 500;
   cursor: pointer;
@@ -2512,7 +2512,7 @@ textarea::placeholder {
 }
 
 .btn-convite:hover {
-  background: var(--cor-foco);
+  background: var(--cor-marca);
   color: #fff;
 }
 
@@ -2536,7 +2536,7 @@ textarea::placeholder {
 
 .campo-link-convite button {
   padding: 10px 16px;
-  background: var(--cor-foco);
+  background: var(--cor-marca);
   border: none;
   border-radius: 8px;
   color: #fff;
@@ -2603,12 +2603,12 @@ textarea::placeholder {
 }
 
 #cadastro-section input:focus {
-  border-color: var(--cor-foco);
+  border-color: var(--cor-marca);
 }
 
 #cadastro-section button[type="submit"] {
   padding: 12px;
-  background: var(--cor-foco);
+  background: var(--cor-marca);
   border: none;
   border-radius: 8px;
   color: #fff;
@@ -2616,6 +2616,7 @@ textarea::placeholder {
   font-weight: 600;
   cursor: pointer;
   margin-top: 8px;
+  width: 100%;
 }
 
 #cadastro-section button[type="submit"]:hover {
@@ -2631,7 +2632,7 @@ textarea::placeholder {
 }
 
 #cadastro-section .link-voltar-login:hover {
-  color: var(--cor-foco);
+  color: var(--cor-marca);
 }
 
 .erro-convite {
