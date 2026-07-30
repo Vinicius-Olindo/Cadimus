@@ -131,17 +131,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.getElementById("dropdown-btn-perfil")?.addEventListener("click", () => {
       dropdownAvatar.style.display = "none";
-      document.getElementById("btn-avatar-perfil")?.click();
+      abrirPerfilUsuario();
     });
 
     document.getElementById("dropdown-btn-config")?.addEventListener("click", () => {
       dropdownAvatar.style.display = "none";
-      const btnAdmin = document.getElementById("btn-admin");
-      if (btnAdmin) {
-        btnAdmin.style.display = "inline-block";
-        btnAdmin.click();
-        btnAdmin.style.display = "none";
-      }
+      abrirConfiguracoesAdmin();
     });
 
     document.getElementById("dropdown-btn-sair")?.addEventListener("click", async () => {
@@ -299,3 +294,43 @@ document.addEventListener("DOMContentLoaded", () => {
     alternarTelas(false);
   }
 });
+
+function abrirConfiguracoesAdmin() {
+  const secaoDashboard = document.getElementById("dashboard-section");
+  const secaoAdmin = document.getElementById("admin-section");
+  if (!secaoDashboard || !secaoAdmin) return;
+  secaoDashboard.style.display = "none";
+  secaoAdmin.style.display = "flex";
+  secaoAdmin.style.flexDirection = "column";
+  if (typeof carregarUsuarios === "function") carregarUsuarios();
+}
+
+function abrirPerfilUsuario() {
+  const secaoDashboard = document.getElementById("dashboard-section");
+  const secaoAdmin = document.getElementById("admin-section");
+  if (!secaoDashboard || !secaoAdmin) return;
+  secaoDashboard.style.display = "none";
+  secaoAdmin.style.display = "flex";
+  secaoAdmin.style.flexDirection = "column";
+
+  const usuario = obterUsuarioLogado();
+  if (!usuario) return;
+
+  const tentarSelecionar = () => {
+    const lista = document.getElementById("lista-usuarios");
+    if (!lista) return;
+    const btnEditar = lista.querySelector(`.btn-editar-usuario[data-id="${usuario.id}"]`);
+    if (btnEditar) {
+      btnEditar.click();
+    } else if (typeof entrarModoEdicaoUsuario === "function") {
+      entrarModoEdicaoUsuario(usuario);
+    }
+  };
+
+  if (typeof carregarUsuarios === "function") {
+    carregarUsuarios();
+    setTimeout(tentarSelecionar, 500);
+  } else {
+    tentarSelecionar();
+  }
+}
