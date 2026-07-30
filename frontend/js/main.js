@@ -3195,6 +3195,8 @@ function configurarPainelAdmin() {
 }
 
 // --- PLANEJAMENTO ---
+let planosCarregados = [];
+
 function configurarPlano() {
   const btnPlano = document.getElementById("btn-planejamento");
   const btnVoltar = document.getElementById("btn-voltar-dashboard-plano");
@@ -3205,7 +3207,8 @@ function configurarPlano() {
 
   btnPlano.addEventListener("click", () => {
     secaoDashboard.style.display = "none";
-    secaoPlano.style.display = "block";
+    secaoPlano.style.display = "flex";
+    secaoPlano.style.flexDirection = "column";
     renderizarPlano();
   });
 
@@ -3215,8 +3218,24 @@ function configurarPlano() {
     carregarLancamentos();
   });
 
+  configurarTabsPlano();
   configurarSalarioPlano();
   configurarMetaPlano();
+  configurarModalPlano();
+  configurarModalPlanoDeposito();
+}
+
+function configurarTabsPlano() {
+  document.querySelectorAll(".plano-tab").forEach((tab) => {
+    tab.addEventListener("click", () => {
+      document.querySelectorAll(".plano-tab").forEach((t) => t.classList.remove("ativo"));
+      document.querySelectorAll(".plano-painel").forEach((p) => (p.style.display = "none"));
+      tab.classList.add("ativo");
+      const painel = document.getElementById(tab.dataset.painel);
+      if (painel) painel.style.display = "block";
+      renderizarPlano();
+    });
+  });
 }
 
 function configurarSalarioPlano() {
@@ -3271,17 +3290,34 @@ function configurarSalarioPlano() {
   });
 }
 
+async function carregarPlanos() {
+  try {
+    const resposta = await fetch(`${API_URL}/api/planos`, { headers: headersAutenticados() });
+    if (tratarSessaoExpirada(resposta)) return;
+    if (resposta.ok) {
+      planosCarregados = await resposta.json();
+    }
+  } catch (erro) {
+    console.error("Erro ao carregar planos:", erro);
+  }
+}
+
 function renderizarPlano() {
   const usuario = obterUsuarioLogado();
   const salario = usuario.salario || 0;
 
-  // Salário display
   const salarioDisplay = document.getElementById("plano-salario-display");
   if (salarioDisplay) {
     salarioDisplay.textContent = salario > 0 ? formatadorBRL.format(salario) : "Não definido";
   }
 
-  // Capacidade de guarda
+  renderizarGuardaPlano(salario);
+  renderizarDistribuicaoPlano(salario);
+  carregarPlanos().then(() => renderizarListaPlanos());
+  renderizarMetasPlano();
+}
+
+function renderizarGuardaPlano(salario) {
   const cardGuarda = document.getElementById("plano-card-guarda");
   const guardaValor = document.getElementById("plano-guarda-valor");
   const guardaDetalhe = document.getElementById("plano-guarda-detalhe");
@@ -3291,15 +3327,10 @@ function renderizarPlano() {
     let totalParcelas = 0;
 
     if (typeof despesasFixasCarregadas !== "undefined") {
-      despesasFixasCarregadas.forEach((f) => {
-        if (f.ativo) totalFixas += f.valor || 0;
-      });
+      despesasFixasCarregadas.forEach((f) => { if (f.ativo) totalFixas += f.valor || 0; });
     }
-
     if (typeof comprasParceladasCarregadas !== "undefined") {
-      comprasParceladasCarregadas.forEach((c) => {
-        if (c.ativo) totalParcelas += c.valor_parcela || 0;
-      });
+      comprasParceladasCarregadas.forEach((c) => { if (c.ativo) totalParcelas += c.valor_parcela || 0; });
     }
 
     const sobra = salario - totalFixas - totalParcelas;
@@ -3316,27 +3347,392 @@ function renderizarPlano() {
       guardaDetalhe.textContent = `Dá pra guardar ~${formatadorBRL.format(guardaSemanal)}/semana.`;
     }
 
-    // Barras
     const maxValor = Math.max(salario, 1);
-    const barraFixas = document.getElementById("plano-barra-fixas");
-    const barraParcelas = document.getElementById("plano-barra-parcelas");
-    const barraSobra = document.getElementById("plano-barra-sobra");
-    const valorFixas = document.getElementById("plano-valor-fixas");
-    const valorParcelas = document.getElementById("plano-valor-parcelas");
-    const valorSobra = document.getElementById("plano-valor-sobra");
-
-    if (barraFixas) barraFixas.style.width = `${Math.round((totalFixas / maxValor) * 100)}%`;
-    if (barraParcelas) barraParcelas.style.width = `${Math.round((totalParcelas / maxValor) * 100)}%`;
-    if (barraSobra) barraSobra.style.width = `${Math.round((sobraPositiva / maxValor) * 100)}%`;
-    if (valorFixas) valorFixas.textContent = formatadorBRL.format(totalFixas);
-    if (valorParcelas) valorParcelas.textContent = formatadorBRL.format(totalParcelas);
-    if (valorSobra) valorSobra.textContent = formatadorBRL.format(sobraPositiva);
+    const el = (id) => document.getElementById(id);
+    if (el("plano-barra-fixas")) el("plano-barra-fixas").style.width = `${Math.round((totalFixas / maxValor) * 100)}%`;
+    if (el("plano-barra-parcelas")) el("plano-barra-parcelas").style.width = `${Math.round((totalParcelas / maxValor) * 100)}%`;
+    if (el("plano-barra-sobra")) el("plano-barra-sobra").style.width = `${Math.round((sobraPositiva / maxValor) * 100)}%`;
+    if (el("plano-valor-fixas")) el("plano-valor-fixas").textContent = formatadorBRL.format(totalFixas);
+    if (el("plano-valor-parcelas")) el("plano-valor-parcelas").textContent = formatadorBRL.format(totalParcelas);
+    if (el("plano-valor-sobra")) el("plano-valor-sobra").textContent = formatadorBRL.format(sobraPositiva);
   } else if (cardGuarda) {
     cardGuarda.style.display = "none";
   }
+}
 
-  // Metas
-  renderizarMetasPlano();
+function renderizarDistribuicaoPlano(salario) {
+  const container = document.getElementById("plano-distribuicao");
+  if (!container) return;
+
+  if (salario <= 0) {
+    container.innerHTML = '<div class="plano-vazio">Defina o salário para ver a distribuição.</div>';
+    return;
+  }
+
+  let totalFixas = 0;
+  let totalParcelas = 0;
+  let totalPlanos = 0;
+
+  if (typeof despesasFixasCarregadas !== "undefined") {
+    despesasFixasCarregadas.forEach((f) => { if (f.ativo) totalFixas += f.valor || 0; });
+  }
+  if (typeof comprasParceladasCarregadas !== "undefined") {
+    comprasParceladasCarregadas.forEach((c) => { if (c.ativo) totalParcelas += c.valor_parcela || 0; });
+  }
+
+  planosCarregados.forEach((p) => {
+    if (p.status === "ativo" && p.parcela_mensal) totalPlanos += p.parcela_mensal;
+  });
+
+  const sobra = Math.max(0, salario - totalFixas - totalParcelas - totalPlanos);
+  const itens = [];
+
+  if (totalFixas > 0) {
+    itens.push(`<div class="plano-dist-item">
+      <span class="plano-dist-icone">🔁</span>
+      <div class="plano-dist-info"><div class="plano-dist-nome">Despesas fixas</div><div class="plano-dist-detalhe">Mensal</div></div>
+      <span class="plano-dist-valor">-${formatadorBRL.format(totalFixas)}</span>
+    </div>`);
+  }
+
+  if (totalParcelas > 0) {
+    itens.push(`<div class="plano-dist-item">
+      <span class="plano-dist-icone">📦</span>
+      <div class="plano-dist-info"><div class="plano-dist-nome">Parcelas</div><div class="plano-dist-detalhe">Mensal</div></div>
+      <span class="plano-dist-valor">-${formatadorBRL.format(totalParcelas)}</span>
+    </div>`);
+  }
+
+  if (totalPlanos > 0) {
+    itens.push(`<div class="plano-dist-item">
+      <span class="plano-dist-icone">🎯</span>
+      <div class="plano-dist-info"><div class="plano-dist-nome">Planos ativos</div><div class="plano-dist-detalhe">${planosCarregados.filter((p) => p.status === "ativo" && p.parcela_mensal).length} plano(s)</div></div>
+      <span class="plano-dist-valor">-${formatadorBRL.format(totalPlanos)}</span>
+    </div>`);
+  }
+
+  itens.push(`<div class="plano-dist-item" style="border-bottom: none; padding-top: 0.75rem">
+    <span class="plano-dist-icone">💰</span>
+    <div class="plano-dist-info"><div class="plano-dist-nome" style="font-weight: 700">Sobra mensal</div></div>
+    <span class="plano-dist-restante">${formatadorBRL.format(sobra)}</span>
+  </div>`);
+
+  container.innerHTML = itens.join("");
+}
+
+function renderizarListaPlanos() {
+  const container = document.getElementById("lista-planos");
+  if (!container) return;
+
+  if (planosCarregados.length === 0) {
+    container.innerHTML = '<div class="plano-vazio">Nenhum plano criado. Crie um plano para organizar seus objetivos!</div>';
+    return;
+  }
+
+  container.innerHTML = planosCarregados.map((plano) => {
+    const temPrazo = !!plano.data_limite;
+    const dataFormatada = temPrazo ? new Date(plano.data_limite + "T12:00:00").toLocaleDateString("pt-BR") : "";
+    const statusLabel = { ativo: "Ativo", concluido: "Concluído", cancelado: "Cancelado" }[plano.status] || plano.status;
+    const prioridadeLabel = { alta: "Alta", media: "Média", baixa: "Baixa" }[plano.prioridade] || plano.prioridade;
+
+    return `
+      <div class="plano-card-item" data-id="${plano.id}">
+        <div class="plano-card-topo">
+          <div class="plano-card-icone" style="background: ${plano.cor}22">${plano.icone}</div>
+          <div class="plano-card-info">
+            <div class="plano-card-nome">${escaparHtml(plano.nome)}</div>
+            ${plano.descricao ? `<div class="plano-card-desc">${escaparHtml(plano.descricao)}</div>` : ""}
+          </div>
+          <span class="plano-status-badge status-${plano.status}">${statusLabel}</span>
+        </div>
+        <div class="plano-card-barra">
+          <div class="plano-card-barra-fill" style="width: ${plano.percentual}%; background: ${plano.cor}"></div>
+        </div>
+        <div class="plano-card-detalhes">
+          <span>
+            <span class="plano-card-valores">${formatadorBRL.format(plano.depositado)} / ${formatadorBRL.format(plano.valor_alvo)}</span>
+            ${temPrazo ? ` · Prazo: ${dataFormatada}` : ""}
+          </span>
+          <span class="plano-card-prioridade prioridade-${plano.prioridade}">${prioridadeLabel}</span>
+        </div>
+        ${plano.status === "ativo" && plano.parcela_mensal ? `<div class="plano-card-detalhes"><span>Guarda mensal necessária</span><span class="plano-card-badge">~${formatadorBRL.format(plano.parcela_mensal)}/mês</span></div>` : ""}
+        ${plano.status === "ativo" ? `
+        <div class="plano-card-acoes">
+          <button type="button" class="btn-link-adicionar plano-btn-depositar" data-id="${plano.id}">Depositar</button>
+          <button type="button" class="btn-link-adicionar plano-btn-editar-plano" data-id="${plano.id}">Editar</button>
+          <button type="button" class="btn-link-adicionar plano-btn-concluir" data-id="${plano.id}">Concluir</button>
+          <button type="button" class="btn-link-adicionar plano-btn-cancelar" data-id="${plano.id}" style="color: var(--cor-despesa)">Cancelar</button>
+        </div>` : ""}
+      </div>
+    `;
+  }).join("");
+
+  container.querySelectorAll(".plano-btn-depositar").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      abrirModalPlanoDeposito(Number(btn.dataset.id));
+    });
+  });
+
+  container.querySelectorAll(".plano-btn-editar-plano").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const plano = planosCarregados.find((p) => p.id === Number(btn.dataset.id));
+      if (plano) abrirModalPlano(plano);
+    });
+  });
+
+  container.querySelectorAll(".plano-btn-concluir").forEach((btn) => {
+    btn.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      if (!(await pedirConfirmacao("Marcar este plano como concluído?"))) return;
+      await atualizarStatusPlano(Number(btn.dataset.id), "concluido");
+    });
+  });
+
+  container.querySelectorAll(".plano-btn-cancelar").forEach((btn) => {
+    btn.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      if (!(await pedirConfirmacao("Cancelar este plano?", { textoConfirmar: "Cancelar plano", perigo: true }))) return;
+      await atualizarStatusPlano(Number(btn.dataset.id), "cancelado");
+    });
+  });
+}
+
+async function atualizarStatusPlano(id, status) {
+  try {
+    const resposta = await fetch(`${API_URL}/api/planos`, {
+      method: "PUT",
+      headers: headersAutenticados(),
+      body: JSON.stringify({ id, status }),
+    });
+    if (tratarSessaoExpirada(resposta)) return;
+    if (resposta.ok) {
+      mostrarToast(status === "concluido" ? "Plano concluído!" : "Plano cancelado.", "info");
+      await carregarPlanos();
+      renderizarListaPlanos();
+      renderizarDistribuicaoPlano(obterUsuarioLogado().salario || 0);
+    }
+  } catch (erro) {
+    console.error("Erro ao atualizar plano:", erro);
+  }
+}
+
+// --- MODAL PLANO ---
+function configurarModalPlano() {
+  const modal = document.getElementById("modal-plano");
+  const btnNovo = document.getElementById("btn-novo-plano");
+  const btnFechar = document.getElementById("btn-fechar-modal-plano");
+  const form = document.getElementById("form-plano");
+
+  if (!btnNovo || !btnFechar || !form) return;
+
+  btnNovo.addEventListener("click", () => abrirModalPlano(null));
+  btnFechar.addEventListener("click", () => { modal.style.display = "none"; liberarFoco(); });
+
+  document.querySelectorAll(".plano-icone-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".plano-icone-btn").forEach((b) => b.classList.remove("selecionado"));
+      btn.classList.add("selecionado");
+      document.getElementById("plano-icone").value = btn.dataset.icone;
+    });
+  });
+
+  document.querySelectorAll(".plano-cor-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".plano-cor-btn").forEach((b) => b.classList.remove("selecionado"));
+      btn.classList.add("selecionado");
+      document.getElementById("plano-cor").value = btn.dataset.cor;
+    });
+  });
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const idEdicao = document.getElementById("plano-editando-id").value;
+    const dados = {
+      nome: document.getElementById("plano-nome").value.trim(),
+      descricao: document.getElementById("plano-descricao").value.trim(),
+      valor_alvo: parseFloat(document.getElementById("plano-valor-alvo").value) || 0,
+      data_limite: document.getElementById("plano-data-limite").value || null,
+      prioridade: document.getElementById("plano-prioridade").value,
+      icone: document.getElementById("plano-icone").value,
+      cor: document.getElementById("plano-cor").value,
+    };
+
+    if (!dados.nome) return mostrarToast("Informe o nome do plano.", "erro");
+    if (!dados.valor_alvo || dados.valor_alvo <= 0) return mostrarToast("Informe um valor alvo válido.", "erro");
+
+    try {
+      let resposta;
+      if (idEdicao) {
+        resposta = await fetch(`${API_URL}/api/planos`, {
+          method: "PUT",
+          headers: headersAutenticados(),
+          body: JSON.stringify({ id: Number(idEdicao), ...dados }),
+        });
+      } else {
+        resposta = await fetch(`${API_URL}/api/planos`, {
+          method: "POST",
+          headers: headersAutenticados(),
+          body: JSON.stringify(dados),
+        });
+      }
+
+      if (tratarSessaoExpirada(resposta)) return;
+      if (resposta.ok) {
+        mostrarToast(idEdicao ? "Plano atualizado!" : "Plano criado!", "sucesso");
+        modal.style.display = "none";
+        liberarFoco();
+        await carregarPlanos();
+        renderizarListaPlanos();
+        renderizarDistribuicaoPlano(obterUsuarioLogado().salario || 0);
+      } else {
+        const erro = await resposta.json();
+        mostrarToast(erro.erro || "Erro ao salvar plano.", "erro");
+      }
+    } catch (erro) {
+      console.error("Erro ao salvar plano:", erro);
+    }
+  });
+}
+
+function abrirModalPlano(plano) {
+  const modal = document.getElementById("modal-plano");
+  const titulo = document.getElementById("titulo-modal-plano");
+  const form = document.getElementById("form-plano");
+
+  if (!modal || !form) return;
+
+  form.reset();
+  document.getElementById("plano-editando-id").value = "";
+  document.querySelectorAll(".plano-icone-btn").forEach((b) => b.classList.remove("selecionado"));
+  document.querySelectorAll(".plano-cor-btn").forEach((b) => b.classList.remove("selecionado"));
+
+  if (plano) {
+    titulo.textContent = "Editar plano";
+    document.getElementById("plano-editando-id").value = plano.id;
+    document.getElementById("plano-nome").value = plano.nome;
+    document.getElementById("plano-descricao").value = plano.descricao || "";
+    document.getElementById("plano-valor-alvo").value = plano.valor_alvo;
+    document.getElementById("plano-data-limite").value = plano.data_limite || "";
+    document.getElementById("plano-prioridade").value = plano.prioridade;
+    document.getElementById("plano-icone").value = plano.icone;
+    document.getElementById("plano-cor").value = plano.cor;
+
+    const iconeBtn = document.querySelector(`.plano-icone-btn[data-icone="${plano.icone}"]`);
+    if (iconeBtn) iconeBtn.classList.add("selecionado");
+    const corBtn = document.querySelector(`.plano-cor-btn[data-cor="${plano.cor}"]`);
+    if (corBtn) corBtn.classList.add("selecionado");
+  } else {
+    titulo.textContent = "Novo plano";
+    document.getElementById("plano-icone").value = "🎯";
+    document.getElementById("plano-cor").value = "#6366f1";
+    const btnPadrao = document.querySelector('.plano-icone-btn[data-icone="🎯"]');
+    if (btnPadrao) btnPadrao.classList.add("selecionado");
+    const corPadrao = document.querySelector('.plano-cor-btn[data-cor="#6366f1"]');
+    if (corPadrao) corPadrao.classList.add("selecionado");
+  }
+
+  modal.style.display = "flex";
+  capturarFoco(modal);
+}
+
+// --- MODAL DEPÓSITO PLANO ---
+function configurarModalPlanoDeposito() {
+  const modal = document.getElementById("modal-plano-deposito");
+  const btnFechar = document.getElementById("btn-fechar-modal-plano-deposito");
+  const form = document.getElementById("form-plano-deposito");
+
+  if (!btnFechar || !form) return;
+
+  btnFechar.addEventListener("click", () => { modal.style.display = "none"; liberarFoco(); });
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const planoId = document.getElementById("plano-dep-id").value;
+    const valor = parseFloat(document.getElementById("plano-dep-valor").value) || 0;
+    const descricao = document.getElementById("plano-dep-descricao").value.trim();
+
+    if (!valor || valor <= 0) return mostrarToast("Informe um valor válido.", "erro");
+
+    try {
+      const resposta = await fetch(`${API_URL}/api/planos-depositos`, {
+        method: "POST",
+        headers: headersAutenticados(),
+        body: JSON.stringify({ plano_id: Number(planoId), valor, descricao }),
+      });
+
+      if (tratarSessaoExpirada(resposta)) return;
+      if (resposta.ok) {
+        mostrarToast("Depósito registrado!", "sucesso");
+        document.getElementById("plano-dep-valor").value = "";
+        document.getElementById("plano-dep-descricao").value = "";
+        await carregarPlanos();
+        const plano = planosCarregados.find((p) => p.id === Number(planoId));
+        if (plano) preencherModalDepositoPlano(plano);
+        renderizarListaPlanos();
+        renderizarDistribuicaoPlano(obterUsuarioLogado().salario || 0);
+      } else {
+        const erro = await resposta.json();
+        mostrarToast(erro.erro || "Erro ao registrar depósito.", "erro");
+      }
+    } catch (erro) {
+      console.error("Erro ao registrar depósito:", erro);
+    }
+  });
+}
+
+async function abrirModalPlanoDeposito(planoId) {
+  const modal = document.getElementById("modal-plano-deposito");
+  if (!modal) return;
+
+  const plano = planosCarregados.find((p) => p.id === planoId);
+  if (!plano) return;
+
+  preencherModalDepositoPlano(plano);
+
+  const { results: depositos } = await fetch(`${API_URL}/api/planos-depositos?plano_id=${planoId}`, { headers: headersAutenticados() })
+    .then((r) => r.json())
+    .then((dados) => ({ results: Array.isArray(dados) ? dados : [] }))
+    .catch(() => ({ results: [] }));
+
+  const lista = document.getElementById("lista-plano-depositos");
+  if (lista) {
+    if (depositos.length === 0) {
+      lista.innerHTML = '<div class="plano-vazio" style="padding: 0.5rem">Nenhum depósito ainda.</div>';
+    } else {
+      lista.innerHTML = depositos.map((d) => `
+        <div class="historico-fixa-linha">
+          <div class="historico-fixa-info">
+            <span class="historico-fixa-desc">${escaparHtml(d.descricao || "Depósito")}</span>
+            <span class="historico-fixa-data">${new Date(d.criado_em).toLocaleDateString("pt-BR")}</span>
+          </div>
+          <span class="historico-fixa-valor">+${formatadorBRL.format(d.valor)}</span>
+        </div>
+      `).join("");
+    }
+  }
+
+  modal.style.display = "flex";
+  capturarFoco(modal);
+}
+
+function preencherModalDepositoPlano(plano) {
+  document.getElementById("plano-dep-id").value = plano.id;
+  document.getElementById("plano-dep-valor-depositado").textContent = formatadorBRL.format(plano.depositado);
+  document.getElementById("plano-dep-valor-objetivo").textContent = formatadorBRL.format(plano.valor_alvo);
+  document.getElementById("plano-dep-barra-progresso").style.width = `${plano.percentual}%`;
+  document.getElementById("plano-dep-info-progresso").textContent = `${plano.percentual}% concluído`;
+  document.querySelector(".plano-deposito-icone").textContent = plano.icone;
+  document.querySelector(".plano-deposito-nome").textContent = plano.nome;
+  document.querySelector(".plano-deposito-icone").style.background = `${plano.cor}22`;
+}
+
+// --- METAS NO PLANEJAMENTO ---
+function configurarMetaPlano() {
+  const btnNovaMeta = document.getElementById("btn-nova-meta-plano");
+  if (!btnNovaMeta) return;
+  btnNovaMeta.addEventListener("click", () => abrirModalMeta("", "", null));
 }
 
 function renderizarMetasPlano() {
@@ -3376,29 +3772,15 @@ function renderizarMetasPlano() {
   container.querySelectorAll(".plano-btn-depositar").forEach((btn) => {
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
-      const id = Number(btn.dataset.id);
-      const categoria = btn.dataset.categoria;
-      abrirModalDeposito(id, categoria);
+      abrirModalDeposito(Number(btn.dataset.id), btn.dataset.categoria);
     });
   });
 
   container.querySelectorAll(".plano-btn-editar").forEach((btn) => {
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
-      const categoria = btn.dataset.categoria;
-      const valor = btn.dataset.valor;
-      const dataLimite = btn.dataset.datalimite || null;
-      abrirModalMeta(categoria, valor, dataLimite);
+      abrirModalMeta(btn.dataset.categoria, btn.dataset.valor, btn.dataset.datalimite || null);
     });
-  });
-}
-
-function configurarMetaPlano() {
-  const btnNovaMeta = document.getElementById("btn-nova-meta-plano");
-  if (!btnNovaMeta) return;
-
-  btnNovaMeta.addEventListener("click", () => {
-    abrirModalMeta("", "", null);
   });
 }
 

@@ -348,55 +348,88 @@
           </div>
         </header>
 
-        <div class="plano-container">
-          <!-- SALÁRIO -->
-          <div class="card plano-card-salario">
-            <h3 class="plano-subtitulo">Salário mensal</h3>
-            <div class="plano-salario-linha">
-              <span class="plano-salario-valor" id="plano-salario-display">R$ 0,00</span>
-              <button type="button" id="btn-editar-salario" class="btn-link-adicionar">Editar</button>
+        <div class="plano-tabs">
+          <button type="button" class="plano-tab ativo" data-painel="plano-visao-geral">Resumo</button>
+          <button type="button" class="plano-tab" data-painel="plano-planos">Planos</button>
+          <button type="button" class="plano-tab" data-painel="plano-metas">Metas</button>
+        </div>
+
+        <!-- ABAS: VISÃO GERAL -->
+        <div id="plano-visao-geral" class="plano-painel">
+          <div class="plano-container">
+            <div class="card plano-card-salario">
+              <h3 class="plano-subtitulo">Salário mensal</h3>
+              <div class="plano-salario-linha">
+                <span class="plano-salario-valor" id="plano-salario-display">R$ 0,00</span>
+                <button type="button" id="btn-editar-salario" class="btn-link-adicionar">Editar</button>
+              </div>
+              <div id="plano-salario-form" style="display: none">
+                <input type="number" id="plano-salario-input" placeholder="Ex: 5000" step="0.01" min="0" />
+                <div class="plano-salario-acoes">
+                  <button type="button" id="btn-salvar-salario" class="btn-primario">Salvar</button>
+                  <button type="button" id="btn-cancelar-salario" class="btn-secundario">Cancelar</button>
+                </div>
+              </div>
             </div>
-            <div id="plano-salario-form" style="display: none">
-              <input type="number" id="plano-salario-input" placeholder="Ex: 5000" step="0.01" min="0" />
-              <div class="plano-salario-acoes">
-                <button type="button" id="btn-salvar-salario" class="btn-primario">Salvar</button>
-                <button type="button" id="btn-cancelar-salario" class="btn-secundario">Cancelar</button>
+
+            <div class="card plano-card-guarda" id="plano-card-guarda" style="display: none">
+              <h3 class="plano-subtitulo">Capacidade de guarda</h3>
+              <div class="plano-guarda-valor" id="plano-guarda-valor">R$ 0,00</div>
+              <div class="plano-guarda-detalhe" id="plano-guarda-detalhe"></div>
+              <div class="plano-guarda-bars">
+                <div class="plano-barra-item">
+                  <span class="plano-barra-rotulo">Fixas</span>
+                  <div class="plano-barra-trilho"><div class="plano-barra-preenchimento barra-fixas" id="plano-barra-fixas"></div></div>
+                  <span class="plano-barra-valor" id="plano-valor-fixas">R$ 0</span>
+                </div>
+                <div class="plano-barra-item">
+                  <span class="plano-barra-rotulo">Parcelas</span>
+                  <div class="plano-barra-trilho"><div class="plano-barra-preenchimento barra-parcelas" id="plano-barra-parcelas"></div></div>
+                  <span class="plano-barra-valor" id="plano-valor-parcelas">R$ 0</span>
+                </div>
+                <div class="plano-barra-item">
+                  <span class="plano-barra-rotulo">Sobra</span>
+                  <div class="plano-barra-trilho"><div class="plano-barra-preenchimento barra-sobra" id="plano-barra-sobra"></div></div>
+                  <span class="plano-barra-valor" id="plano-valor-sobra">R$ 0</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="card plano-card-metas">
+              <h3 class="plano-subtitulo">Distribuição mensal</h3>
+              <div id="plano-distribuicao">
+                <div class="plano-vazio">Defina o salário para ver a distribuição.</div>
               </div>
             </div>
           </div>
+        </div>
 
-          <!-- CAPACIDADE DE GUARDA -->
-          <div class="card plano-card-guarda" id="plano-card-guarda" style="display: none">
-            <h3 class="plano-subtitulo">Capacidade de guarda</h3>
-            <div class="plano-guarda-valor" id="plano-guarda-valor">R$ 0,00</div>
-            <div class="plano-guarda-detalhe" id="plano-guarda-detalhe"></div>
-            <div class="plano-guarda-bars">
-              <div class="plano-barra-item">
-                <span class="plano-barra-rotulo">Fixas</span>
-                <div class="plano-barra-trilho"><div class="plano-barra-preenchimento barra-fixas" id="plano-barra-fixas"></div></div>
-                <span class="plano-barra-valor" id="plano-valor-fixas">R$ 0</span>
+        <!-- ABAS: PLANOS -->
+        <div id="plano-planos" class="plano-painel" style="display: none">
+          <div class="plano-container">
+            <div class="card">
+              <div class="plano-metas-cabecalho">
+                <h3 class="plano-subtitulo">Meus planos</h3>
+                <button type="button" id="btn-novo-plano" class="btn-link-adicionar">+ Novo plano</button>
               </div>
-              <div class="plano-barra-item">
-                <span class="plano-barra-rotulo">Parcelas</span>
-                <div class="plano-barra-trilho"><div class="plano-barra-preenchimento barra-parcelas" id="plano-barra-parcelas"></div></div>
-                <span class="plano-barra-valor" id="plano-valor-parcelas">R$ 0</span>
-              </div>
-              <div class="plano-barra-item">
-                <span class="plano-barra-rotulo">Sobra</span>
-                <div class="plano-barra-trilho"><div class="plano-barra-preenchimento barra-sobra" id="plano-barra-sobra"></div></div>
-                <span class="plano-barra-valor" id="plano-valor-sobra">R$ 0</span>
+              <div id="lista-planos">
+                <div class="plano-vazio">Nenhum plano criado. Crie um plano para organizar seus objetivos!</div>
               </div>
             </div>
           </div>
+        </div>
 
-          <!-- METAS -->
-          <div class="card plano-card-metas">
-            <div class="plano-metas-cabecalho">
-              <h3 class="plano-subtitulo">Metas</h3>
-              <button type="button" id="btn-nova-meta-plano" class="btn-link-adicionar">+ Nova meta</button>
-            </div>
-            <div id="lista-metas-plano">
-              <div class="plano-vazio">Nenhuma meta criada ainda.</div>
+        <!-- ABAS: METAS -->
+        <div id="plano-metas" class="plano-painel" style="display: none">
+          <div class="plano-container">
+            <div class="card plano-card-metas">
+              <div class="plano-metas-cabecalho">
+                <h3 class="plano-subtitulo">Metas por categoria</h3>
+                <button type="button" id="btn-nova-meta-plano" class="btn-link-adicionar">+ Nova meta</button>
+              </div>
+              <div id="lista-metas-plano">
+                <div class="plano-vazio">Nenhuma meta criada ainda.</div>
+              </div>
             </div>
           </div>
         </div>
@@ -994,6 +1027,134 @@
         <div id="lista-depositos" class="historico-fixa-lista" style="max-height: 180px"></div>
 
         <button type="button" id="btn-fechar-modal-meta-deposito">Fechar</button>
+      </div>
+    </div>
+
+    <!-- MODAL: CRIAR/EDITAR PLANO -->
+    <div id="modal-plano" class="modal-overlay" style="display: none">
+      <div class="modal-content">
+        <h3 id="titulo-modal-plano">Novo plano</h3>
+        <form id="form-plano">
+          <input type="hidden" id="plano-editando-id" value="" />
+
+          <div class="campo">
+            <label for="plano-nome">Nome do plano *</label>
+            <input type="text" id="plano-nome" placeholder="Ex: Viagem para Europa" required />
+          </div>
+
+          <div class="campo">
+            <label for="plano-descricao">Descrição (opcional)</label>
+            <textarea id="plano-descricao" rows="2" placeholder="Detalhes sobre o plano..."></textarea>
+          </div>
+
+          <div class="campo">
+            <label for="plano-valor-alvo">Valor alvo (R$) *</label>
+            <input type="number" id="plano-valor-alvo" step="0.01" min="0" placeholder="Ex: 8000" required />
+          </div>
+
+          <div class="campo">
+            <label for="plano-data-limite">Data limite (opcional)</label>
+            <input type="date" id="plano-data-limite" />
+          </div>
+
+          <div class="campo">
+            <label for="plano-prioridade">Prioridade</label>
+            <select id="plano-prioridade">
+              <option value="alta">Alta</option>
+              <option value="media" selected>Média</option>
+              <option value="baixa">Baixa</option>
+            </select>
+          </div>
+
+          <div class="campo">
+            <label>Ícone</label>
+            <div class="plano-icone-selector" id="plano-icone-selector">
+              <button type="button" class="plano-icone-btn" data-icone="🎯">🎯</button>
+              <button type="button" class="plano-icone-btn" data-icone="✈️">✈️</button>
+              <button type="button" class="plano-icone-btn" data-icone="🏠">🏠</button>
+              <button type="button" class="plano-icone-btn" data-icone="🚗">🚗</button>
+              <button type="button" class="plano-icone-btn" data-icone="💻">💻</button>
+              <button type="button" class="plano-icone-btn" data-icone="📚">📚</button>
+              <button type="button" class="plano-icone-btn" data-icone="💍">💍</button>
+              <button type="button" class="plano-icone-btn" data-icone="🎮">🎮</button>
+              <button type="button" class="plano-icone-btn" data-icone="💪">💪</button>
+              <button type="button" class="plano-icone-btn" data-icone="🐕">🐕</button>
+              <button type="button" class="plano-icone-btn" data-icone="🎓">🎓</button>
+              <button type="button" class="plano-icone-btn" data-icone="🏥">🏥</button>
+              <button type="button" class="plano-icone-btn" data-icone="📱">📱</button>
+              <button type="button" class="plano-icone-btn" data-icone="🏖️">🏖️</button>
+              <button type="button" class="plano-icone-btn" data-icone="🎵">🎵</button>
+              <button type="button" class="plano-icone-btn" data-icone="⚙️">⚙️</button>
+            </div>
+            <input type="hidden" id="plano-icone" value="🎯" />
+          </div>
+
+          <div class="campo">
+            <label>Cor</label>
+            <div class="plano-cor-selector" id="plano-cor-selector">
+              <button type="button" class="plano-cor-btn" data-cor="#6366f1" style="background:#6366f1"></button>
+              <button type="button" class="plano-cor-btn" data-cor="#ec4899" style="background:#ec4899"></button>
+              <button type="button" class="plano-cor-btn" data-cor="#f59e0b" style="background:#f59e0b"></button>
+              <button type="button" class="plano-cor-btn" data-cor="#10b981" style="background:#10b981"></button>
+              <button type="button" class="plano-cor-btn" data-cor="#3b82f6" style="background:#3b82f6"></button>
+              <button type="button" class="plano-cor-btn" data-cor="#ef4444" style="background:#ef4444"></button>
+              <button type="button" class="plano-cor-btn" data-cor="#8b5cf6" style="background:#8b5cf6"></button>
+              <button type="button" class="plano-cor-btn" data-cor="#06b6d4" style="background:#06b6d4"></button>
+            </div>
+            <input type="hidden" id="plano-cor" value="#6366f1" />
+          </div>
+
+          <div class="plano-modal-botoes">
+            <button type="submit" id="btn-salvar-plano" class="btn-primario">Salvar</button>
+            <button type="button" id="btn-fechar-modal-plano" class="btn-secundario">Cancelar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL: DEPÓSITO EM PLANO -->
+    <div id="modal-plano-deposito" class="modal-overlay" style="display: none">
+      <div class="modal-content modal-plano-deposito">
+        <h3 id="titulo-plano-deposito">Depósito no plano</h3>
+
+        <div class="plano-deposito-cabecalho" id="plano-deposito-cabecalho">
+          <span class="plano-deposito-icone">🎯</span>
+          <span class="plano-deposito-nome">Plano</span>
+        </div>
+
+        <div class="meta-deposito-resumo">
+          <div>
+            <div class="meta-deposito-resumo-label">Depositado</div>
+            <div class="meta-deposito-resumo-valor" id="plano-dep-valor-depositado">R$ 0,00</div>
+          </div>
+          <div style="text-align: right">
+            <div class="meta-deposito-resumo-label">Objetivo</div>
+            <div class="meta-deposito-resumo-valor" id="plano-dep-valor-objetivo">R$ 0,00</div>
+          </div>
+        </div>
+
+        <div class="meta-deposito-progresso">
+          <div class="meta-deposito-progresso-barra" id="plano-dep-barra-progresso" style="width: 0%"></div>
+        </div>
+        <div class="meta-deposito-info" id="plano-dep-info-progresso"></div>
+
+        <form id="form-plano-deposito">
+          <input type="hidden" id="plano-dep-id" />
+          <div class="campo">
+            <label for="plano-dep-valor">Valor do depósito</label>
+            <input type="number" id="plano-dep-valor" step="0.01" placeholder="0,00" required />
+          </div>
+          <div class="campo">
+            <label for="plano-dep-descricao">Descrição (opcional)</label>
+            <input type="text" id="plano-dep-descricao" placeholder="Ex: Aporte mensal" />
+          </div>
+          <button type="submit" id="btn-confirmar-plano-deposito" class="btn-meta-depositar">Depositar</button>
+        </form>
+
+        <h4 style="font-size: 0.78rem; color: var(--cor-texto-suave); margin-bottom: 8px">Histórico</h4>
+        <div id="lista-plano-depositos" class="historico-fixa-lista" style="max-height: 180px"></div>
+
+        <button type="button" id="btn-fechar-modal-plano-deposito">Fechar</button>
       </div>
     </div>
 

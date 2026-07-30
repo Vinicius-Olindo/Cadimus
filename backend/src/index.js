@@ -8,6 +8,7 @@ import { processarCategorias } from "./routes/categorias.js";
 import { processarCarteiras } from "./routes/carteiras.js";
 import { processarDespesasFixas } from "./routes/despesasFixas.js";
 import { processarMetas, processarMetaDepositos } from "./routes/metas.js";
+import { processarPlanos, processarPlanoDepositos } from "./routes/planos.js";
 import { processarComprasParceladas } from "./routes/comprasParceladas.js";
 import { processarLancamentosRecorrentes } from "./routes/lancamentosRecorrentes.js";
 import { processarConvites } from "./routes/convites.js";
@@ -106,6 +107,16 @@ export default {
       }
       if (url.pathname.startsWith("/api/metas")) {
         return comCors(await processarMetas(request, env, ctx), frontendUrl, request);
+      }
+
+      // ==========================================
+      // ROTA 7B: PLANOS FINANCEIROS
+      // ==========================================
+      if (url.pathname.startsWith("/api/planos-depositos")) {
+        return comCors(await processarPlanoDepositos(request, env, ctx), frontendUrl, request);
+      }
+      if (url.pathname.startsWith("/api/planos")) {
+        return comCors(await processarPlanos(request, env, ctx), frontendUrl, request);
       }
 
       // ==========================================

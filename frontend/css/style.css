@@ -3736,3 +3736,287 @@ textarea::placeholder {
   font-size: 0.75rem;
   padding: 0.2rem 0.5rem;
 }
+
+/* ==========================================
+   PLANEJAMENTO — ABAS
+   ========================================== */
+.plano-tabs {
+  display: flex;
+  gap: 0;
+  padding: 0 1.5rem;
+  background: var(--cor-fundo);
+  border-bottom: 1px solid var(--cor-pauta-forte);
+}
+
+.plano-tab {
+  padding: 0.75rem 1.25rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--cor-texto-suave);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.plano-tab:hover {
+  color: var(--cor-texto);
+}
+
+.plano-tab.ativo {
+  color: var(--cor-marca);
+  border-bottom-color: var(--cor-marca);
+}
+
+.plano-painel {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* ==========================================
+   PLANEJAMENTO — PLANOS
+   ========================================== */
+.plano-card-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1rem;
+  border-radius: 10px;
+  background: var(--cor-fundo);
+  border: 1px solid var(--cor-pauta-forte);
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.plano-card-item:hover {
+  border-color: var(--cor-marca);
+}
+
+.plano-card-topo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.plano-card-icone {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+.plano-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.plano-card-nome {
+  font-weight: 600;
+  color: var(--cor-texto);
+  font-size: 0.95rem;
+}
+
+.plano-card-prioridade {
+  font-size: 0.7rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+}
+
+.prioridade-alta { background: rgba(239, 68, 68, 0.12); color: #ef4444; }
+.prioridade-media { background: rgba(245, 158, 11, 0.12); color: #f59e0b; }
+.prioridade-baixa { background: rgba(59, 130, 246, 0.12); color: #3b82f6; }
+
+.plano-card-desc {
+  font-size: 0.8rem;
+  color: var(--cor-texto-suave);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.plano-card-barra {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--cor-pauta-forte);
+  overflow: hidden;
+}
+
+.plano-card-barra-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.6s ease;
+}
+
+.plano-card-detalhes {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  color: var(--cor-texto-suave);
+}
+
+.plano-card-valores {
+  font-family: var(--fonte-mono);
+  font-size: 0.8rem;
+}
+
+.plano-card-badge {
+  font-family: var(--fonte-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--cor-receita);
+  background: rgba(16, 185, 129, 0.12);
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+}
+
+.plano-card-acoes {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.plano-card-acoes button {
+  font-size: 0.75rem;
+  padding: 0.3rem 0.6rem;
+}
+
+/* Status badges */
+.plano-status-badge {
+  font-size: 0.7rem;
+  font-weight: 500;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  text-transform: capitalize;
+}
+
+.status-ativo { background: rgba(16, 185, 129, 0.12); color: #10b981; }
+.status-concluido { background: rgba(99, 102, 241, 0.12); color: #6366f1; }
+.status-cancelado { background: rgba(107, 114, 128, 0.12); color: #6b7280; }
+
+/* ==========================================
+   MODAL PLANO — Ícone & Cor selectors
+   ========================================== */
+.plano-icone-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.plano-icone-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 2px solid var(--cor-pauta-forte);
+  background: var(--cor-fundo);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.plano-icone-btn:hover { border-color: var(--cor-marca); }
+.plano-icone-btn.selecionado { border-color: var(--cor-marca); background: rgba(99, 102, 241, 0.1); }
+
+.plano-cor-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.plano-cor-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.plano-cor-btn:hover { transform: scale(1.15); }
+.plano-cor-btn.selecionado { border-color: var(--cor-texto); box-shadow: 0 0 0 2px var(--cor-fundo); }
+
+/* ==========================================
+   MODAL DEPÓSITO PLANO
+   ========================================== */
+.modal-plano-deposito { max-width: 420px; }
+
+.plano-deposito-cabecalho {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.75rem;
+}
+
+.plano-deposito-icone {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+
+.plano-deposito-nome {
+  font-weight: 600;
+  color: var(--cor-texto);
+}
+
+/* ==========================================
+   PLANEJAMENTO — DISTRIBUIÇÃO
+   ========================================== */
+.plano-dist-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--cor-pauta-forte);
+}
+
+.plano-dist-item:last-child { border-bottom: none; }
+
+.plano-dist-icone {
+  font-size: 1.2rem;
+  width: 28px;
+  text-align: center;
+}
+
+.plano-dist-info {
+  flex: 1;
+}
+
+.plano-dist-nome {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--cor-texto);
+}
+
+.plano-dist-detalhe {
+  font-size: 0.75rem;
+  color: var(--cor-texto-suave);
+}
+
+.plano-dist-valor {
+  font-family: var(--fonte-mono);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--cor-despesa);
+}
+
+.plano-dist-restante {
+  font-family: var(--fonte-mono);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--cor-receita);
+}
