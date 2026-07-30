@@ -20,6 +20,7 @@ const ARQUIVOS_PARA_CACHE = [
   "./js/main.js",
   "./assets/icon-192.png",
   "./assets/icon-512.png",
+  "./assets/logo.png",
 ];
 
 self.addEventListener("install", (evento) => {

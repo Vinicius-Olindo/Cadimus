@@ -1858,13 +1858,16 @@ button.item-status:active {
   opacity: 0.5;
 }
 
-.login-box h1 {
-  font-family: var(--fonte-display);
-  font-style: italic;
-  font-weight: 400;
-  font-size: 2.6rem;
-  margin-bottom: 4px;
-  margin-top: 10px;
+.login-logo {
+  display: block;
+  max-width: 200px;
+  height: auto;
+  margin: 10px auto 4px;
+}
+
+.header-logo {
+  height: 28px;
+  width: auto;
 }
 
 .login-box .subtitulo {
