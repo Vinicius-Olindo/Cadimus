@@ -2016,6 +2016,8 @@ function obterGrupoData(dataStr) {
 const ORDEM_GRUPOS = ["Hoje", "Ontem", "Esta semana", "Semana passada", "Este mês", "Mês passado", "Mais antigo"];
 
 // --- RENDERIZA A LISTA (aplica o filtro de busca, se houver, sem afetar os totais do mês) ---
+let gruposRecolhidos = new Set();
+
 function renderizarListaLancamentos() {
   const container = document.getElementById("lista-lancamentos");
   if (!container) return;
@@ -2058,12 +2060,32 @@ function renderizarListaLancamentos() {
     const itens = grupos[nomeGrupo];
     if (!itens || itens.length === 0) return;
 
+    const recolhido = gruposRecolhidos.has(nomeGrupo);
+
     const header = document.createElement("div");
     header.className = "grupo-data-header";
-    header.innerHTML = `<span class="grupo-data-texto">${nomeGrupo}</span><span class="grupo-data-qtd">${itens.length}</span>`;
+    header.innerHTML = `
+      <span class="grupo-data-texto">${nomeGrupo}</span>
+      <div class="grupo-data-direita">
+        <span class="grupo-data-qtd">${itens.length}</span>
+        <button type="button" class="grupo-data-toggle${recolhido ? ' recolhido' : ''}" data-grupo="${nomeGrupo}" title="Recolher/Expandir" aria-label="Recolher grupo">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+      </div>`;
     container.appendChild(header);
 
-    itens.forEach((lancamento) => container.appendChild(criarLinhaLancamento(lancamento)));
+    header.querySelector(".grupo-data-toggle").addEventListener("click", () => {
+      if (gruposRecolhidos.has(nomeGrupo)) {
+        gruposRecolhidos.delete(nomeGrupo);
+      } else {
+        gruposRecolhidos.add(nomeGrupo);
+      }
+      renderizarListaLancamentos();
+    });
+
+    if (!recolhido) {
+      itens.forEach((lancamento) => container.appendChild(criarLinhaLancamento(lancamento)));
+    }
   });
 }
 

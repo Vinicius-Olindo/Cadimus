@@ -1438,6 +1438,12 @@ button:active {
   color: var(--cor-texto-suave);
 }
 
+.grupo-data-direita {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .grupo-data-qtd {
   font-size: 0.7rem;
   font-weight: 600;
@@ -1445,6 +1451,28 @@ button:active {
   background: var(--cor-pauta-fraca);
   padding: 2px 8px;
   border-radius: 999px;
+}
+
+.grupo-data-toggle {
+  background: none;
+  border: none;
+  padding: 2px;
+  cursor: pointer;
+  color: var(--cor-texto-suave);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: transform 0.2s ease, background 0.15s ease;
+}
+
+.grupo-data-toggle:hover {
+  background: var(--cor-pauta-fraca);
+  color: var(--cor-texto);
+}
+
+.grupo-data-toggle.recolhido {
+  transform: rotate(-90deg);
 }
 
 .linha-item {
