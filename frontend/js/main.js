@@ -1448,13 +1448,14 @@ function obterMetaPorCategoria(categoria) {
   return metasCarregadas.find((m) => m.categoria === categoria);
 }
 
-function abrirModalMeta(categoria, valorAtual) {
+function abrirModalMeta(categoria, valorAtual, dataLimite) {
   const modal = document.getElementById("modal-meta");
   if (!modal) return;
 
   document.getElementById("meta-categoria-nome").value = categoria;
   document.getElementById("meta-categoria-label").textContent = `Categoria: ${categoria}`;
   document.getElementById("meta-valor").value = valorAtual || "";
+  document.getElementById("meta-data-limite").value = dataLimite || "";
   document.getElementById("btn-remover-meta").style.display = valorAtual ? "inline-block" : "none";
   modal.style.display = "flex";
   trapFoco(modal);
@@ -1479,6 +1480,7 @@ function configurarModalMeta() {
     const carteiraId = document.getElementById("seletor-carteira").value;
     const categoria = document.getElementById("meta-categoria-nome").value;
     const valorLimite = parseFloat(document.getElementById("meta-valor").value);
+    const dataLimite = document.getElementById("meta-data-limite").value || null;
     const btnSalvar = document.getElementById("btn-salvar-meta");
 
     btnSalvar.disabled = true;
@@ -1488,7 +1490,7 @@ function configurarModalMeta() {
       const resposta = await fetch(`${API_URL}/api/metas`, {
         method: "POST",
         headers: headersAutenticados(),
-        body: JSON.stringify({ carteira_id: carteiraId, categoria, valor_limite: valorLimite }),
+        body: JSON.stringify({ carteira_id: carteiraId, categoria, valor_limite: valorLimite, data_limite: dataLimite }),
       });
 
       if (tratarSessaoExpirada(resposta)) return;
@@ -2148,6 +2150,38 @@ function verificarNotificacoes() {
     }
   });
 
+  // Metas com prazo — lembrete semanal
+  if (typeof metasCarregadas !== "undefined") {
+    metasCarregadas.forEach((meta) => {
+      if (!meta.data_limite || meta.falta <= 0) return;
+      const dataLimite = new Date(meta.data_limite + "T23:59:59");
+      const diffMs = dataLimite - hoje;
+      const diffDias = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+      let texto = null;
+      let atrasado = false;
+
+      if (diffDias < 0) {
+        texto = `Meta "${meta.categoria}" passou do prazo! Faltava ${formatadorBRL.format(meta.falta)}`;
+        atrasado = true;
+      } else if (diffDias <= 7) {
+        texto = `Meta "${meta.categoria}": faltam ${formatadorBRL.format(meta.falta)} (${meta.semanas_restantes} sem.)`;
+      }
+
+      if (texto) {
+        notificacoes.push({
+          tipo: "meta",
+          descricao: meta.categoria,
+          valor: meta.falta,
+          dia: dataLimite.getUTCDate(),
+          texto,
+          atrasado,
+          urgencia: atrasado ? 0 : diffDias <= 7 ? 2 : 3,
+        });
+      }
+    });
+  }
+
   notificacoes.sort((a, b) => a.urgencia - b.urgencia);
   return notificacoes;
 }
@@ -2583,6 +2617,7 @@ async function carregarLancamentos() {
     carregarTendencia();
     carregarComparativo6Meses();
     calcularTaxaPoupanca(totalReceitas, totalDespesas);
+    calcularCapacidadeGuarda();
   } catch (erro) {
     if (idDestaRequisicao !== ultimaRequisicaoLancamentos) return;
     console.error("Erro:", erro);
@@ -2638,7 +2673,7 @@ function renderizarResumoCategorias(totaisPorCategoria) {
     linha.className = "categoria-barra-linha";
     linha.innerHTML = `
       <div class="categoria-barra-topo">
-        <strong class="${categoria !== "Outras" ? "categoria-barra-nome" : ""} ${meta ? "barra-meta-clicavel" : ""}" data-categoria="${escaparHtml(categoria)}" data-meta="${meta ? meta.valor_limite : ""}">
+        <strong class="${categoria !== "Outras" ? "categoria-barra-nome" : ""} ${meta ? "barra-meta-clicavel" : ""}" data-categoria="${escaparHtml(categoria)}" data-meta="${meta ? meta.valor_limite : ""}" data-datalimite="${meta?.data_limite || ""}">
           ${escaparHtml(categoria)} ${iconeMeta}
         </strong>
         <span class="categoria-barra-valor">${textoValor}</span>
@@ -2657,7 +2692,7 @@ function renderizarResumoCategorias(totaisPorCategoria) {
       if (meta) {
         abrirModalDeposito(meta.id, categoria);
       } else {
-        abrirModalMeta(categoria, el.dataset.meta);
+        abrirModalMeta(categoria, el.dataset.meta, el.dataset.datalimite || null);
       }
     });
   });
@@ -3042,6 +3077,51 @@ function calcularTaxaPoupanca(totalReceitas, totalDespesas) {
   }
 }
 
+// --- CAPACIDADE DE GUARDA ---
+function calcularCapacidadeGuarda() {
+  const card = document.getElementById("card-guarda");
+  const valorEl = document.getElementById("valor-guarda");
+  const descEl = document.getElementById("guarda-desc");
+  if (!card || !valorEl || !descEl) return;
+
+  const usuario = obterUsuarioLogado();
+  const salario = usuario.salario || 0;
+
+  if (salario <= 0) {
+    card.style.display = "none";
+    return;
+  }
+
+  let totalFixas = 0;
+  let totalParcelas = 0;
+
+  if (typeof despesasFixasCarregadas !== "undefined") {
+    despesasFixasCarregadas.forEach((f) => {
+      if (f.ativo) totalFixas += f.valor || 0;
+    });
+  }
+
+  if (typeof comprasParceladasCarregadas !== "undefined") {
+    comprasParceladasCarregadas.forEach((c) => {
+      if (c.ativo) totalParcelas += c.valor_parcela || 0;
+    });
+  }
+
+  const guards = salario - totalFixas - totalParcelas;
+  const guardaMensal = Math.max(0, guards);
+
+  card.style.display = "flex";
+  valorEl.textContent = formatadorBRL.format(guardaMensal);
+  valorEl.style.color = guards >= 0 ? "var(--cor-receita)" : "var(--cor-despesa)";
+
+  if (guards <= 0) {
+    descEl.textContent = "Suas fixas e parcelas consomem todo o salário.";
+  } else {
+    const guardaSemanal = Math.round(guardaMensal / 4);
+    descEl.textContent = `Dá pra guardar ~${formatadorBRL.format(guardaSemanal)}/semana.`;
+  }
+}
+
 
 // --- FUNÇÃO PARA EXCLUIR REGISTROS ---
 async function apagarLancamento(id) {
@@ -3269,6 +3349,7 @@ function configurarFormularioUsuario() {
     const usuario = document.getElementById("novo-usuario").value.trim();
     const email = document.getElementById("novo-email").value.trim();
     const telefone = document.getElementById("novo-telefone").value.trim();
+    const salario = parseFloat(document.getElementById("novo-salario").value) || 0;
     const fotoPerfil = document.getElementById("nova-foto-perfil").value;
     const senha = document.getElementById("nova-senha").value;
     const perfil = document.getElementById("novo-perfil").value;
@@ -3284,7 +3365,7 @@ function configurarFormularioUsuario() {
 
     try {
       let resposta;
-      const corpo = { nome, usuario, email, telefone, perfil, foto_perfil: fotoPerfil };
+      const corpo = { nome, usuario, email, telefone, salario, perfil, foto_perfil: fotoPerfil };
       if (senha) corpo.senha = senha;
 
       if (idEdicao) {
@@ -3512,6 +3593,7 @@ function entrarModoEdicaoUsuario(usuario) {
   document.getElementById("novo-usuario").value = usuario.nome_usuario;
   document.getElementById("novo-email").value = usuario.email || "";
   document.getElementById("novo-telefone").value = usuario.telefone || "";
+  document.getElementById("novo-salario").value = usuario.salario || "";
   document.getElementById("nova-senha").value = "";
   document.getElementById("novo-perfil").value = usuario.perfil;
   definirPreviewFoto(usuario.foto_perfil || null);

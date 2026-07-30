@@ -45,14 +45,44 @@ export async function processarMetas(request, env, ctx) {
         .bind(...params)
         .all();
 
+      // Para cada meta, busca total depositado e calcula guarda_semanal se tiver prazo
+      const agora = new Date();
+      const metasComProgresso = await Promise.all(
+        results.map(async (meta) => {
+          const { results: depositos } = await env.DB.prepare(
+            `SELECT COALESCE(SUM(valor), 0) AS total FROM meta_depositos WHERE meta_id = ?`
+          ).bind(meta.id).all();
+
+          const totalDepositado = depositos[0]?.total || 0;
+          const falta = Math.max(0, meta.valor_limite - totalDepositado);
+          let guarda_semanal = null;
+          let semanas_restantes = null;
+
+          if (meta.data_limite && falta > 0) {
+            const dataLimite = new Date(meta.data_limite + "T23:59:59");
+            const diffMs = dataLimite - agora;
+            semanas_restantes = Math.max(1, Math.ceil(diffMs / (7 * 24 * 60 * 60 * 1000)));
+            guarda_semanal = Math.ceil(falta / semanas_restantes * 100) / 100;
+          }
+
+          return {
+            ...meta,
+            total_depositado: totalDepositado,
+            falta,
+            guarda_semanal,
+            semanas_restantes,
+          };
+        })
+      );
+
       if (metaId) {
-        const metasFiltradas = results.filter((m) => m.id === Number(metaId));
+        const metasFiltradas = metasComProgresso.filter((m) => m.id === Number(metaId));
         return new Response(JSON.stringify(metasFiltradas), { status: 200 });
       }
 
-      return new Response(JSON.stringify(results), { status: 200 });
+      return new Response(JSON.stringify(metasComProgresso), { status: 200 });
     } catch (erro) {
-      return new Response(JSON.stringify({ erro: "Erro ao buscar metas." }), { status: 500 });
+      return new Response(JSON.stringify({ erro: "Erro ao buscar metas.", detalhe: erro.message }), { status: 500 });
     }
   }
 
@@ -69,6 +99,7 @@ export async function processarMetas(request, env, ctx) {
 
       const categoria = (dados.categoria || "").trim();
       const valorLimite = parseFloat(dados.valor_limite);
+      const dataLimite = dados.data_limite || null;
 
       if (!categoria) {
         return new Response(JSON.stringify({ erro: "Categoria não informada." }), { status: 400 });
@@ -78,11 +109,11 @@ export async function processarMetas(request, env, ctx) {
       }
 
       const resultado = await env.DB.prepare(
-        `INSERT INTO metas_categoria (carteira_id, categoria, valor_limite, criado_por)
-         VALUES (?, ?, ?, ?)
-         ON CONFLICT(carteira_id, categoria) DO UPDATE SET valor_limite = excluded.valor_limite`,
+        `INSERT INTO metas_categoria (carteira_id, categoria, valor_limite, data_limite, criado_por)
+         VALUES (?, ?, ?, ?, ?)
+         ON CONFLICT(carteira_id, categoria) DO UPDATE SET valor_limite = excluded.valor_limite, data_limite = excluded.data_limite`,
       )
-        .bind(dados.carteira_id, categoria, valorLimite, usuarioLogado.id)
+        .bind(dados.carteira_id, categoria, valorLimite, dataLimite, usuarioLogado.id)
         .run();
 
       return new Response(JSON.stringify({ mensagem: "Meta salva com sucesso!" }), { status: 200 });

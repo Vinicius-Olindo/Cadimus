@@ -179,6 +179,11 @@
               <span class="stat-rotulo">Saldo do período</span>
               <span class="stat-valor" id="saldo-total">R$ 0,00</span>
             </div>
+            <div class="card stat-card" id="card-guarda" style="display: none">
+              <span class="stat-rotulo">Capacidade de guarda</span>
+              <span class="stat-valor" id="valor-guarda" style="color: var(--cor-receita)">R$ 0,00</span>
+              <span class="stat-desc" id="guarda-desc"></span>
+            </div>
             <div class="card stat-card" id="card-poupanca" style="display: none">
               <span class="stat-rotulo">Taxa de poupança</span>
               <span class="stat-valor" id="taxa-poupanca" style="color: var(--cor-receita)">0%</span>
@@ -364,6 +369,7 @@
               <input type="text" id="novo-usuario" placeholder="Usuário (login)" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required />
               <input type="email" id="novo-email" placeholder="E-mail" autocomplete="email" required />
               <input type="tel" id="novo-telefone" placeholder="Telefone (com DDD)" autocomplete="tel" />
+              <input type="number" id="novo-salario" placeholder="Salário mensal" step="0.01" min="0" />
               <input type="password" id="nova-senha" placeholder="Senha" />
               <span class="dica-campo" id="dica-senha" style="display: none">Deixe em branco para manter a senha atual.</span>
               <select id="novo-perfil">
@@ -866,6 +872,11 @@
           <div class="campo">
             <label for="meta-valor">Limite mensal</label>
             <input type="number" id="meta-valor" step="0.01" placeholder="0,00" required />
+          </div>
+          <div class="campo">
+            <label for="meta-data-limite">Data limite (opcional)</label>
+            <input type="date" id="meta-data-limite" />
+            <span class="dica-campo">Se definido, o app calcula quanto guardar por semana</span>
           </div>
           <button type="submit" id="btn-salvar-meta">Salvar meta</button>
           <button type="button" id="btn-remover-meta" class="btn-remover-meta" style="display: none">Remover meta</button>

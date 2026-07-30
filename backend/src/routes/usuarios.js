@@ -95,9 +95,9 @@ export async function processarUsuarios(request, env, ctx) {
       let query;
       let binds = [];
       if (usuarioLogado.perfil === "superadmin") {
-        query = `SELECT id, nome_usuario, perfil, nome, telefone, email, foto_perfil, criado_em, ultimo_acesso, ativo, criado_por FROM usuarios ORDER BY id ASC`;
+        query = `SELECT id, nome_usuario, perfil, nome, telefone, email, foto_perfil, criado_em, ultimo_acesso, ativo, criado_por, salario FROM usuarios ORDER BY id ASC`;
       } else {
-        query = `SELECT id, nome_usuario, perfil, nome, telefone, email, foto_perfil, criado_em, ultimo_acesso, ativo, criado_por FROM usuarios WHERE criado_por = ? ORDER BY id ASC`;
+        query = `SELECT id, nome_usuario, perfil, nome, telefone, email, foto_perfil, criado_em, ultimo_acesso, ativo, criado_por, salario FROM usuarios WHERE criado_por = ? ORDER BY id ASC`;
         binds = [usuarioLogado.id];
       }
       const { results } = await env.DB.prepare(query).bind(...binds).all();
@@ -216,6 +216,12 @@ export async function processarUsuarios(request, env, ctx) {
         }
         campos.push("senha_hash = ?");
         valores.push(await hashSenha(dados.senha));
+      }
+
+      if (dados.salario !== undefined) {
+        const salario = Number(dados.salario) || 0;
+        campos.push("salario = ?");
+        valores.push(salario);
       }
 
       const cadastrais = await validarDadosCadastrais(dados, env, Number(id));
