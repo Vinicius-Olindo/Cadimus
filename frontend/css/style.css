@@ -1065,6 +1065,7 @@ button:active {
   color: var(--cor-texto-suave);
   text-transform: uppercase;
   letter-spacing: 0.6px;
+  white-space: nowrap;
 }
 
 .item-status {
@@ -1970,6 +1971,42 @@ label {
   justify-content: flex-end;
   align-items: center;
   flex-shrink: 0;
+}
+
+/* Despesas fixas e compras parceladas: layout grid */
+#lista-despesas-fixas-painel .linha-item,
+#lista-compras-parceladas-painel .linha-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-rows: auto auto;
+  align-items: center;
+  gap: 0 10px;
+  padding: 12px 14px;
+}
+
+#lista-despesas-fixas-painel .fixa-btn-toggle,
+#lista-compras-parceladas-painel .item-status {
+  grid-row: 1 / 3;
+}
+
+#lista-despesas-fixas-painel .item-info-principal,
+#lista-compras-parceladas-painel .item-info-principal {
+  grid-column: 2;
+  min-width: 0;
+}
+
+#lista-despesas-fixas-painel .item-valores,
+#lista-compras-parceladas-painel .item-valores {
+  grid-column: 3;
+  grid-row: 1 / 3;
+  align-self: center;
+}
+
+#lista-despesas-fixas-painel .item-descricao,
+#lista-compras-parceladas-painel .item-descricao {
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: unset;
 }
 
 /* Categorias: nome + selo cabem numa linha só. Usuários agora tem uma
