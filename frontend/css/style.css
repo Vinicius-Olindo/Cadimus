@@ -1329,7 +1329,7 @@ button:active {
 .lote-check-marca {
   width: 18px;
   height: 18px;
-  border: 2px solid var(--cor-pauta-forte);
+  border: 2px solid var(--cor-texto-suave);
   border-radius: 4px;
   transition: all 0.15s ease;
   position: relative;
