@@ -3528,3 +3528,211 @@ textarea::placeholder {
     transition-duration: 0.001ms !important;
   }
 }
+
+/* ==========================================
+   PLANEJAMENTO
+   ========================================== */
+#planejamento-section {
+  min-height: 100vh;
+  background: var(--cor-fundo);
+}
+
+.plano-container {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.plano-card-salario {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.plano-subtitulo {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--cor-texto);
+  margin: 0;
+}
+
+.plano-salario-linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.plano-salario-valor {
+  font-family: var(--fonte-mono);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--cor-texto);
+}
+
+.plano-salario-acoes {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.plano-card-guarda {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.plano-guarda-valor {
+  font-family: var(--fonte-mono);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--cor-receita);
+}
+
+.plano-guarda-detalhe {
+  font-size: 0.85rem;
+  color: var(--cor-texto-suave);
+  margin-top: -0.25rem;
+}
+
+.plano-guarda-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: 0.25rem;
+}
+
+.plano-barra-item {
+  display: grid;
+  grid-template-columns: 60px 1fr 70px;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.plano-barra-rotulo {
+  font-size: 0.8rem;
+  color: var(--cor-texto-suave);
+}
+
+.plano-barra-trilho {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--cor-pauta-forte);
+  overflow: hidden;
+}
+
+.plano-barra-preenchimento {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.6s ease;
+}
+
+.barra-fixas { background: var(--cor-despesa); }
+.barra-parcelas { background: var(--cor-pendente); }
+.barra-sobra { background: var(--cor-receita); }
+
+.plano-barra-valor {
+  font-family: var(--fonte-mono);
+  font-size: 0.8rem;
+  color: var(--cor-texto);
+  text-align: right;
+}
+
+/* Metas */
+.plano-metas-cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+#lista-metas-plano {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+
+.plano-vazio {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--cor-texto-suave);
+  font-size: 0.9rem;
+}
+
+.plano-meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border-radius: 10px;
+  background: var(--cor-fundo);
+  border: 1px solid var(--cor-pauta-forte);
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.plano-meta-item:hover {
+  border-color: var(--cor-marca);
+}
+
+.plano-meta-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.plano-meta-categoria {
+  font-weight: 600;
+  color: var(--cor-texto);
+}
+
+.plano-meta-valor {
+  font-family: var(--fonte-mono);
+  font-size: 0.9rem;
+  color: var(--cor-texto-suave);
+}
+
+.plano-meta-barra {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--cor-pauta-forte);
+  overflow: hidden;
+}
+
+.plano-meta-preenchimento {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--cor-marca);
+  transition: width 0.6s ease;
+}
+
+.plano-meta-detalhes {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  color: var(--cor-texto-suave);
+}
+
+.plano-meta-badge-semana {
+  font-family: var(--fonte-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--cor-receita);
+  background: rgba(16, 185, 129, 0.12);
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+}
+
+.plano-meta-acoes {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.plano-meta-acoes button {
+  font-size: 0.75rem;
+  padding: 0.2rem 0.5rem;
+}

@@ -105,6 +105,14 @@
                 </svg>
                 <span class="btn-topo-label">Exportar</span>
               </button>
+              <button id="btn-planejamento" class="btn-topo-icone" title="Planejamento financeiro">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                  <path d="M2 17l10 5 10-5"/>
+                  <path d="M2 12l10 5 10-5"/>
+                </svg>
+                <span class="btn-topo-label">Planejamento</span>
+              </button>
               <div class="acoes-topo-divider"></div>
               <button id="btn-notificacoes" class="btn-topo-icone" title="Notificações">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -326,6 +334,69 @@
                 <button type="button" id="btn-nova-compra-parcelada" class="btn-link-adicionar">+ Nova</button>
               </div>
               <div id="lista-compras-parceladas-painel"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SEÇÃO PLANEJAMENTO -->
+      <section id="planejamento-section" style="display: none">
+        <header class="top-bar">
+          <div class="top-bar-linha1">
+            <h2>Planejamento</h2>
+            <button id="btn-voltar-dashboard-plano">Voltar</button>
+          </div>
+        </header>
+
+        <div class="plano-container">
+          <!-- SALÁRIO -->
+          <div class="card plano-card-salario">
+            <h3 class="plano-subtitulo">Salário mensal</h3>
+            <div class="plano-salario-linha">
+              <span class="plano-salario-valor" id="plano-salario-display">R$ 0,00</span>
+              <button type="button" id="btn-editar-salario" class="btn-link-adicionar">Editar</button>
+            </div>
+            <div id="plano-salario-form" style="display: none">
+              <input type="number" id="plano-salario-input" placeholder="Ex: 5000" step="0.01" min="0" />
+              <div class="plano-salario-acoes">
+                <button type="button" id="btn-salvar-salario" class="btn-primario">Salvar</button>
+                <button type="button" id="btn-cancelar-salario" class="btn-secundario">Cancelar</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- CAPACIDADE DE GUARDA -->
+          <div class="card plano-card-guarda" id="plano-card-guarda" style="display: none">
+            <h3 class="plano-subtitulo">Capacidade de guarda</h3>
+            <div class="plano-guarda-valor" id="plano-guarda-valor">R$ 0,00</div>
+            <div class="plano-guarda-detalhe" id="plano-guarda-detalhe"></div>
+            <div class="plano-guarda-bars">
+              <div class="plano-barra-item">
+                <span class="plano-barra-rotulo">Fixas</span>
+                <div class="plano-barra-trilho"><div class="plano-barra-preenchimento barra-fixas" id="plano-barra-fixas"></div></div>
+                <span class="plano-barra-valor" id="plano-valor-fixas">R$ 0</span>
+              </div>
+              <div class="plano-barra-item">
+                <span class="plano-barra-rotulo">Parcelas</span>
+                <div class="plano-barra-trilho"><div class="plano-barra-preenchimento barra-parcelas" id="plano-barra-parcelas"></div></div>
+                <span class="plano-barra-valor" id="plano-valor-parcelas">R$ 0</span>
+              </div>
+              <div class="plano-barra-item">
+                <span class="plano-barra-rotulo">Sobra</span>
+                <div class="plano-barra-trilho"><div class="plano-barra-preenchimento barra-sobra" id="plano-barra-sobra"></div></div>
+                <span class="plano-barra-valor" id="plano-valor-sobra">R$ 0</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- METAS -->
+          <div class="card plano-card-metas">
+            <div class="plano-metas-cabecalho">
+              <h3 class="plano-subtitulo">Metas</h3>
+              <button type="button" id="btn-nova-meta-plano" class="btn-link-adicionar">+ Nova meta</button>
+            </div>
+            <div id="lista-metas-plano">
+              <div class="plano-vazio">Nenhuma meta criada ainda.</div>
             </div>
           </div>
         </div>

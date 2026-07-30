@@ -221,6 +221,7 @@ document.addEventListener("DOMContentLoaded", () => {
   configurarModalDeposito();
   configurarModalRenomearCategoria();
   configurarPainelAdmin();
+  configurarPlano();
 });
 
 // --- SELETOR DE MÊS (setas, sem depender do calendário nativo do navegador) ---
@@ -3191,6 +3192,214 @@ function configurarPainelAdmin() {
   configurarSistemaConvites();
   configurarFormularioCategoria();
   configurarZonaDePerigo();
+}
+
+// --- PLANEJAMENTO ---
+function configurarPlano() {
+  const btnPlano = document.getElementById("btn-planejamento");
+  const btnVoltar = document.getElementById("btn-voltar-dashboard-plano");
+  const secaoDashboard = document.getElementById("dashboard-section");
+  const secaoPlano = document.getElementById("planejamento-section");
+
+  if (!btnPlano || !btnVoltar || !secaoDashboard || !secaoPlano) return;
+
+  btnPlano.addEventListener("click", () => {
+    secaoDashboard.style.display = "none";
+    secaoPlano.style.display = "block";
+    renderizarPlano();
+  });
+
+  btnVoltar.addEventListener("click", () => {
+    secaoPlano.style.display = "none";
+    secaoDashboard.style.display = "block";
+    carregarLancamentos();
+  });
+
+  configurarSalarioPlano();
+  configurarMetaPlano();
+}
+
+function configurarSalarioPlano() {
+  const btnEditar = document.getElementById("btn-editar-salario");
+  const btnSalvar = document.getElementById("btn-salvar-salario");
+  const btnCancelar = document.getElementById("btn-cancelar-salario");
+  const form = document.getElementById("plano-salario-form");
+  const display = document.querySelector(".plano-salario-linha");
+  const input = document.getElementById("plano-salario-input");
+
+  if (!btnEditar || !btnSalvar || !btnCancelar || !form || !display || !input) return;
+
+  btnEditar.addEventListener("click", () => {
+    const usuario = obterUsuarioLogado();
+    input.value = usuario.salario || "";
+    form.style.display = "block";
+    display.querySelector(".plano-salario-valor").style.display = "none";
+    btnEditar.style.display = "none";
+  });
+
+  btnCancelar.addEventListener("click", () => {
+    form.style.display = "none";
+    display.querySelector(".plano-salario-valor").style.display = "";
+    btnEditar.style.display = "";
+  });
+
+  btnSalvar.addEventListener("click", async () => {
+    const valor = parseFloat(input.value) || 0;
+    const usuario = obterUsuarioLogado();
+
+    try {
+      const resposta = await fetch(`${API_URL}/api/usuarios/${usuario.id}`, {
+        method: "PUT",
+        headers: headersAutenticados(),
+        body: JSON.stringify({ salario: valor }),
+      });
+
+      if (tratarSessaoExpirada(resposta)) return;
+
+      if (resposta.ok) {
+        usuario.salario = valor;
+        localStorage.setItem("usuario", JSON.stringify(usuario));
+        form.style.display = "none";
+        display.querySelector(".plano-salario-valor").style.display = "";
+        btnEditar.style.display = "";
+        renderizarPlano();
+        mostrarToast("Salário atualizado", "sucesso");
+      }
+    } catch (erro) {
+      console.error("Erro ao salvar salário:", erro);
+    }
+  });
+}
+
+function renderizarPlano() {
+  const usuario = obterUsuarioLogado();
+  const salario = usuario.salario || 0;
+
+  // Salário display
+  const salarioDisplay = document.getElementById("plano-salario-display");
+  if (salarioDisplay) {
+    salarioDisplay.textContent = salario > 0 ? formatadorBRL.format(salario) : "Não definido";
+  }
+
+  // Capacidade de guarda
+  const cardGuarda = document.getElementById("plano-card-guarda");
+  const guardaValor = document.getElementById("plano-guarda-valor");
+  const guardaDetalhe = document.getElementById("plano-guarda-detalhe");
+
+  if (salario > 0 && cardGuarda) {
+    let totalFixas = 0;
+    let totalParcelas = 0;
+
+    if (typeof despesasFixasCarregadas !== "undefined") {
+      despesasFixasCarregadas.forEach((f) => {
+        if (f.ativo) totalFixas += f.valor || 0;
+      });
+    }
+
+    if (typeof comprasParceladasCarregadas !== "undefined") {
+      comprasParceladasCarregadas.forEach((c) => {
+        if (c.ativo) totalParcelas += c.valor_parcela || 0;
+      });
+    }
+
+    const sobra = salario - totalFixas - totalParcelas;
+    const sobraPositiva = Math.max(0, sobra);
+    const guardaSemanal = Math.round(sobraPositiva / 4);
+
+    cardGuarda.style.display = "flex";
+    guardaValor.textContent = formatadorBRL.format(sobraPositiva);
+    guardaValor.style.color = sobra >= 0 ? "var(--cor-receita)" : "var(--cor-despesa)";
+
+    if (sobra <= 0) {
+      guardaDetalhe.textContent = "Suas fixas e parcelas consomem todo o salário.";
+    } else {
+      guardaDetalhe.textContent = `Dá pra guardar ~${formatadorBRL.format(guardaSemanal)}/semana.`;
+    }
+
+    // Barras
+    const maxValor = Math.max(salario, 1);
+    const barraFixas = document.getElementById("plano-barra-fixas");
+    const barraParcelas = document.getElementById("plano-barra-parcelas");
+    const barraSobra = document.getElementById("plano-barra-sobra");
+    const valorFixas = document.getElementById("plano-valor-fixas");
+    const valorParcelas = document.getElementById("plano-valor-parcelas");
+    const valorSobra = document.getElementById("plano-valor-sobra");
+
+    if (barraFixas) barraFixas.style.width = `${Math.round((totalFixas / maxValor) * 100)}%`;
+    if (barraParcelas) barraParcelas.style.width = `${Math.round((totalParcelas / maxValor) * 100)}%`;
+    if (barraSobra) barraSobra.style.width = `${Math.round((sobraPositiva / maxValor) * 100)}%`;
+    if (valorFixas) valorFixas.textContent = formatadorBRL.format(totalFixas);
+    if (valorParcelas) valorParcelas.textContent = formatadorBRL.format(totalParcelas);
+    if (valorSobra) valorSobra.textContent = formatadorBRL.format(sobraPositiva);
+  } else if (cardGuarda) {
+    cardGuarda.style.display = "none";
+  }
+
+  // Metas
+  renderizarMetasPlano();
+}
+
+function renderizarMetasPlano() {
+  const container = document.getElementById("lista-metas-plano");
+  if (!container) return;
+
+  if (typeof metasCarregadas === "undefined" || metasCarregadas.length === 0) {
+    container.innerHTML = '<div class="plano-vazio">Nenhuma meta criada ainda.</div>';
+    return;
+  }
+
+  container.innerHTML = metasCarregadas.map((meta) => {
+    const percentual = meta.valor_limite > 0 ? Math.min(100, Math.round((meta.total_depositado / meta.valor_limite) * 100)) : 0;
+    const temPrazo = !!meta.data_limite;
+
+    return `
+      <div class="plano-meta-item" data-id="${meta.id}">
+        <div class="plano-meta-topo">
+          <span class="plano-meta-categoria">${escaparHtml(meta.categoria)}</span>
+          <span class="plano-meta-valor">${formatadorBRL.format(meta.total_depositado)} / ${formatadorBRL.format(meta.valor_limite)}</span>
+        </div>
+        <div class="plano-meta-barra">
+          <div class="plano-meta-preenchimento" style="width: ${percentual}%"></div>
+        </div>
+        <div class="plano-meta-detalhes">
+          <span>${percentual}% concluído${temPrazo ? ` · Prazo: ${new Date(meta.data_limite + "T12:00:00").toLocaleDateString("pt-BR")}` : ""}</span>
+          ${temPrazo && meta.falta > 0 ? `<span class="plano-meta-badge-semana">~${formatadorBRL.format(meta.guarda_semanal)}/sem.</span>` : ""}
+        </div>
+        <div class="plano-meta-acoes">
+          <button type="button" class="btn-link-adicionar plano-btn-depositar" data-id="${meta.id}" data-categoria="${escaparHtml(meta.categoria)}">Depositar</button>
+          <button type="button" class="btn-link-adicionar plano-btn-editar" data-categoria="${escaparHtml(meta.categoria)}" data-valor="${meta.valor_limite}" data-datalimite="${meta.data_limite || ""}">Editar</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  container.querySelectorAll(".plano-btn-depositar").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const id = Number(btn.dataset.id);
+      const categoria = btn.dataset.categoria;
+      abrirModalDeposito(id, categoria);
+    });
+  });
+
+  container.querySelectorAll(".plano-btn-editar").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const categoria = btn.dataset.categoria;
+      const valor = btn.dataset.valor;
+      const dataLimite = btn.dataset.datalimite || null;
+      abrirModalMeta(categoria, valor, dataLimite);
+    });
+  });
+}
+
+function configurarMetaPlano() {
+  const btnNovaMeta = document.getElementById("btn-nova-meta-plano");
+  if (!btnNovaMeta) return;
+
+  btnNovaMeta.addEventListener("click", () => {
+    abrirModalMeta("", "", null);
+  });
 }
 
 function configurarSubAbasAdmin() {
