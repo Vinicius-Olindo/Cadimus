@@ -201,6 +201,21 @@ async function aceitarConvite(body, env) {
     const resultado = await env.DB.prepare(
       `INSERT INTO usuarios (nome_usuario, senha_hash, perfil, nome, email, criado_por) VALUES (?, ?, ?, ?, ?, ?)`
     ).bind(nomeUsuario, senhaHash, convite.perfil, nomeFinal, convite.email, convite.criado_por).run();
+    const novoUsuarioId = resultado.meta.last_row_id;
+
+    // Cria carteira pessoal (mesma lógica do cadastro pelo painel admin)
+    try {
+      const nomeCarteira = `Pessoal - ${nomeFinal}`.slice(0, 40);
+      const resultadoCarteira = await env.DB.prepare(`INSERT INTO carteiras (nome, tipo) VALUES (?, 'individual')`).bind(nomeCarteira).run();
+      const novaCarteiraId = resultadoCarteira.meta.last_row_id;
+      await env.DB.prepare(`INSERT INTO usuarios_carteiras (usuario_id, carteira_id, papel) VALUES (?, ?, 'admin')`)
+        .bind(novoUsuarioId, novaCarteiraId)
+        .run();
+    } catch (erroCarteira) {
+      // Desfaz o usuário pra não deixar conta órfã
+      await env.DB.prepare(`DELETE FROM usuarios WHERE id = ?`).bind(novoUsuarioId).run();
+      return new Response(JSON.stringify({ erro: "Erro ao criar conta. Tente novamente." }), { status: 500 });
+    }
 
     // Marca convite como usado
     await env.DB.prepare(
