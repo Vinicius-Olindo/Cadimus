@@ -179,21 +179,41 @@
         <div id="conteudo-periodo">
           <!-- LINHA 1: grade de indicadores, ocupa a largura toda — o "painel de controle" -->
           <div class="stat-grid area-resumo">
-            <div class="card stat-card">
-              <span class="stat-rotulo">Saldo</span>
+            <div class="card stat-card stat-card-receita">
+              <div class="stat-card-topo">
+                <span class="stat-card-icone">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                </span>
+                <span class="stat-rotulo">Saldo</span>
+              </div>
               <span class="stat-valor texto-receita" id="total-receitas">R$ 0,00</span>
             </div>
-            <div class="card stat-card">
-              <span class="stat-rotulo">Despesas</span>
+            <div class="card stat-card stat-card-despesa">
+              <div class="stat-card-topo">
+                <span class="stat-card-icone">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14l-4-4m0 0l4-4m-4 4h11a4 4 0 0 1 0 8h-1"/></svg>
+                </span>
+                <span class="stat-rotulo">Despesas</span>
+              </div>
               <span class="stat-valor texto-despesa" id="total-despesas">R$ 0,00</span>
               <span class="comparacao-mes" id="comparacao-mes" style="display: none"></span>
             </div>
             <div class="card stat-card" id="resumo-pendente-item" style="display: none">
-              <span class="stat-rotulo">A pagar</span>
+              <div class="stat-card-topo">
+                <span class="stat-card-icone">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </span>
+                <span class="stat-rotulo">A pagar</span>
+              </div>
               <span class="stat-valor" id="total-pendente" style="color: var(--cor-pendente)">R$ 0,00</span>
             </div>
             <div class="card stat-card stat-card-saldo">
-              <span class="stat-rotulo">Saldo do período</span>
+              <div class="stat-card-topo">
+                <span class="stat-card-icone">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
+                </span>
+                <span class="stat-rotulo">Saldo do período</span>
+              </div>
               <span class="stat-valor" id="saldo-total">R$ 0,00</span>
             </div>
             <div class="card stat-card" id="card-guarda" style="display: none">

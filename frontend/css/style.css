@@ -900,24 +900,60 @@ button:active {
 .stat-card {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 10px;
   padding: 18px 20px;
   position: relative;
   overflow: hidden;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--sombra-cartao), 0 4px 16px rgba(0,0,0,0.06);
+}
+
+.stat-card-topo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stat-card-icone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.stat-card-receita .stat-card-icone {
+  background: color-mix(in srgb, var(--cor-receita) 12%, transparent);
+  color: var(--cor-receita);
+}
+
+.stat-card-despesa .stat-card-icone {
+  background: color-mix(in srgb, var(--cor-despesa) 12%, transparent);
+  color: var(--cor-despesa);
+}
+
+.stat-card-saldo .stat-card-icone {
+  background: color-mix(in srgb, var(--cor-marca) 12%, transparent);
+  color: var(--cor-marca);
+}
+
+.stat-card-receita {
+  border-top: 3px solid var(--cor-receita);
+}
+
+.stat-card-despesa {
+  border-top: 3px solid var(--cor-despesa);
 }
 
 .stat-card-saldo {
   border-color: color-mix(in srgb, var(--cor-marca) 35%, var(--cor-pauta-forte));
-}
-
-.stat-card-saldo::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  width: 3px;
-  background: var(--cor-marca);
+  border-top: 3px solid var(--cor-marca);
 }
 
 .stat-rotulo {
@@ -926,6 +962,7 @@ button:active {
   letter-spacing: 1.2px;
   color: var(--cor-texto-suave);
   font-weight: 600;
+  flex: 1;
 }
 
 .stat-valor {
