@@ -1504,6 +1504,81 @@ button:active {
   color: var(--cor-pendente);
 }
 
+.item-nota-clique {
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 2px;
+}
+
+.popup-nota-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  padding: 20px;
+}
+
+.popup-nota-conteudo {
+  background: var(--cor-fundo);
+  border: 1px solid var(--cor-pauta-forte);
+  border-radius: var(--raio-md);
+  max-width: 420px;
+  width: 100%;
+  padding: 20px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+}
+
+.popup-nota-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.popup-nota-titulo {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--cor-texto-suave);
+}
+
+.popup-nota-fechar {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: var(--cor-texto-suave);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.popup-nota-fechar:hover {
+  background: color-mix(in srgb, var(--cor-despesa) 10%, transparent);
+  color: var(--cor-despesa);
+}
+
+.popup-nota-descricao {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--cor-texto);
+  margin-bottom: 10px;
+}
+
+.popup-nota-texto {
+  font-size: 0.88rem;
+  color: var(--cor-texto);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 .item-categoria {
   font-size: 0.74rem;
   color: var(--cor-texto-suave);

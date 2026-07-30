@@ -67,9 +67,13 @@ function criarLinhaLancamento(lancamento) {
 
   // Nota truncada quando o lançamento tem observação
   const temNota = lancamento.nota && lancamento.nota.trim().length > 0;
-  const notaTruncada = temNota ? lancamento.nota.trim().slice(0, 35) + (lancamento.nota.trim().length > 35 ? "..." : "") : "";
+  const notaCompleta = temNota ? lancamento.nota.trim() : "";
+  const truncada = notaCompleta.length > 35;
+  const notaTruncada = truncada ? notaCompleta.slice(0, 35) + "..." : notaCompleta;
   const notaHtml = temNota
-    ? `<span class="item-nota-texto" title="${escaparHtml(lancamento.nota)}">${escaparHtml(notaTruncada)}</span>`
+    ? truncada
+      ? `<span class="item-nota-texto item-nota-clique" data-nota="${escaparHtml(notaCompleta)}" data-descricao="${escaparHtml(lancamento.descricao)}">${escaparHtml(notaTruncada)}</span>`
+      : `<span class="item-nota-texto">${escaparHtml(notaTruncada)}</span>`
     : "";
 
   // Estrutura da linha: etiqueta de data compacta + corpo do lançamento —
