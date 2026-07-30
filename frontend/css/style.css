@@ -684,6 +684,17 @@ button:active {
 
 .area-lancamentos {
   order: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.area-lancamentos > .card-comparativo-periodo {
+  margin-bottom: 0;
+}
+
+.area-lancamentos > .lancamentos-cabecalho {
+  margin-top: 0;
 }
 
 @media (min-width: 900px) {
