@@ -1860,14 +1860,54 @@ button.item-status:active {
 
 .login-logo {
   display: block;
-  max-width: 200px;
-  height: auto;
+  height: 64px;
+  width: auto;
   margin: 10px auto 4px;
+}
+
+.login-logo-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 10px auto 4px;
+}
+
+.login-logo-wrapper img {
+  height: 56px;
+  width: auto;
+}
+
+.login-logo-wrapper .login-logo-texto {
+  font-family: var(--fonte-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 2rem;
+  color: var(--cor-texto);
 }
 
 .header-logo {
   height: 28px;
   width: auto;
+}
+
+.header-logo-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-logo-wrapper img {
+  height: 28px;
+  width: auto;
+}
+
+.header-logo-wrapper span {
+  font-family: var(--fonte-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 1.2rem;
+  color: var(--cor-texto);
 }
 
 .login-box .subtitulo {
