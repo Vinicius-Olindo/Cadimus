@@ -2190,7 +2190,7 @@ function verificarNotificacoes() {
 function renderizarNotificacoes() {
   const notificacoes = verificarNotificacoes();
   const badge = document.getElementById("notificacao-badge");
-  const painel = document.getElementById("painel-notificacoes");
+  const modal = document.getElementById("modal-notificacoes");
   const lista = document.getElementById("lista-notificacoes");
 
   if (notificacoes.length === 0) {
@@ -2199,8 +2199,8 @@ function renderizarNotificacoes() {
     return;
   }
 
-  const painelAberto = painel && painel.style.display !== "none";
-  if (painelAberto) {
+  const modalAberto = modal && modal.style.display !== "none";
+  if (modalAberto) {
     badge.classList.add("lido");
     badge.classList.remove("com-alertas");
   } else {
@@ -2231,24 +2231,31 @@ function renderizarNotificacoes() {
 
 function configurarNotificacoes() {
   const btn = document.getElementById("btn-notificacoes");
-  const painel = document.getElementById("painel-notificacoes");
+  const modal = document.getElementById("modal-notificacoes");
+  const btnFechar = document.getElementById("btn-fechar-modal-notificacoes");
   const badge = document.getElementById("notificacao-badge");
-  if (!btn || !painel) return;
+  if (!btn || !modal) return;
 
   btn.addEventListener("click", (e) => {
     e.stopPropagation();
-    const aberto = painel.style.display !== "none";
-    painel.style.display = aberto ? "none" : "block";
-    if (!aberto) {
-      renderizarNotificacoes();
-      badge.classList.add("lido");
-      badge.classList.remove("com-alertas");
-    }
+    modal.style.display = "flex";
+    renderizarNotificacoes();
+    badge.classList.add("lido");
+    badge.classList.remove("com-alertas");
+    capturarFoco(modal);
   });
 
-  document.addEventListener("click", (e) => {
-    if (!painel.contains(e.target) && e.target !== btn) {
-      painel.style.display = "none";
+  if (btnFechar) {
+    btnFechar.addEventListener("click", () => {
+      modal.style.display = "none";
+      liberarFoco();
+    });
+  }
+
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) {
+      modal.style.display = "none";
+      liberarFoco();
     }
   });
 }

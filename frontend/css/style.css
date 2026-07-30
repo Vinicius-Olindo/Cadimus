@@ -299,32 +299,48 @@ button:active {
 }
 
 .painel-notificacoes {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  margin-top: 8px;
-  width: 300px;
-  max-height: 360px;
-  overflow-y: auto;
-  background: var(--cor-fundo);
-  border: 1px solid var(--cor-pauta-forte);
-  border-radius: var(--raio-botoes);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-  z-index: 200;
+  width: 100%;
+  max-width: 420px;
 }
 
-.painel-notificacoes-header {
-  padding: 12px 14px;
-  font-size: 0.8rem;
-  font-weight: 700;
+.modal-notificacoes .painel-notificacoes-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0;
+  border-bottom: 1px solid var(--cor-pauta-forte);
+}
+
+.modal-notificacoes .painel-notificacoes-header h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.4px;
+  color: var(--cor-texto);
+}
+
+.modal-notificacoes .painel-notificacoes-header .btn-fechar-modal {
+  background: none;
+  border: none;
   color: var(--cor-texto-suave);
-  border-bottom: 1px solid var(--cor-pauta-forte);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-notificacoes .painel-notificacoes-header .btn-fechar-modal:hover {
+  color: var(--cor-despesa);
+  background: rgba(239, 68, 68, 0.08);
 }
 
 .painel-notificacoes-lista {
   padding: 6px;
+  max-height: 400px;
+  overflow-y: auto;
 }
 
 .notificacao-item {
