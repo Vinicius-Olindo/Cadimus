@@ -3451,6 +3451,7 @@ function configurarFormularioCadastroConvite(token) {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const nome = document.getElementById("cadastro-nome").value.trim();
+    const usuario = document.getElementById("cadastro-usuario").value.trim();
     const senha = document.getElementById("cadastro-senha").value;
     const confirmarSenha = document.getElementById("cadastro-confirmar-senha").value;
     const btnCriar = form.querySelector("button[type='submit']");
@@ -3459,6 +3460,11 @@ function configurarFormularioCadastroConvite(token) {
     function mostrarErro(msg) {
       erroEl.textContent = msg;
       erroEl.style.display = "block";
+    }
+
+    if (!usuario) {
+      mostrarErro("Escolha um nome de usuário.");
+      return;
     }
 
     if (senha !== confirmarSenha) {
@@ -3479,7 +3485,7 @@ function configurarFormularioCadastroConvite(token) {
       const resposta = await fetch(`${API_URL}/api/convites`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, senha, nome }),
+        body: JSON.stringify({ token, senha, nome, usuario }),
       });
 
       const dados = await resposta.json();
@@ -3487,7 +3493,7 @@ function configurarFormularioCadastroConvite(token) {
       if (resposta.ok) {
         mostrarErro("");
         erroEl.style.display = "none";
-        form.innerHTML = '<p class="sucesso-convite">Conta criada com sucesso! <a href="/">Fazer login</a></p>';
+        form.innerHTML = `<p class="sucesso-convite">Conta criada com sucesso!<br>Seu login: <strong>${dados.usuario}</strong><br><a href="/">Fazer login</a></p>`;
       } else {
         mostrarErro(dados.erro || "Erro ao criar conta.");
       }
