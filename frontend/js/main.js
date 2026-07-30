@@ -1272,13 +1272,18 @@ async function carregarPainelComprasParceladas() {
       const div = document.createElement("div");
       div.className = "linha-item linha-usuario";
       div.innerHTML = `
+        ${!concluida ? `
+        <button type="button" class="fixa-btn-toggle btn-alternar-parcela ${compra.ativo ? "fixa-ativa" : "fixa-pausada"}" data-id="${compra.id}" title="${compra.ativo ? "Pausar" : "Ativar"}">
+          ${compra.ativo
+            ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>'
+            : '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>'}
+        </button>` : ""}
         <div class="fixa-conteudo">
           <span class="item-descricao">${escaparHtml(compra.descricao)}</span>
           <span class="item-categoria">${rotuloParcela} · ${valorFormatado}/mês</span>
           <div class="fixa-botoes">
-            <span class="item-status ${compra.ativo && !concluida ? "status-pago" : "status-pendente"}">${compra.ativo ? (concluida ? "Concluída" : "Ativa") : "Cancelada"}</span>
+            <span class="item-status ${compra.ativo && !concluida ? "status-pago" : "status-pendente"}">${compra.ativo ? (concluida ? "Concluída" : "Ativa") : "Pausada"}</span>
             <button type="button" class="fixa-btn btn-historico-parcela" data-id="${compra.id}" data-descricao="${escaparHtml(compra.descricao)}">Histórico</button>
-            ${!concluida ? `<button type="button" class="fixa-btn btn-alternar-parcela" data-id="${compra.id}">${compra.ativo ? "Cancelar" : "Reativar"}</button>` : ""}
             <button type="button" class="fixa-btn-excluir btn-excluir-parcela" data-id="${compra.id}">Excluir</button>
           </div>
         </div>
