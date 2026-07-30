@@ -694,13 +694,12 @@ button:active {
     order: unset;
   }
 
-  .card-comparativo-periodo {
-    grid-column: 1 / -1;
-  }
-
   .area-lancamentos {
     grid-column: 1;
     order: unset;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
   }
 
   .area-controle {
