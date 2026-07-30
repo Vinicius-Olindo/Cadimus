@@ -2189,15 +2189,23 @@ function verificarNotificacoes() {
 function renderizarNotificacoes() {
   const notificacoes = verificarNotificacoes();
   const badge = document.getElementById("notificacao-badge");
+  const painel = document.getElementById("painel-notificacoes");
   const lista = document.getElementById("lista-notificacoes");
 
   if (notificacoes.length === 0) {
-    badge.classList.remove("com-alertas");
+    badge.classList.remove("com-alertas", "lido");
     lista.innerHTML = '<div class="notificacao-vazio">Nenhum vencimento próximo.</div>';
     return;
   }
 
-  badge.classList.add("com-alertas");
+  const painelAberto = painel && painel.style.display !== "none";
+  if (painelAberto) {
+    badge.classList.add("lido");
+    badge.classList.remove("com-alertas");
+  } else {
+    badge.classList.remove("lido");
+    badge.classList.add("com-alertas");
+  }
 
   lista.innerHTML = notificacoes.map((n) => {
     const iconeClasse = n.atrasado ? "atrasado" : n.urgencia === 1 ? "hoje" : "proximo";
@@ -2223,13 +2231,18 @@ function renderizarNotificacoes() {
 function configurarNotificacoes() {
   const btn = document.getElementById("btn-notificacoes");
   const painel = document.getElementById("painel-notificacoes");
+  const badge = document.getElementById("notificacao-badge");
   if (!btn || !painel) return;
 
   btn.addEventListener("click", (e) => {
     e.stopPropagation();
     const aberto = painel.style.display !== "none";
     painel.style.display = aberto ? "none" : "block";
-    if (!aberto) renderizarNotificacoes();
+    if (!aberto) {
+      renderizarNotificacoes();
+      badge.classList.add("lido");
+      badge.classList.remove("com-alertas");
+    }
   });
 
   document.addEventListener("click", (e) => {

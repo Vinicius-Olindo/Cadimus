@@ -269,6 +269,8 @@ button:active {
   align-items: center;
   gap: 5px;
   padding: 6px 12px;
+  line-height: 1;
+}
 
 /* Notificações */
 .notificacao-badge {
@@ -287,6 +289,11 @@ button:active {
 .notificacao-badge.com-alertas {
   display: block;
 }
+
+.notificacao-badge.lido {
+  display: none;
+}
+
   line-height: 1;
 }
 
