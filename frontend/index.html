@@ -183,6 +183,22 @@
             </div>
             <div class="busca-lancamentos">
               <input type="search" id="busca-lancamento" placeholder="Buscar por descrição ou categoria..." />
+              <div class="filtros-lancamentos">
+                <select id="filtro-tipo">
+                  <option value="">Todos os tipos</option>
+                  <option value="receita">Receita</option>
+                  <option value="despesa">Despesa</option>
+                </select>
+                <select id="filtro-status">
+                  <option value="">Todos os status</option>
+                  <option value="pago">Pago</option>
+                  <option value="pendente">Pendente</option>
+                  <option value="atrasado">Atrasado</option>
+                </select>
+                <select id="filtro-categoria-lancamento">
+                  <option value="">Todas as categorias</option>
+                </select>
+              </div>
             </div>
             <div class="lista-lancamentos" id="lista-lancamentos"></div>
           </div>

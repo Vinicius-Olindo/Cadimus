@@ -970,6 +970,29 @@ button:active {
   cursor: pointer;
 }
 
+.filtros-lancamentos {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.filtros-lancamentos select {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1px solid var(--cor-pauta-fraca);
+  border-radius: var(--raio-botoes);
+  background: var(--cor-fundo);
+  color: var(--cor-texto);
+  font-size: 0.8rem;
+  cursor: pointer;
+  min-width: 0;
+}
+
+.filtros-lancamentos select:focus {
+  outline: 2px solid var(--cor-pauta-forte);
+  outline-offset: 1px;
+}
+
 /* ==========================================
    LISTA DE LANÇAMENTOS (transações)
    ========================================== */
@@ -979,14 +1002,40 @@ button:active {
   border-top: var(--borda) solid var(--cor-pauta-forte);
 }
 
+.grupo-data-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: color-mix(in srgb, var(--cor-pauta-fraca) 40%, transparent);
+  border-bottom: var(--borda) solid var(--cor-pauta-forte);
+}
+
+.grupo-data-texto {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--cor-texto-suave);
+}
+
+.grupo-data-qtd {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--cor-texto-suave);
+  background: var(--cor-pauta-fraca);
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
 .linha-item {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
+  gap: 12px;
   border-bottom: var(--borda) solid var(--cor-pauta-forte);
   animation: entrar-linha 0.25s ease backwards;
   transition: background-color 0.12s ease;
-  padding: 10px 14px;
+  padding: 14px 16px;
 }
 
 .linha-item:hover {
@@ -1038,8 +1087,8 @@ button:active {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  padding: 12px 14px 12px 0;
+  gap: 12px;
+  padding: 14px 16px 14px 0;
   min-width: 0;
   border-left: var(--borda) solid var(--cor-pauta-forte);
 }
@@ -1047,7 +1096,7 @@ button:active {
 .item-info-principal {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
   min-width: 0;
   padding-left: 4px;
 }
@@ -1076,7 +1125,7 @@ button:active {
 .item-valores {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   flex-shrink: 0;
 }
 
@@ -1143,12 +1192,19 @@ button.item-status:active {
 .status-pago {
   background: color-mix(in srgb, var(--cor-receita) 18%, transparent);
   color: var(--cor-receita);
+  border: 1px solid color-mix(in srgb, var(--cor-receita) 30%, transparent);
 }
 
 .status-pendente {
   background: color-mix(in srgb, var(--cor-pendente) 20%, transparent);
   color: var(--cor-pendente);
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--cor-pendente) 35%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cor-pendente) 35%, transparent);
+}
+
+.status-atrasado {
+  background: color-mix(in srgb, var(--cor-despesa) 18%, transparent);
+  color: var(--cor-despesa);
+  border: 1px solid color-mix(in srgb, var(--cor-despesa) 30%, transparent);
 }
 
 .item-valor {
@@ -1211,8 +1267,37 @@ button.item-status:active {
   text-align: center;
   color: var(--cor-texto-suave);
   font-family: var(--fonte-display);
+  font-style: normal;
+  font-size: 1rem;
+}
+
+.lista-vazia-icone {
+  margin-bottom: 16px;
+  opacity: 0.4;
+}
+
+.lista-vazia-texto {
+  margin-bottom: 20px;
   font-style: italic;
-  font-size: 1.1rem;
+}
+
+.lista-vazia-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: var(--raio-botoes);
+  background: var(--cor-pauta-forte);
+  color: var(--cor-fundo);
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: opacity 0.2s;
+}
+
+.lista-vazia-btn:hover {
+  opacity: 0.85;
 }
 
 .spinner {
@@ -1575,6 +1660,11 @@ label {
 .historico-fixa-status.status-pendente {
   background: color-mix(in srgb, var(--cor-pendente) 15%, transparent);
   color: var(--cor-pendente);
+}
+
+.historico-fixa-status.status-atrasado {
+  background: color-mix(in srgb, var(--cor-despesa) 15%, transparent);
+  color: var(--cor-despesa);
 }
 
 .historico-fixa-vazio {

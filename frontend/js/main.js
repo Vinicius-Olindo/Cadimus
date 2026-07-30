@@ -1070,14 +1070,18 @@ async function abrirHistoricoFixa(fixaId, descricao) {
       const valorFormatado = formatadorBRL.format(l.valor);
       const classeTipo = l.tipo === "receita" ? "texto-receita" : "texto-despesa";
       const sinal = l.tipo === "receita" ? "+" : "-";
-      const classeStatus = l.status === "pago" ? "status-pago" : "status-pendente";
+      const dataVenc = new Date(l.data_compra + "T23:59:59");
+      const hoje = new Date();
+      const atrasado = l.status !== "pago" && dataVenc < hoje;
+      const classeStatus = l.status === "pago" ? "status-pago" : atrasado ? "status-atrasado" : "status-pendente";
+      const textoStatus = l.status === "pago" ? "Pago" : atrasado ? "Atrasado" : "Pendente";
 
       const linha = document.createElement("div");
       linha.className = "historico-fixa-linha";
       linha.innerHTML = `
         <span class="historico-fixa-data">${dataFormatada}</span>
         <span class="historico-fixa-valor ${classeTipo}">${sinal} ${valorFormatado}</span>
-        <span class="historico-fixa-status ${classeStatus}">${l.status === "pago" ? "Pago" : "Pendente"}</span>
+        <span class="historico-fixa-status ${classeStatus}">${textoStatus}</span>
       `;
       lista.appendChild(linha);
     });
@@ -1388,14 +1392,18 @@ async function abrirHistoricoParcela(compraId, descricao) {
       const valorFormatado = formatadorBRL.format(l.valor);
       const classeTipo = l.tipo === "receita" ? "texto-receita" : "texto-despesa";
       const sinal = l.tipo === "receita" ? "+" : "-";
-      const classeStatus = l.status === "pago" ? "status-pago" : "status-pendente";
+      const dataVenc = new Date(l.data_compra + "T23:59:59");
+      const hoje = new Date();
+      const atrasado = l.status !== "pago" && dataVenc < hoje;
+      const classeStatus = l.status === "pago" ? "status-pago" : atrasado ? "status-atrasado" : "status-pendente";
+      const textoStatus = l.status === "pago" ? "Pago" : atrasado ? "Atrasado" : "Pendente";
 
       const linha = document.createElement("div");
       linha.className = "historico-fixa-linha";
       linha.innerHTML = `
         <span class="historico-fixa-data">${dataFormatada}</span>
         <span class="historico-fixa-valor ${classeTipo}">${sinal} ${valorFormatado}</span>
-        <span class="historico-fixa-status ${classeStatus}">${l.status === "pago" ? "Pago" : "Pendente"}</span>
+        <span class="historico-fixa-status ${classeStatus}">${textoStatus}</span>
       `;
       lista.appendChild(linha);
     });
@@ -1727,7 +1735,33 @@ async function popularSelectCategorias(select) {
 }
 
 function carregarCategorias() {
-  return popularSelectCategorias(document.getElementById("categoria"));
+  popularSelectCategorias(document.getElementById("categoria"));
+  popularSelectFiltroCategorias();
+}
+
+async function popularSelectFiltroCategorias() {
+  const select = document.getElementById("filtro-categoria-lancamento");
+  if (!select) return;
+
+  try {
+    const resposta = await fetch(`${API_URL}/api/categorias`, { headers: headersAutenticados(false) });
+    if (tratarSessaoExpirada(resposta)) return;
+    if (!resposta.ok) return;
+
+    const categorias = await resposta.json();
+
+    select.querySelectorAll("option[data-categoria]").forEach((op) => op.remove());
+
+    categorias.forEach((cat) => {
+      const opcao = document.createElement("option");
+      opcao.value = cat.nome;
+      opcao.textContent = cat.nome;
+      opcao.dataset.categoria = "true";
+      select.appendChild(opcao);
+    });
+  } catch (erro) {
+    console.error("Erro ao carregar categorias do filtro:", erro);
+  }
 }
 
 function adicionarOpcaoSelect(select, nome) {
@@ -1937,24 +1971,84 @@ function animarValorMonetario(elemento, valorFinal) {
 }
 
 
+function obterGrupoData(dataStr) {
+  const data = new Date(dataStr + "T12:00:00");
+  const hoje = new Date();
+  hoje.setHours(12, 0, 0, 0);
+  const ontem = new Date(hoje);
+  ontem.setDate(ontem.getDate() - 1);
+
+  const diffMs = hoje - data;
+  const diffDias = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+  if (data.toDateString() === hoje.toDateString()) return "Hoje";
+  if (data.toDateString() === ontem.toDateString()) return "Ontem";
+  if (diffDias >= 2 && diffDias <= 6) return "Esta semana";
+  if (diffDias >= 7 && diffDias <= 13) return "Semana passada";
+
+  const mesAtual = hoje.getMonth();
+  const anoAtual = hoje.getFullYear();
+  const mesLanc = data.getMonth();
+  const anoLanc = data.getFullYear();
+
+  if (mesLanc === mesAtual && anoLanc === anoAtual) return "Este mês";
+  if ((mesLanc === mesAtual - 1 && anoLanc === anoAtual) || (mesAtual === 0 && mesLanc === 11 && anoLanc === anoAtual - 1)) return "Mês passado";
+
+  return "Mais antigo";
+}
+
+const ORDEM_GRUPOS = ["Hoje", "Ontem", "Esta semana", "Semana passada", "Este mês", "Mês passado", "Mais antigo"];
+
 // --- RENDERIZA A LISTA (aplica o filtro de busca, se houver, sem afetar os totais do mês) ---
 function renderizarListaLancamentos() {
   const container = document.getElementById("lista-lancamentos");
   if (!container) return;
 
   const termo = termoBuscaAtual.trim().toLowerCase();
-  const filtrados = termo
-    ? ultimoLoteLancamentos.filter((l) => l.descricao.toLowerCase().includes(termo) || l.categoria.toLowerCase().includes(termo))
-    : ultimoLoteLancamentos;
+  const tipoFiltro = document.getElementById("filtro-tipo")?.value || "";
+  const statusFiltro = document.getElementById("filtro-status")?.value || "";
+  const categoriaFiltro = document.getElementById("filtro-categoria-lancamento")?.value || "";
+
+  const hoje = new Date();
+  const filtrados = ultimoLoteLancamentos.filter((l) => {
+    if (termo && !l.descricao.toLowerCase().includes(termo) && !l.categoria.toLowerCase().includes(termo)) return false;
+    if (tipoFiltro && l.tipo !== tipoFiltro) return false;
+    if (statusFiltro) {
+      const dataVenc = new Date(l.data_compra + "T23:59:59");
+      const atrasado = l.status !== "pago" && dataVenc < hoje;
+      const statusAtual = l.status === "pago" ? "pago" : atrasado ? "atrasado" : "pendente";
+      if (statusAtual !== statusFiltro) return false;
+    }
+    if (categoriaFiltro && l.categoria !== categoriaFiltro) return false;
+    return true;
+  });
 
   container.innerHTML = "";
 
   if (filtrados.length === 0) {
-    container.appendChild(criarAvisoListaVazia(termo ? `Nada encontrado para "${termoBuscaAtual.trim()}".` : undefined));
+    const temFiltro = termo || tipoFiltro || statusFiltro || categoriaFiltro;
+    container.appendChild(criarAvisoListaVazia(temFiltro ? "Nenhum lançamento encontrado com esses filtros." : undefined));
     return;
   }
 
-  filtrados.forEach((lancamento) => container.appendChild(criarLinhaLancamento(lancamento)));
+  const grupos = {};
+  filtrados.forEach((l) => {
+    const grupo = obterGrupoData(l.data_compra);
+    if (!grupos[grupo]) grupos[grupo] = [];
+    grupos[grupo].push(l);
+  });
+
+  ORDEM_GRUPOS.forEach((nomeGrupo) => {
+    const itens = grupos[nomeGrupo];
+    if (!itens || itens.length === 0) return;
+
+    const header = document.createElement("div");
+    header.className = "grupo-data-header";
+    header.innerHTML = `<span class="grupo-data-texto">${nomeGrupo}</span><span class="grupo-data-qtd">${itens.length}</span>`;
+    container.appendChild(header);
+
+    itens.forEach((lancamento) => container.appendChild(criarLinhaLancamento(lancamento)));
+  });
 }
 
 function configurarBuscaLancamentos() {
@@ -1964,6 +2058,11 @@ function configurarBuscaLancamentos() {
   campo.addEventListener("input", (evento) => {
     termoBuscaAtual = evento.target.value;
     renderizarListaLancamentos();
+  });
+
+  ["filtro-tipo", "filtro-status", "filtro-categoria-lancamento"].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener("change", renderizarListaLancamentos);
   });
 }
 

@@ -42,8 +42,11 @@ function criarLinhaLancamento(lancamento) {
   const sinal = lancamento.tipo === "receita" ? "+" : "−";
 
   // Define a cor/estilo do status de pagamento
-  const classeStatus = lancamento.status === "pago" ? "status-pago" : "status-pendente";
-  const textoStatus = lancamento.status === "pago" ? "Pago" : "Pendente";
+  const dataVenc = new Date(lancamento.data_compra + "T23:59:59");
+  const hoje = new Date();
+  const atrasado = lancamento.status !== "pago" && dataVenc < hoje;
+  const classeStatus = lancamento.status === "pago" ? "status-pago" : atrasado ? "status-atrasado" : "status-pendente";
+  const textoStatus = lancamento.status === "pago" ? "Pago" : atrasado ? "Atrasado" : "Pendente";
 
   // Carimbo de autor: quem lançou esse registro (importante numa carteira compartilhada)
   const nomeAutor = lancamento.criado_por_nome || "?";
@@ -126,7 +129,21 @@ function criarAvisoListaVazia(mensagem) {
   const div = document.createElement("div");
   div.classList.add("lista-vazia");
   div.innerHTML = `
-        <p>${mensagem || "Página em branco por aqui. Nenhum lançamento neste período."}</p>
+        <div class="lista-vazia-icone">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="12" y1="18" x2="12" y2="12"/>
+            <line x1="9" y1="15" x2="15" y2="15"/>
+          </svg>
+        </div>
+        <p class="lista-vazia-texto">${mensagem || "Nenhum lançamento neste período."}</p>
+        <button type="button" class="lista-vazia-btn" onclick="abrirModalNovoLancamento()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          Criar primeiro lançamento
+        </button>
     `;
   return div;
 }
