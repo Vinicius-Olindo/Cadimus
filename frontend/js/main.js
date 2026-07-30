@@ -3454,17 +3454,24 @@ function configurarFormularioCadastroConvite(token) {
     const senha = document.getElementById("cadastro-senha").value;
     const confirmarSenha = document.getElementById("cadastro-confirmar-senha").value;
     const btnCriar = form.querySelector("button[type='submit']");
+    const erroEl = document.getElementById("cadastro-erro");
+
+    function mostrarErro(msg) {
+      erroEl.textContent = msg;
+      erroEl.style.display = "block";
+    }
 
     if (senha !== confirmarSenha) {
-      await mostrarAviso("As senhas não coincidem.");
+      mostrarErro("As senhas não coincidem.");
       return;
     }
 
     if (senha.length < 6) {
-      await mostrarAviso("A senha deve ter ao menos 6 caracteres.");
+      mostrarErro("A senha deve ter ao menos 6 caracteres.");
       return;
     }
 
+    erroEl.style.display = "none";
     btnCriar.disabled = true;
     btnCriar.innerText = "Criando conta...";
 
@@ -3478,13 +3485,14 @@ function configurarFormularioCadastroConvite(token) {
       const dados = await resposta.json();
 
       if (resposta.ok) {
-        await mostrarAviso("Conta criada com sucesso! Você já pode fazer login.");
-        window.location.href = "/";
+        mostrarErro("");
+        erroEl.style.display = "none";
+        form.innerHTML = '<p class="sucesso-convite">Conta criada com sucesso! <a href="/">Fazer login</a></p>';
       } else {
-        await mostrarAviso(`Erro: ${dados.erro}`);
+        mostrarErro(dados.erro || "Erro ao criar conta.");
       }
     } catch {
-      await mostrarAviso("Erro de conexão ao criar conta.");
+      mostrarErro("Erro de conexão. Tente novamente.");
     } finally {
       btnCriar.disabled = false;
       btnCriar.innerText = "Criar conta";

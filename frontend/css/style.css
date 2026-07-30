@@ -2016,6 +2016,7 @@ textarea::placeholder {
   background: var(--cor-overlay);
   position: fixed;
   inset: 0;
+  z-index: 9999;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -2638,6 +2639,17 @@ textarea::placeholder {
 .erro-convite {
   color: #e53e3e;
   font-weight: 500;
+}
+
+.sucesso-convite {
+  color: var(--cor-receita);
+  font-weight: 500;
+  text-align: center;
+}
+
+.sucesso-convite a {
+  color: var(--cor-marca);
+  text-decoration: underline;
 }
 
 /* Badge contador nos tabs */
