@@ -1878,17 +1878,25 @@ button.item-status:active {
   width: auto;
 }
 
-.login-logo-wrapper .login-logo-texto {
-  font-family: var(--fonte-corpo);
-  font-weight: 700;
-  font-size: 1.8rem;
-  color: var(--cor-texto);
-  letter-spacing: -0.5px;
+.login-logo-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 10px auto 4px;
 }
 
-.header-logo {
-  height: 28px;
+.login-logo-wrapper img {
+  height: 72px;
   width: auto;
+}
+
+.login-logo-wrapper .login-logo-texto {
+  font-family: "DM Sans", sans-serif;
+  font-weight: 700;
+  font-size: 2.2rem;
+  color: var(--cor-texto);
+  letter-spacing: -0.5px;
 }
 
 .header-logo-wrapper {
@@ -1898,14 +1906,14 @@ button.item-status:active {
 }
 
 .header-logo-wrapper img {
-  height: 28px;
+  height: 32px;
   width: auto;
 }
 
 .header-logo-wrapper span {
-  font-family: var(--fonte-corpo);
+  font-family: "DM Sans", sans-serif;
   font-weight: 700;
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   color: var(--cor-texto);
   letter-spacing: -0.3px;
 }
