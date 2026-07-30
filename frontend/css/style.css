@@ -1169,6 +1169,111 @@ button:active {
   background: color-mix(in srgb, var(--cor-marca) 5%, transparent);
 }
 
+/* Lote: checkboxes e barra de ações */
+.lote-checkbox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  margin-top: 2px;
+}
+
+.lote-checkbox input {
+  display: none;
+}
+
+.lote-check-marca {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--cor-pauta-forte);
+  border-radius: 4px;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.lote-checkbox input:checked + .lote-check-marca {
+  background: var(--cor-marca);
+  border-color: var(--cor-marca);
+}
+
+.lote-checkbox input:checked + .lote-check-marca::after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 1px;
+  width: 5px;
+  height: 10px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.linha-item.selecionada {
+  background: color-mix(in srgb, var(--cor-marca) 8%, transparent);
+}
+
+.lote-barra {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: color-mix(in srgb, var(--cor-marca) 10%, transparent);
+  border-bottom: var(--borda) solid var(--cor-marca);
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.lote-contador {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--cor-marca);
+  white-space: nowrap;
+}
+
+.lote-acoes {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.lote-acoes select {
+  padding: 6px 10px;
+  border: 1px solid var(--cor-pauta-forte);
+  border-radius: var(--raio-botoes);
+  background: var(--cor-fundo);
+  color: var(--cor-texto);
+  font-size: 0.8rem;
+}
+
+.lote-btn-aplicar {
+  padding: 6px 14px;
+  border: none;
+  border-radius: var(--raio-botoes);
+  background: var(--cor-marca);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.lote-btn-aplicar:hover {
+  opacity: 0.85;
+}
+
+.lote-btn-cancelar {
+  padding: 6px 14px;
+  border: 1px solid var(--cor-pauta-forte);
+  border-radius: var(--raio-botoes);
+  background: transparent;
+  color: var(--cor-texto);
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
 @keyframes entrar-linha {
   from {
     opacity: 0;

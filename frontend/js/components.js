@@ -82,6 +82,10 @@ function criarLinhaLancamento(lancamento) {
   // Estrutura da linha: etiqueta de data compacta + corpo do lançamento —
   // lista de transações, não mais uma página de livro-caixa
   div.innerHTML = `
+        <label class="lote-checkbox">
+          <input type="checkbox" class="lote-check" data-id="${lancamento.id}" />
+          <span class="lote-check-marca"></span>
+        </label>
         <div class="data-chip" title="${dataFormatada}">
           <span class="data-chip-dia">${diaDoMes}</span>
           <span class="data-chip-mes">${mesAbrev}</span>

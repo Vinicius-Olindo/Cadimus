@@ -247,5 +247,79 @@ export async function processarLancamentos(request, env, ctx) {
     }
   }
 
+  // ==========================================
+  // 5. ATUALIZAÇÃO EM LOTE (PATCH)
+  // ==========================================
+  if (metodo === "PATCH") {
+    try {
+      const dados = await request.json();
+      const { ids, status, categoria } = dados;
+
+      if (!ids || !Array.isArray(ids) || ids.length === 0) {
+        return new Response(JSON.stringify({ erro: "Nenhum ID fornecido." }), { status: 400 });
+      }
+
+      if (ids.length > 50) {
+        return new Response(JSON.stringify({ erro: "Máximo de 50 lançamentos por vez." }), { status: 400 });
+      }
+
+      if (status && !["pago", "pendente"].includes(status)) {
+        return new Response(JSON.stringify({ erro: "Status inválido." }), { status: 400 });
+      }
+
+      if (categoria) {
+        const { results: catValida } = await env.DB.prepare(
+          `SELECT id FROM categorias WHERE LOWER(nome) = LOWER(?)`
+        ).bind(categoria).all();
+        if (catValida.length === 0) {
+          return new Response(JSON.stringify({ erro: "Categoria inválida." }), { status: 400 });
+        }
+      }
+
+      // Verifica permissão: só quem criou ou admin pode editar
+      const placeholders = ids.map(() => "?").join(",");
+      const { results: alvos } = await env.DB.prepare(
+        `SELECT id, criado_por, carteira_id FROM lancamentos WHERE id IN (${placeholders})`
+      ).bind(...ids).all();
+
+      const semPermissao = alvos.filter(
+        (a) => a.criado_por !== usuarioLogado.id && usuarioLogado.perfil !== "superadmin"
+      );
+      if (semPermissao.length > 0) {
+        return new Response(JSON.stringify({ erro: "Sem permissão para editar alguns lançamentos." }), { status: 403 });
+      }
+
+      const foraDaCarteira = alvos.filter((a) => !carteirasPermitidas.includes(a.carteira_id));
+      if (foraDaCarteira.length > 0) {
+        return new Response(JSON.stringify({ erro: "Acesso negado a alguns lançamentos." }), { status: 403 });
+      }
+
+      let atualizados = 0;
+      for (const id of ids) {
+        const campos = [];
+        const valores = [];
+
+        if (status) {
+          campos.push("status = ?");
+          valores.push(status);
+        }
+        if (categoria) {
+          campos.push("categoria = ?");
+          valores.push(categoria);
+        }
+
+        if (campos.length === 0) continue;
+
+        valores.push(id);
+        await env.DB.prepare(`UPDATE lancamentos SET ${campos.join(", ")} WHERE id = ?`).bind(...valores).run();
+        atualizados++;
+      }
+
+      return new Response(JSON.stringify({ mensagem: `${atualizados} lançamento(s) atualizado(s).` }), { status: 200 });
+    } catch (erro) {
+      return new Response(JSON.stringify({ erro: "Erro ao atualizar em lote." }), { status: 500 });
+    }
+  }
+
   return new Response(JSON.stringify({ erro: "Método não permitido." }), { status: 405 });
 }

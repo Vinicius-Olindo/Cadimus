@@ -195,6 +195,21 @@
               <h3>Lançamentos</h3>
               <button id="btn-novo-gasto">+ Novo lançamento</button>
             </div>
+            <div class="lote-barra" id="lote-barra" style="display: none">
+              <span class="lote-contador" id="lote-contador">0 selecionados</span>
+              <div class="lote-acoes">
+                <select id="lote-status">
+                  <option value="">Alterar status...</option>
+                  <option value="pago">Marcar como Pago</option>
+                  <option value="pendente">Marcar como Pendente</option>
+                </select>
+                <select id="lote-categoria">
+                  <option value="">Alterar categoria...</option>
+                </select>
+                <button type="button" class="lote-btn-aplicar" id="lote-btn-aplicar">Aplicar</button>
+                <button type="button" class="lote-btn-cancelar" id="lote-btn-cancelar">Cancelar</button>
+              </div>
+            </div>
             <div class="busca-lancamentos">
               <input type="search" id="busca-lancamento" placeholder="Buscar por descrição ou categoria..." />
               <div class="filtros-lancamentos">
