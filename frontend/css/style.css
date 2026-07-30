@@ -956,6 +956,24 @@ button:active {
   border-top: 3px solid var(--cor-marca);
 }
 
+.stat-card-guarda {
+  border-top: 3px solid var(--cor-marca);
+}
+
+.stat-card-guarda .stat-card-icone {
+  background: color-mix(in srgb, var(--cor-marca) 12%, transparent);
+  color: var(--cor-marca);
+}
+
+.stat-card-poupanca {
+  border-top: 3px solid var(--cor-receita);
+}
+
+.stat-card-poupanca .stat-card-icone {
+  background: color-mix(in srgb, var(--cor-receita) 12%, transparent);
+  color: var(--cor-receita);
+}
+
 .stat-rotulo {
   font-size: 0.68rem;
   text-transform: uppercase;
