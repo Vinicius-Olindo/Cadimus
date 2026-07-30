@@ -201,6 +201,9 @@ if ("serviceWorker" in navigator) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  const ehCadastroConvite = verificarCadastroConvite();
+  if (ehCadastroConvite) return;
+
   inicializarFiltroMes();
   inicializarDarkMode();
   configurarMonitoresDeFiltro();
@@ -3091,6 +3094,7 @@ function configurarPainelAdmin() {
 
   configurarSubAbasAdmin();
   configurarFormularioUsuario();
+  configurarSistemaConvites();
   configurarFormularioCategoria();
   configurarZonaDePerigo();
 }
@@ -3312,6 +3316,178 @@ function configurarFormularioUsuario() {
     } finally {
       btnSalvar.disabled = false;
       btnSalvar.innerText = idEdicao ? "Salvar edição" : "Criar";
+    }
+  });
+}
+
+// --- SISTEMA DE CONVITES ---
+function configurarSistemaConvites() {
+  const btnConvidar = document.getElementById("btn-convidar-usuario");
+  const modalConvite = document.getElementById("modal-convite");
+  const formConvite = document.getElementById("form-convite");
+  const btnFecharModal = document.getElementById("btn-fechar-modal-convite");
+  const divResultado = document.getElementById("convite-resultado");
+  const btnCopiar = document.getElementById("btn-copiar-convite");
+  const btnFecharResultado = document.getElementById("btn-fechar-convite-resultado");
+
+  if (!btnConvidar) return;
+
+  btnConvidar.addEventListener("click", () => {
+    modalConvite.style.display = "flex";
+    formConvite.style.display = "block";
+    divResultado.style.display = "none";
+    formConvite.reset();
+  });
+
+  btnFecharModal?.addEventListener("click", () => {
+    modalConvite.style.display = "none";
+  });
+
+  formConvite?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const nome = document.getElementById("convite-nome").value.trim();
+    const email = document.getElementById("convite-email").value.trim();
+    const perfil = document.getElementById("convite-perfil").value;
+    const btnGerar = document.getElementById("btn-gerar-convite");
+
+    if (!nome || !email) {
+      await mostrarAviso("Preencha nome e e-mail.");
+      return;
+    }
+
+    btnGerar.disabled = true;
+    btnGerar.innerText = "Gerando...";
+
+    try {
+      const resposta = await fetch(`${API_URL}/api/convites`, {
+        method: "POST",
+        headers: headersAutenticados(),
+        body: JSON.stringify({ nome, email, perfil }),
+      });
+
+      if (tratarSessaoExpirada(resposta)) return;
+
+      if (resposta.ok) {
+        const dados = await resposta.json();
+        const linkCompleto = `${window.location.origin}?token=${dados.token}`;
+        document.getElementById("convite-link").value = linkCompleto;
+        formConvite.style.display = "none";
+        divResultado.style.display = "block";
+        mostrarToast("Convite gerado com sucesso!");
+      } else {
+        const erro = await resposta.json();
+        await mostrarAviso(`Erro: ${erro.erro}`);
+      }
+    } catch (erro) {
+      await mostrarAviso("Erro de conexão ao gerar convite.");
+    } finally {
+      btnGerar.disabled = false;
+      btnGerar.innerText = "Gerar convite";
+    }
+  });
+
+  btnCopiar?.addEventListener("click", async () => {
+    const link = document.getElementById("convite-link").value;
+    try {
+      await navigator.clipboard.writeText(link);
+      mostrarToast("Link copiado!");
+    } catch {
+      document.getElementById("convite-link").select();
+      document.execCommand("copy");
+      mostrarToast("Link copiado!");
+    }
+  });
+
+  btnFecharResultado?.addEventListener("click", () => {
+    modalConvite.style.display = "none";
+  });
+}
+
+// --- CADASTRO POR CONVITE (página pública) ---
+function verificarCadastroConvite() {
+  const token = new URLSearchParams(window.location.search).get("token");
+  if (!token) return false;
+
+  const sLogin = document.getElementById("login-section");
+  const sCadastro = document.getElementById("cadastro-section");
+  const sDash = document.getElementById("dashboard-section");
+  const sAdmin = document.getElementById("admin-section");
+
+  if (sLogin) sLogin.style.display = "none";
+  if (sDash) sDash.style.display = "none";
+  if (sAdmin) sAdmin.style.display = "none";
+  if (sCadastro) sCadastro.style.display = "flex";
+
+  document.getElementById("cadastro-token").value = token;
+
+  carregarInfoConvite(token);
+  configurarFormularioCadastroConvite(token);
+
+  return true;
+}
+
+async function carregarInfoConvite(token) {
+  const infoEl = document.getElementById("cadastro-convite-info");
+  try {
+    const resposta = await fetch(`${API_URL}/api/convites?token=${token}`);
+    if (resposta.ok) {
+      const dados = await resposta.json();
+      infoEl.innerHTML = `Olá, <strong>${dados.nome}</strong>! Você foi convidado(a) para usar o Gestor Financeiro.<br>Crie sua senha para acessar.`;
+      document.getElementById("cadastro-nome").value = dados.nome;
+    } else {
+      const erro = await resposta.json();
+      infoEl.innerHTML = `<span class="erro-convite">${erro.erro}</span>`;
+      document.getElementById("form-cadastro-convite").style.display = "none";
+    }
+  } catch {
+    infoEl.innerHTML = '<span class="erro-convite">Erro ao validar convite.</span>';
+  }
+}
+
+function configurarFormularioCadastroConvite(token) {
+  const form = document.getElementById("form-cadastro-convite");
+  if (!form) return;
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const nome = document.getElementById("cadastro-nome").value.trim();
+    const senha = document.getElementById("cadastro-senha").value;
+    const confirmarSenha = document.getElementById("cadastro-confirmar-senha").value;
+    const btnCriar = form.querySelector("button[type='submit']");
+
+    if (senha !== confirmarSenha) {
+      await mostrarAviso("As senhas não coincidem.");
+      return;
+    }
+
+    if (senha.length < 6) {
+      await mostrarAviso("A senha deve ter ao menos 6 caracteres.");
+      return;
+    }
+
+    btnCriar.disabled = true;
+    btnCriar.innerText = "Criando conta...";
+
+    try {
+      const resposta = await fetch(`${API_URL}/api/convites`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, senha, nome }),
+      });
+
+      const dados = await resposta.json();
+
+      if (resposta.ok) {
+        await mostrarAviso("Conta criada com sucesso! Você já pode fazer login.");
+        window.location.href = "/";
+      } else {
+        await mostrarAviso(`Erro: ${dados.erro}`);
+      }
+    } catch {
+      await mostrarAviso("Erro de conexão ao criar conta.");
+    } finally {
+      btnCriar.disabled = false;
+      btnCriar.innerText = "Criar conta";
     }
   });
 }

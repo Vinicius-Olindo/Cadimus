@@ -2491,6 +2491,154 @@ textarea::placeholder {
   color: var(--cor-texto-suave);
 }
 
+/* Botão convidar usuário */
+.acoes-admin-usuarios {
+  margin-bottom: 14px;
+}
+
+.btn-convite {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: var(--cor-fundo);
+  border: var(--borda) solid var(--cor-foco);
+  border-radius: 999px;
+  color: var(--cor-foco);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-convite:hover {
+  background: var(--cor-foco);
+  color: #fff;
+}
+
+/* Modal convite */
+.campo-link-convite {
+  display: flex;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.campo-link-convite input {
+  flex: 1;
+  padding: 10px 12px;
+  border: var(--borda) solid var(--cor-pauta-forte);
+  border-radius: 8px;
+  background: var(--cor-superficie);
+  color: var(--cor-texto);
+  font-size: 0.85rem;
+  font-family: monospace;
+}
+
+.campo-link-convite button {
+  padding: 10px 16px;
+  background: var(--cor-foco);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.campo-link-convite button:hover {
+  opacity: 0.9;
+}
+
+/* Cadastro por convite */
+#cadastro-section {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--cor-fundo);
+}
+
+#cadastro-section .login-container {
+  width: 100%;
+  max-width: 400px;
+  padding: 20px;
+}
+
+#cadastro-section .login-card {
+  background: var(--cor-superficie);
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+#cadastro-section h2 {
+  margin-bottom: 16px;
+  color: var(--cor-texto);
+}
+
+#cadastro-section #cadastro-convite-info {
+  margin-bottom: 24px;
+  color: var(--cor-texto-suave);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+#cadastro-section form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+#cadastro-section input {
+  padding: 12px 14px;
+  border: var(--borda) solid var(--cor-pauta-forte);
+  border-radius: 8px;
+  background: var(--cor-fundo);
+  color: var(--cor-texto);
+  font-size: 0.9rem;
+  outline: none;
+}
+
+#cadastro-section input:focus {
+  border-color: var(--cor-foco);
+}
+
+#cadastro-section button[type="submit"] {
+  padding: 12px;
+  background: var(--cor-foco);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+#cadastro-section button[type="submit"]:hover {
+  opacity: 0.9;
+}
+
+#cadastro-section .link-voltar-login {
+  display: block;
+  margin-top: 16px;
+  color: var(--cor-texto-suave);
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+
+#cadastro-section .link-voltar-login:hover {
+  color: var(--cor-foco);
+}
+
+.erro-convite {
+  color: #e53e3e;
+  font-weight: 500;
+}
+
 /* Badge contador nos tabs */
 .badge-contador {
   display: inline-flex;

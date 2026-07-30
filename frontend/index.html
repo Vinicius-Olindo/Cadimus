@@ -379,6 +379,9 @@
               </div>
             </form>
           </div>
+          <div class="acoes-admin-usuarios">
+            <button type="button" id="btn-convidar-usuario" class="btn-convite">✉ Convidar usuário</button>
+          </div>
           <div class="campo-busca-admin">
             <input type="text" id="busca-usuarios" placeholder="Buscar por nome, @login ou e-mail..." />
           </div>
@@ -524,6 +527,60 @@
         </form>
       </div>
     </div>
+
+    <!-- MODAL: CONVIDAR USUÁRIO -->
+    <div id="modal-convite" class="modal-overlay" style="display: none">
+      <div class="modal-content">
+        <h3>Convidar usuário</h3>
+        <form id="form-convite">
+          <div class="campo">
+            <label for="convite-nome">Nome completo</label>
+            <input type="text" id="convite-nome" placeholder="Nome do convidado" required />
+          </div>
+          <div class="campo">
+            <label for="convite-email">E-mail</label>
+            <input type="email" id="convite-email" placeholder="email@exemplo.com" required />
+          </div>
+          <div class="campo">
+            <label for="convite-perfil">Perfil</label>
+            <select id="convite-perfil">
+              <option value="comum">Comum</option>
+              <option value="superadmin">Admin</option>
+            </select>
+          </div>
+          <button type="submit" id="btn-gerar-convite">Gerar convite</button>
+          <button type="button" id="btn-fechar-modal-convite">Cancelar</button>
+        </form>
+        <div id="convite-resultado" style="display: none">
+          <h4>Convite gerado!</h4>
+          <p>Envie este link para o convidado:</p>
+          <div class="campo-link-convite">
+            <input type="text" id="convite-link" readonly />
+            <button type="button" id="btn-copiar-convite">Copiar</button>
+          </div>
+          <p class="dica-campo">O link expira em 3 horas.</p>
+          <button type="button" id="btn-fechar-convite-resultado">Fechar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: CADASTRO POR CONVITE (público) -->
+    <section id="cadastro-section" style="display: none">
+      <div class="login-container">
+        <div class="login-card">
+          <h2>Criar sua conta</h2>
+          <p id="cadastro-convite-info"></p>
+          <form id="form-cadastro-convite">
+            <input type="hidden" id="cadastro-token" value="" />
+            <input type="text" id="cadastro-nome" placeholder="Seu nome" required />
+            <input type="password" id="cadastro-senha" placeholder="Crie uma senha (mín. 6 caracteres)" required minlength="6" />
+            <input type="password" id="cadastro-confirmar-senha" placeholder="Confirme a senha" required minlength="6" />
+            <button type="submit">Criar conta</button>
+          </form>
+          <a href="/" class="link-voltar-login">Voltar para o login</a>
+        </div>
+      </div>
+    </section>
 
     <!-- MODAL: NOVA CARTEIRA -->
     <div id="modal-carteira" class="modal-overlay" style="display: none">
