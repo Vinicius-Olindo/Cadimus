@@ -277,19 +277,20 @@ button:active {
 
 .notificacao-badge {
   position: absolute;
-  top: 4px;
-  right: 4px;
-  width: 7px;
-  height: 7px;
-  padding: 0;
-  border-radius: 50%;
+  top: 2px;
+  right: 2px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
   background: var(--cor-despesa);
-  border: 1.5px solid var(--cor-fundo);
-  display: none;
-}
-
-.notificacao-badge[data-count]:not([data-count="0"]) {
-  display: block;
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
 
 .painel-notificacoes {

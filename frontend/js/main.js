@@ -2126,12 +2126,13 @@ function renderizarNotificacoes() {
   const lista = document.getElementById("lista-notificacoes");
 
   if (notificacoes.length === 0) {
-    badge.removeAttribute("data-count");
+    badge.style.display = "none";
     lista.innerHTML = '<div class="notificacao-vazio">Nenhum vencimento próximo.</div>';
     return;
   }
 
-  badge.setAttribute("data-count", notificacoes.length);
+  badge.style.display = "flex";
+  badge.textContent = notificacoes.length;
 
   lista.innerHTML = notificacoes.map((n) => {
     const iconeClasse = n.atrasado ? "atrasado" : n.urgencia === 1 ? "hoje" : "proximo";
