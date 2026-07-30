@@ -1480,19 +1480,26 @@ button:active {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  display: flex;
-  align-items: center;
-  gap: 6px;
 }
 
-.item-nota-indicator {
-  flex-shrink: 0;
+.item-nota-texto {
+  display: inline;
+  font-size: 0.68rem;
+  font-weight: 400;
+  font-style: italic;
   color: var(--cor-texto-suave);
-  opacity: 0.6;
+  text-transform: none;
+  letter-spacing: 0;
+  opacity: 0.7;
+  margin-left: 6px;
   cursor: help;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
 }
 
-.item-nota-indicator:hover {
+.item-nota-texto:hover {
   opacity: 1;
   color: var(--cor-pendente);
 }
