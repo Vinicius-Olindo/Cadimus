@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Gestor Financeiro</title>
+    <title>Cadimus - Gestor Financeiro</title>
     <meta name="description" content="Gestor financeiro para a casa e para o seu bolso." />
 
     <!-- PWA -->
@@ -18,10 +18,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
 
     <link rel="stylesheet" href="css/variables.css" />
     <link rel="stylesheet" href="css/style.css" />
@@ -80,29 +77,54 @@
             <h2>Cadimus</h2>
             <div class="acoes-topo">
               <button id="btn-despesas-fixas" class="btn-topo-icone" title="Despesas fixas">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17 2l4 4-4 4" />
+                  <path d="M3 11V9a4 4 0 0 1 4-4h14" />
+                  <path d="M7 22l-4-4 4-4" />
+                  <path d="M21 13v2a4 4 0 0 1-4 4H3" />
+                </svg>
                 <span class="btn-topo-label">Fixas</span>
               </button>
               <button id="btn-compras-parceladas" class="btn-topo-icone" title="Compras parceladas">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3h16v18l-3-2-2 2-2-2-2 2-2-2-2 2-3-2Z"/><path d="M8 8h8M8 12h8M8 16h4"/></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 3h16v18l-3-2-2 2-2-2-2 2-2-2-2 2-3-2Z" />
+                  <path d="M8 8h8M8 12h8M8 16h4" />
+                </svg>
                 <span class="btn-topo-label">Parceladas</span>
               </button>
               <button id="btn-importar-extrato" class="btn-topo-icone" title="Importar extrato">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="17 8 12 3 7 8" />
+                  <line x1="12" y1="3" x2="12" y2="15" />
+                </svg>
                 <span class="btn-topo-label">Importar</span>
               </button>
               <button id="btn-exportar-extrato" class="btn-topo-icone" title="Exportar lançamentos">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
                 <span class="btn-topo-label">Exportar</span>
               </button>
               <div class="acoes-topo-divider"></div>
               <button id="btn-admin" class="btn-topo-icone" style="display: none" title="Configurações">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="3" />
+                  <path
+                    d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"
+                  />
+                </svg>
                 <span class="btn-topo-label">Configurações</span>
               </button>
               <div class="acoes-topo-divider"></div>
               <button id="btn-logout" class="btn-topo-sair">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                  <polyline points="16 17 21 12 16 7" />
+                  <line x1="21" y1="12" x2="9" y2="12" />
+                </svg>
                 Sair
               </button>
               <button id="btn-avatar-perfil" class="btn-avatar-perfil" title="Meu perfil" aria-label="Perfil do usuário">
@@ -115,11 +137,11 @@
             <input type="hidden" id="seletor-carteira" value="" />
             <div class="seletor-mes">
               <button type="button" id="btn-mes-anterior" aria-label="Mês anterior">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
               </button>
               <span id="rotulo-mes" title="Voltar para o mês atual"></span>
               <button type="button" id="btn-mes-seguinte" aria-label="Próximo mês">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6" /></svg>
               </button>
             </div>
             <input type="hidden" id="filtro-mes" value="" />
@@ -291,8 +313,8 @@
           <div class="card card-zona-perigo">
             <h3 class="titulo-zona-perigo">Zona de perigo</h3>
             <p class="modal-subtitulo">
-              Apaga permanentemente todos os lançamentos, despesas fixas, compras parceladas e metas de todas as carteiras. As
-              categorias voltam para a lista padrão. Usuários, carteiras e permissões de acesso não são afetados.
+              Apaga permanentemente todos os lançamentos, despesas fixas, compras parceladas e metas de todas as carteiras. As categorias voltam para a lista padrão. Usuários, carteiras e permissões
+              de acesso não são afetados.
             </p>
             <button type="button" id="btn-abrir-zerar-dados" class="btn-excluir-conta">Apagar todos os dados financeiros</button>
           </div>
@@ -305,8 +327,8 @@
       <div class="modal-content">
         <h3>Apagar todos os dados financeiros</h3>
         <p class="modal-subtitulo">
-          Isso remove permanentemente todos os lançamentos, despesas fixas, compras parceladas e metas — de todas as carteiras,
-          de todos os usuários. As categorias voltam ao padrão. Essa ação não pode ser desfeita.
+          Isso remove permanentemente todos os lançamentos, despesas fixas, compras parceladas e metas — de todas as carteiras, de todos os usuários. As categorias voltam ao padrão. Essa ação não pode
+          ser desfeita.
         </p>
         <div class="campo">
           <label for="confirmacao-zerar-dados">Digite <strong>APAGAR TUDO</strong> para confirmar</label>
@@ -700,7 +722,7 @@
             <div class="meta-deposito-resumo-label">Depositado</div>
             <div class="meta-deposito-resumo-valor" id="deposito-valor-depositado">R$ 0,00</div>
           </div>
-          <div style="text-align: right;">
+          <div style="text-align: right">
             <div class="meta-deposito-resumo-label">Meta</div>
             <div class="meta-deposito-resumo-valor" id="deposito-valor-meta">R$ 0,00</div>
           </div>
@@ -724,8 +746,8 @@
           <button type="submit" id="btn-confirmar-deposito" class="btn-meta-depositar">Depositar</button>
         </form>
 
-        <h4 style="font-size: 0.78rem; color: var(--cor-texto-suave); margin-bottom: 8px;">Histórico de depósitos</h4>
-        <div id="lista-depositos" class="historico-fixa-lista" style="max-height: 180px;"></div>
+        <h4 style="font-size: 0.78rem; color: var(--cor-texto-suave); margin-bottom: 8px">Histórico de depósitos</h4>
+        <div id="lista-depositos" class="historico-fixa-lista" style="max-height: 180px"></div>
 
         <button type="button" id="btn-fechar-modal-meta-deposito">Fechar</button>
       </div>
@@ -755,7 +777,11 @@
         <p class="modal-subtitulo">Arraste ou selecione um arquivo .OFX ou .CSV do seu banco.</p>
 
         <div id="importar-dropzone" class="importar-dropzone">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="17 8 12 3 7 8" />
+            <line x1="12" y1="3" x2="12" y2="15" />
+          </svg>
           <span>Solte o arquivo aqui</span>
           <span class="importar-dropzone-sub">ou</span>
           <label for="importar-arquivo" class="botao-arquivo">Selecionar arquivo</label>

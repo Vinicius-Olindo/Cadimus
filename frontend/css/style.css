@@ -15,6 +15,7 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+  overflow-x: hidden;
 }
 
 body {
@@ -74,6 +75,8 @@ button {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 14px;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .top-bar-linha2 {
@@ -97,6 +100,7 @@ button {
   display: flex;
   gap: 8px;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .avatar-topo {
@@ -2261,9 +2265,42 @@ label {
 /* ==========================================
    RESPONSIVO
    ========================================== */
+
+/* Tablet: 480px–900px */
+@media (min-width: 481px) and (max-width: 900px) {
+  .stat-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .top-bar h2 {
+    font-size: 1.5rem;
+  }
+
+  .btn-topo-label {
+    display: none;
+  }
+
+  .btn-topo-icone {
+    padding: 8px;
+  }
+}
+
+/* Mobile: <=480px */
 @media (max-width: 480px) {
   .app-container {
     padding: 20px 14px 48px;
+  }
+
+  .top-bar h2 {
+    font-size: 1.3rem;
+  }
+
+  .btn-topo-label {
+    display: none;
+  }
+
+  .btn-topo-icone {
+    padding: 8px;
   }
 
   .top-bar-linha2 {
@@ -2281,7 +2318,7 @@ label {
   }
 
   #saldo-total {
-    font-size: 1.6rem;
+    font-size: 1.4rem;
   }
 
   .modal-content .linha-form-dupla {
@@ -2312,10 +2349,6 @@ label {
     font-size: 1.05rem;
   }
 
-  #saldo-total {
-    font-size: 1.4rem;
-  }
-
   .lancamentos-cabecalho {
     flex-wrap: wrap;
     gap: 10px;
@@ -2333,6 +2366,32 @@ label {
 
   .painel-admin .card {
     padding: 18px;
+  }
+
+  /* Gráficos: labels menores */
+  .tendencia-mes {
+    font-size: 0.6rem;
+  }
+
+  .comparativo-mes {
+    font-size: 0.6rem;
+  }
+
+  /* Tabela de importação: scroll horizontal */
+  .importar-tabela-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .importar-tabela {
+    min-width: 480px;
+  }
+
+  /* Toast: menor no mobile */
+  .toast {
+    font-size: 0.8rem;
+    padding: 10px 16px;
+    bottom: 16px;
   }
 }
 
@@ -2397,9 +2456,10 @@ label {
 
 .importar-tabela-container {
   max-height: 300px;
-  overflow-y: auto;
+  overflow: auto;
   border: var(--borda) solid var(--cor-pauta-forte);
   border-radius: var(--raio-md);
+  -webkit-overflow-scrolling: touch;
 }
 
 .importar-tabela {
