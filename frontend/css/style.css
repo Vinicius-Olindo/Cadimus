@@ -1879,11 +1879,11 @@ button.item-status:active {
 }
 
 .login-logo-wrapper .login-logo-texto {
-  font-family: var(--fonte-display);
-  font-style: italic;
-  font-weight: 400;
-  font-size: 2rem;
+  font-family: var(--fonte-corpo);
+  font-weight: 700;
+  font-size: 1.8rem;
   color: var(--cor-texto);
+  letter-spacing: -0.5px;
 }
 
 .header-logo {
@@ -1903,11 +1903,11 @@ button.item-status:active {
 }
 
 .header-logo-wrapper span {
-  font-family: var(--fonte-display);
-  font-style: italic;
-  font-weight: 400;
-  font-size: 1.2rem;
+  font-family: var(--fonte-corpo);
+  font-weight: 700;
+  font-size: 1.1rem;
   color: var(--cor-texto);
+  letter-spacing: -0.3px;
 }
 
 .login-box .subtitulo {
