@@ -294,10 +294,6 @@ button:active {
   display: block;
 }
 
-.notificacao-badge.lido {
-  display: none;
-}
-
   line-height: 1;
 }
 

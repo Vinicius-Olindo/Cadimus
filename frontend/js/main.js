@@ -2190,23 +2190,15 @@ function verificarNotificacoes() {
 function renderizarNotificacoes() {
   const notificacoes = verificarNotificacoes();
   const badge = document.getElementById("notificacao-badge");
-  const modal = document.getElementById("modal-notificacoes");
   const lista = document.getElementById("lista-notificacoes");
 
   if (notificacoes.length === 0) {
-    badge.classList.remove("com-alertas", "lido");
+    badge.classList.remove("com-alertas");
     lista.innerHTML = '<div class="notificacao-vazio">Nenhum vencimento próximo.</div>';
     return;
   }
 
-  const modalAberto = modal && modal.style.display !== "none";
-  if (modalAberto) {
-    badge.classList.add("lido");
-    badge.classList.remove("com-alertas");
-  } else {
-    badge.classList.remove("lido");
-    badge.classList.add("com-alertas");
-  }
+  badge.classList.add("com-alertas");
 
   lista.innerHTML = notificacoes.map((n) => {
     const iconeClasse = n.atrasado ? "atrasado" : n.urgencia === 1 ? "hoje" : "proximo";
@@ -2240,8 +2232,6 @@ function configurarNotificacoes() {
     e.stopPropagation();
     modal.style.display = "flex";
     renderizarNotificacoes();
-    badge.classList.add("lido");
-    badge.classList.remove("com-alertas");
     capturarFoco(modal);
   });
 
