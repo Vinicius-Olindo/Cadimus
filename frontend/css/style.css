@@ -219,7 +219,7 @@ button:active {
 #btn-fechar-modal-esqueci-senha {
   background: transparent;
   color: var(--cor-texto-suave);
-  border-color: var(--cor-pauta-forte);
+  border: none;
 }
 
 #btn-logout:hover,
@@ -238,7 +238,7 @@ button:active {
 #btn-fechar-modal-parcelada:hover,
 #btn-fechar-modal-membros:hover,
 #btn-fechar-modal-esqueci-senha:hover {
-  border-color: var(--cor-marca);
+  border-color: transparent;
   color: var(--cor-marca-forte);
 }
 
