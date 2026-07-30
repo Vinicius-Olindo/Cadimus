@@ -694,6 +694,10 @@ button:active {
     order: unset;
   }
 
+  .card-comparativo-periodo {
+    grid-column: 1 / -1;
+  }
+
   .area-lancamentos {
     grid-column: 1;
     order: unset;
