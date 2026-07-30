@@ -407,13 +407,20 @@
         <!-- ABAS: PLANOS -->
         <div id="plano-planos" class="plano-painel" style="display: none">
           <div class="plano-container">
+            <div class="plano-sub-tabs">
+              <button type="button" class="plano-sub-tab ativo" data-lista="lista-planos" data-tipo="meus">Meus planos</button>
+              <button type="button" class="plano-sub-tab" data-lista="lista-planos-compartilhados" data-tipo="compartilhados">Compartilhados</button>
+            </div>
             <div class="card">
               <div class="plano-metas-cabecalho">
-                <h3 class="plano-subtitulo">Meus planos</h3>
+                <h3 class="plano-subtitulo" id="titulo-lista-planos">Meus planos</h3>
                 <button type="button" id="btn-novo-plano" class="btn-link-adicionar">+ Novo plano</button>
               </div>
               <div id="lista-planos">
-                <div class="plano-vazio">Nenhum plano criado. Crie um plano para organizar seus objetivos!</div>
+                <div class="plano-vazio">Nenhum plano criado. Clique em "+ Novo plano" para começar!</div>
+              </div>
+              <div id="lista-planos-compartilhados" style="display: none">
+                <div class="plano-vazio">Nenhum plano compartilhado por outros usuários.</div>
               </div>
             </div>
           </div>
@@ -1102,6 +1109,17 @@
               <button type="button" class="plano-cor-btn" data-cor="#06b6d4" style="background:#06b6d4"></button>
             </div>
             <input type="hidden" id="plano-cor" value="#6366f1" />
+          </div>
+
+          <div class="campo">
+            <label class="plano-toggle-label">
+              <span>Compartilhar com outros usuários</span>
+              <div class="plano-toggle">
+                <input type="checkbox" id="plano-compartilhado" />
+                <span class="plano-toggle-slider"></span>
+              </div>
+            </label>
+            <span class="dica-campo">Outros usuários poderão ver este plano.</span>
           </div>
 
           <div class="plano-modal-botoes">

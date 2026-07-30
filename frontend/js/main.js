@@ -3236,6 +3236,28 @@ function configurarTabsPlano() {
       renderizarPlano();
     });
   });
+
+  document.querySelectorAll(".plano-sub-tab").forEach((tab) => {
+    tab.addEventListener("click", () => {
+      document.querySelectorAll(".plano-sub-tab").forEach((t) => t.classList.remove("ativo"));
+      tab.classList.add("ativo");
+      const tipo = tab.dataset.tipo;
+      const listaMeus = document.getElementById("lista-planos");
+      const listaCompartilhados = document.getElementById("lista-planos-compartilhados");
+      const titulo = document.getElementById("titulo-lista-planos");
+
+      if (tipo === "meus") {
+        listaMeus.style.display = "block";
+        listaCompartilhados.style.display = "none";
+        titulo.textContent = "Meus planos";
+      } else {
+        listaMeus.style.display = "none";
+        listaCompartilhados.style.display = "block";
+        titulo.textContent = "Compartilhados";
+        carregarPlanosCompartilhados();
+      }
+    });
+  });
 }
 
 function configurarSalarioPlano() {
@@ -3300,6 +3322,63 @@ async function carregarPlanos() {
   } catch (erro) {
     console.error("Erro ao carregar planos:", erro);
   }
+}
+
+async function carregarPlanosCompartilhados() {
+  const container = document.getElementById("lista-planos-compartilhados");
+  if (!container) return;
+
+  try {
+    const resposta = await fetch(`${API_URL}/api/planos?tipo=compartilhados`, { headers: headersAutenticados() });
+    if (tratarSessaoExpirada(resposta)) return;
+    if (resposta.ok) {
+      const planos = await resposta.json();
+      renderizarListaPlanosCompartilhados(planos);
+    }
+  } catch (erro) {
+    console.error("Erro ao carregar planos compartilhados:", erro);
+  }
+}
+
+function renderizarListaPlanosCompartilhados(planos) {
+  const container = document.getElementById("lista-planos-compartilhados");
+  if (!container) return;
+
+  if (planos.length === 0) {
+    container.innerHTML = '<div class="plano-vazio">Nenhum plano compartilhado por outros usuários.</div>';
+    return;
+  }
+
+  container.innerHTML = planos.map((plano) => {
+    const temPrazo = !!plano.data_limite;
+    const dataFormatada = temPrazo ? new Date(plano.data_limite + "T12:00:00").toLocaleDateString("pt-BR") : "";
+    const statusLabel = { ativo: "Ativo", concluido: "Concluído", cancelado: "Cancelado" }[plano.status] || plano.status;
+    const prioridadeLabel = { alta: "Alta", media: "Média", baixa: "Baixa" }[plano.prioridade] || plano.prioridade;
+
+    return `
+      <div class="plano-card-item" data-id="${plano.id}">
+        <div class="plano-card-topo">
+          <div class="plano-card-icone" style="background: ${plano.cor}22">${plano.icone}</div>
+          <div class="plano-card-info">
+            <div class="plano-card-nome">${escaparHtml(plano.nome)} <span class="plano-badge-compartilhado">Compartilhado</span></div>
+            <div class="plano-card-autor">Criado por ${escaparHtml(plano.criado_por_nome || "Usuário")}</div>
+            ${plano.descricao ? `<div class="plano-card-desc">${escaparHtml(plano.descricao)}</div>` : ""}
+          </div>
+          <span class="plano-status-badge status-${plano.status}">${statusLabel}</span>
+        </div>
+        <div class="plano-card-barra">
+          <div class="plano-card-barra-fill" style="width: ${plano.percentual}%; background: ${plano.cor}"></div>
+        </div>
+        <div class="plano-card-detalhes">
+          <span>
+            <span class="plano-card-valores">${formatadorBRL.format(plano.depositado)} / ${formatadorBRL.format(plano.valor_alvo)}</span>
+            ${temPrazo ? ` · Prazo: ${dataFormatada}` : ""}
+          </span>
+          <span class="plano-card-prioridade prioridade-${plano.prioridade}">${prioridadeLabel}</span>
+        </div>
+      </div>
+    `;
+  }).join("");
 }
 
 function renderizarPlano() {
@@ -3440,7 +3519,7 @@ function renderizarListaPlanos() {
         <div class="plano-card-topo">
           <div class="plano-card-icone" style="background: ${plano.cor}22">${plano.icone}</div>
           <div class="plano-card-info">
-            <div class="plano-card-nome">${escaparHtml(plano.nome)}</div>
+            <div class="plano-card-nome">${escaparHtml(plano.nome)} ${plano.compartilhado ? '<span class="plano-badge-compartilhado">Compartilhado</span>' : ""}</div>
             ${plano.descricao ? `<div class="plano-card-desc">${escaparHtml(plano.descricao)}</div>` : ""}
           </div>
           <span class="plano-status-badge status-${plano.status}">${statusLabel}</span>
@@ -3557,6 +3636,7 @@ function configurarModalPlano() {
       prioridade: document.getElementById("plano-prioridade").value,
       icone: document.getElementById("plano-icone").value,
       cor: document.getElementById("plano-cor").value,
+      compartilhado: document.getElementById("plano-compartilhado").checked,
     };
 
     if (!dados.nome) return mostrarToast("Informe o nome do plano.", "erro");
@@ -3618,6 +3698,7 @@ function abrirModalPlano(plano) {
     document.getElementById("plano-prioridade").value = plano.prioridade;
     document.getElementById("plano-icone").value = plano.icone;
     document.getElementById("plano-cor").value = plano.cor;
+    document.getElementById("plano-compartilhado").checked = plano.compartilhado === 1;
 
     const iconeBtn = document.querySelector(`.plano-icone-btn[data-icone="${plano.icone}"]`);
     if (iconeBtn) iconeBtn.classList.add("selecionado");
@@ -3627,6 +3708,7 @@ function abrirModalPlano(plano) {
     titulo.textContent = "Novo plano";
     document.getElementById("plano-icone").value = "🎯";
     document.getElementById("plano-cor").value = "#6366f1";
+    document.getElementById("plano-compartilhado").checked = false;
     const btnPadrao = document.querySelector('.plano-icone-btn[data-icone="🎯"]');
     if (btnPadrao) btnPadrao.classList.add("selecionado");
     const corPadrao = document.querySelector('.plano-cor-btn[data-cor="#6366f1"]');

@@ -19,24 +19,33 @@ export async function processarPlanos(request, env, ctx) {
     try {
       const planoId = url.searchParams.get("id");
       const statusFiltro = url.searchParams.get("status");
+      const tipoFiltro = url.searchParams.get("tipo"); // "meus" ou "compartilhados"
 
-      let query = `SELECT * FROM planos WHERE usuario_id = ?`;
-      let params = [usuarioLogado.id];
+      let query = `SELECT p.*, u.nome AS criado_por_nome FROM planos p LEFT JOIN usuarios u ON p.usuario_id = u.id WHERE 1=1`;
+      let params = [];
+
+      if (tipoFiltro === "compartilhados") {
+        query += ` AND p.compartilhado = 1 AND p.usuario_id != ?`;
+        params.push(usuarioLogado.id);
+      } else {
+        query += ` AND p.usuario_id = ?`;
+        params.push(usuarioLogado.id);
+      }
 
       if (statusFiltro) {
-        query += ` AND status = ?`;
+        query += ` AND p.status = ?`;
         params.push(statusFiltro);
       }
 
       if (planoId) {
-        query += ` AND id = ?`;
+        query += ` AND p.id = ?`;
         params.push(planoId);
       }
 
       query += ` ORDER BY 
-        CASE prioridade WHEN 'alta' THEN 0 WHEN 'media' THEN 1 WHEN 'baixa' THEN 2 END,
-        data_limite ASC NULLS LAST,
-        criado_em DESC`;
+        CASE p.prioridade WHEN 'alta' THEN 0 WHEN 'media' THEN 1 WHEN 'baixa' THEN 2 END,
+        p.data_limite ASC NULLS LAST,
+        p.criado_em DESC`;
 
       const { results } = await env.DB.prepare(query).bind(...params).all();
 
@@ -90,6 +99,7 @@ export async function processarPlanos(request, env, ctx) {
       const prioridade = dados.prioridade || "media";
       const icone = dados.icone || "🎯";
       const cor = dados.cor || "#6366f1";
+      const compartilhado = dados.compartilhado ? 1 : 0;
 
       if (!nome) {
         return new Response(JSON.stringify({ erro: "Nome do plano é obrigatório." }), { status: 400 });
@@ -99,10 +109,10 @@ export async function processarPlanos(request, env, ctx) {
       }
 
       const resultado = await env.DB.prepare(
-        `INSERT INTO planos (usuario_id, nome, descricao, valor_alvo, data_limite, prioridade, icone, cor)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+        `INSERT INTO planos (usuario_id, nome, descricao, valor_alvo, data_limite, prioridade, icone, cor, compartilhado)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
       )
-        .bind(usuarioLogado.id, nome, descricao, valorAlvo, dataLimite, prioridade, icone, cor)
+        .bind(usuarioLogado.id, nome, descricao, valorAlvo, dataLimite, prioridade, icone, cor, compartilhado)
         .run();
 
       return new Response(JSON.stringify({ mensagem: "Plano criado!", id: resultado.meta?.last_row_id }), { status: 201 });
@@ -141,6 +151,7 @@ export async function processarPlanos(request, env, ctx) {
       if (dados.status !== undefined) { campos.push("status = ?"); valores.push(dados.status); }
       if (dados.icone !== undefined) { campos.push("icone = ?"); valores.push(dados.icone); }
       if (dados.cor !== undefined) { campos.push("cor = ?"); valores.push(dados.cor); }
+      if (dados.compartilhado !== undefined) { campos.push("compartilhado = ?"); valores.push(dados.compartilhado ? 1 : 0); }
 
       if (campos.length === 0) {
         return new Response(JSON.stringify({ erro: "Nenhum campo para atualizar." }), { status: 400 });
