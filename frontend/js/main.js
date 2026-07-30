@@ -207,6 +207,7 @@ document.addEventListener("DOMContentLoaded", () => {
   configurarBuscaLancamentos();
   configurarNotificacoes();
   configurarLote();
+  configurarComparativoPeriodo();
   configurarModal();
   configurarModalCarteira();
   configurarModalGerenciarMembros();
@@ -2285,6 +2286,103 @@ function popularSelectLoteCategorias() {
   });
 }
 
+// --- COMPARATIVO POR PERÍODO ---
+let periodoTipoAtual = "mes";
+
+function configurarComparativoPeriodo() {
+  const botoes = document.querySelectorAll(".periodo-btn");
+  botoes.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      botoes.forEach((b) => b.classList.remove("ativo"));
+      btn.classList.add("ativo");
+      periodoTipoAtual = btn.dataset.periodo;
+      renderizarComparativoPeriodo();
+    });
+  });
+}
+
+function renderizarComparativoPeriodo() {
+  const carteiraId = document.getElementById("seletor-carteira")?.value;
+  if (!carteiraId || ultimoLoteLancamentos.length === 0) return;
+
+  const agora = new Date();
+  let inicioAtual, fimAtual, inicioAnterior, fimAnterior, rotuloAtual, rotuloAnterior;
+
+  if (periodoTipoAtual === "mes") {
+    inicioAtual = new Date(agora.getFullYear(), agora.getMonth(), 1);
+    fimAtual = new Date(agora.getFullYear(), agora.getMonth() + 1, 0, 23, 59, 59);
+    inicioAnterior = new Date(agora.getFullYear(), agora.getMonth() - 1, 1);
+    fimAnterior = new Date(agora.getFullYear(), agora.getMonth(), 0, 23, 59, 59);
+    rotuloAtual = "Este mês";
+    rotuloAnterior = "Mês passado";
+  } else if (periodoTipoAtual === "trimestre") {
+    const trimestreAtual = Math.floor(agora.getMonth() / 3);
+    inicioAtual = new Date(agora.getFullYear(), trimestreAtual * 3, 1);
+    fimAtual = new Date(agora.getFullYear(), (trimestreAtual + 1) * 3, 0, 23, 59, 59);
+    inicioAnterior = new Date(agora.getFullYear(), (trimestreAtual - 1) * 3, 1);
+    fimAnterior = new Date(agora.getFullYear(), trimestreAtual * 3, 0, 23, 59, 59);
+    rotuloAtual = `1° Tri ${agora.getFullYear()}`;
+    rotuloAnterior = `4° Tri ${trimestreAtual === 0 ? agora.getFullYear() - 1 : agora.getFullYear()}`;
+    if (trimestreAtual === 0) {
+      rotuloAnterior = `4° Tri ${agora.getFullYear() - 1}`;
+    } else if (trimestreAtual === 1) {
+      rotuloAnterior = `1° Tri ${agora.getFullYear()}`;
+    } else if (trimestreAtual === 2) {
+      rotuloAnterior = `2° Tri ${agora.getFullYear()}`;
+    } else {
+      rotuloAnterior = `3° Tri ${agora.getFullYear()}`;
+    }
+  } else {
+    inicioAtual = new Date(agora.getFullYear(), 0, 1);
+    fimAtual = new Date(agora.getFullYear(), 11, 31, 23, 59, 59);
+    inicioAnterior = new Date(agora.getFullYear() - 1, 0, 1);
+    fimAnterior = new Date(agora.getFullYear() - 1, 11, 31, 23, 59, 59);
+    rotuloAtual = `${agora.getFullYear()}`;
+    rotuloAnterior = `${agora.getFullYear() - 1}`;
+  }
+
+  const calcularTotais = (inicio, fim) => {
+    let receitas = 0, despesas = 0;
+    ultimoLoteLancamentos.forEach((l) => {
+      if (l.status !== "pago") return;
+      const d = new Date(l.data_compra + "T12:00:00");
+      if (d >= inicio && d <= fim) {
+        if (l.tipo === "receita") receitas += l.valor;
+        else despesas += l.valor;
+      }
+    });
+    return { receitas, despesas, saldo: receitas - despesas };
+  };
+
+  const atual = calcularTotais(inicioAtual, fimAtual);
+  const anterior = calcularTotais(inicioAnterior, fimAnterior);
+
+  document.getElementById("periodo-atual-rotulo").textContent = rotuloAtual;
+  document.getElementById("periodo-anterior-rotulo").textContent = rotuloAnterior;
+
+  document.getElementById("periodo-atual-receitas").textContent = formatadorBRL.format(atual.receitas);
+  document.getElementById("periodo-atual-despesas").textContent = formatadorBRL.format(atual.despesas);
+  document.getElementById("periodo-atual-saldo").textContent = formatadorBRL.format(atual.saldo);
+
+  document.getElementById("periodo-anterior-receitas").textContent = formatadorBRL.format(anterior.receitas);
+  document.getElementById("periodo-anterior-despesas").textContent = formatadorBRL.format(anterior.despesas);
+  document.getElementById("periodo-anterior-saldo").textContent = formatadorBRL.format(anterior.saldo);
+
+  const variacaoEl = document.getElementById("periodo-variacao-saldo");
+  if (anterior.saldo === 0 && atual.saldo === 0) {
+    variacaoEl.textContent = "—";
+    variacaoEl.className = "periodo-variacao-valor neutro";
+  } else if (anterior.saldo === 0) {
+    variacaoEl.textContent = atual.saldo > 0 ? "+∞" : "-∞";
+    variacaoEl.className = `periodo-variacao-valor ${atual.saldo >= 0 ? "positivo" : "negativo"}`;
+  } else {
+    const variacao = ((atual.saldo - anterior.saldo) / Math.abs(anterior.saldo)) * 100;
+    const sinal = variacao >= 0 ? "+" : "";
+    variacaoEl.textContent = `${sinal}${variacao.toFixed(0)}%`;
+    variacaoEl.className = `periodo-variacao-valor ${variacao >= 0 ? "positivo" : "negativo"}`;
+  }
+}
+
 // --- COMUNICAÇÃO COM A API (BUSCA FILTRADA) ---
 let ultimaRequisicaoLancamentos = 0;
 let ultimoLoteLancamentos = [];
@@ -2373,6 +2471,7 @@ async function carregarLancamentos() {
 
     renderizarListaLancamentos();
     popularSelectLoteCategorias();
+    renderizarComparativoPeriodo();
 
     const saldoCalculado = totalReceitas - totalDespesas;
 

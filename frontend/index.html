@@ -189,6 +189,63 @@
             </div>
           </div>
 
+          <!-- LINHA 1B: Comparativo por período -->
+          <div class="card card-comparativo-periodo" id="card-comparativo-periodo">
+            <div class="comparativo-periodo-header">
+              <span class="comparativo-periodo-titulo">Comparar períodos</span>
+              <div class="comparativo-periodo-seletor">
+                <button type="button" class="periodo-btn ativo" data-periodo="mes">Mês</button>
+                <button type="button" class="periodo-btn" data-periodo="trimestre">Trimestre</button>
+                <button type="button" class="periodo-btn" data-periodo="ano">Ano</button>
+              </div>
+            </div>
+            <div class="comparativo-periodo-conteudo" id="comparativo-periodo-conteudo">
+              <div class="periodo-coluna">
+                <span class="periodo-rotulo" id="periodo-atual-rotulo">Este mês</span>
+                <div class="periodo-metricas">
+                  <div class="periodo-metrica">
+                    <span class="periodo-metrica-rotulo">Receitas</span>
+                    <span class="periodo-metrica-valor texto-receita" id="periodo-atual-receitas">R$ 0,00</span>
+                  </div>
+                  <div class="periodo-metrica">
+                    <span class="periodo-metrica-rotulo">Despesas</span>
+                    <span class="periodo-metrica-valor texto-despesa" id="periodo-atual-despesas">R$ 0,00</span>
+                  </div>
+                  <div class="periodo-metrica">
+                    <span class="periodo-metrica-rotulo">Saldo</span>
+                    <span class="periodo-metrica-valor" id="periodo-atual-saldo">R$ 0,00</span>
+                  </div>
+                </div>
+              </div>
+              <div class="periodo-seta">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                </svg>
+              </div>
+              <div class="periodo-coluna">
+                <span class="periodo-rotulo" id="periodo-anterior-rotulo">Mês passado</span>
+                <div class="periodo-metricas">
+                  <div class="periodo-metrica">
+                    <span class="periodo-metrica-rotulo">Receitas</span>
+                    <span class="periodo-metrica-valor texto-receita" id="periodo-anterior-receitas">R$ 0,00</span>
+                  </div>
+                  <div class="periodo-metrica">
+                    <span class="periodo-metrica-rotulo">Despesas</span>
+                    <span class="periodo-metrica-valor texto-despesa" id="periodo-anterior-despesas">R$ 0,00</span>
+                  </div>
+                  <div class="periodo-metrica">
+                    <span class="periodo-metrica-rotulo">Saldo</span>
+                    <span class="periodo-metrica-valor" id="periodo-anterior-saldo">R$ 0,00</span>
+                  </div>
+                </div>
+              </div>
+              <div class="periodo-variacao" id="periodo-variacao">
+                <span class="periodo-variacao-label">Variação</span>
+                <span class="periodo-variacao-valor" id="periodo-variacao-saldo"></span>
+              </div>
+            </div>
+          </div>
+
           <!-- LINHA 2, COLUNA ESQUERDA: os lançamentos em si -->
           <div class="area-lancamentos">
             <div class="lancamentos-cabecalho">

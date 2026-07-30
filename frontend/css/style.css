@@ -804,6 +804,147 @@ button:active {
   transition: color 0.3s ease;
 }
 
+/* Card Comparativo por Período */
+.card-comparativo-periodo {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 18px 20px;
+}
+
+.comparativo-periodo-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.comparativo-periodo-titulo {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--cor-texto-suave);
+}
+
+.comparativo-periodo-seletor {
+  display: flex;
+  gap: 4px;
+  background: var(--cor-pauta-fraca);
+  border-radius: var(--raio-botoes);
+  padding: 3px;
+}
+
+.periodo-btn {
+  padding: 5px 12px;
+  border: none;
+  border-radius: calc(var(--raio-botoes) - 2px);
+  background: transparent;
+  color: var(--cor-texto-suave);
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.periodo-btn.ativo {
+  background: var(--cor-fundo);
+  color: var(--cor-texto);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.comparativo-periodo-conteudo {
+  display: flex;
+  align-items: stretch;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.periodo-coluna {
+  flex: 1;
+  min-width: 140px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.periodo-rotulo {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--cor-texto);
+}
+
+.periodo-metricas {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.periodo-metrica {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.periodo-metrica-rotulo {
+  font-size: 0.75rem;
+  color: var(--cor-texto-suave);
+}
+
+.periodo-metrica-valor {
+  font-family: var(--fonte-mono);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.periodo-seta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cor-texto-suave);
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+
+.periodo-variacao {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 100px;
+  padding: 12px;
+  background: color-mix(in srgb, var(--cor-pauta-fraca) 50%, transparent);
+  border-radius: var(--raio-botoes);
+}
+
+.periodo-variacao-label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--cor-texto-suave);
+}
+
+.periodo-variacao-valor {
+  font-family: var(--fonte-mono);
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.periodo-variacao-valor.positivo {
+  color: var(--cor-receita);
+}
+
+.periodo-variacao-valor.negativo {
+  color: var(--cor-despesa);
+}
+
+.periodo-variacao-valor.neutro {
+  color: var(--cor-texto-suave);
+}
+
 /* Raio-x por categoria (e demais cards analíticos da coluna direita) */
 .resumo-categorias {
   display: flex;
