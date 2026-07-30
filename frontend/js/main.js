@@ -3068,7 +3068,7 @@ function renderizarComparativo6Meses(meses, dados, mesAtualIdx, anoAtual) {
   const legenda = document.createElement("div");
   legenda.className = "comparativo-legenda";
   legenda.innerHTML = `
-    <span class="comparativo-legenda-item"><span class="comparativo-legenda-dot" style="background: var(--cor-receita)"></span>Receitas</span>
+    <span class="comparativo-legenda-item"><span class="comparativo-legenda-dot" style="background: var(--cor-receita)"></span>Saldo</span>
     <span class="comparativo-legenda-item"><span class="comparativo-legenda-dot" style="background: var(--cor-despesa)"></span>Despesas</span>
   `;
   container.appendChild(legenda);
