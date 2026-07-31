@@ -1,11 +1,8 @@
 const API_URL = "https://cadimus-backend.olinbytedigital.workers.dev";
 
 // ==========================================
-// SESSÃO EM MEMÓRIA (de propósito, não usa localStorage/sessionStorage)
-// Fechar a aba ou recarregar a página apaga isso automaticamente, forçando
-// login de novo — importante num app financeiro que pode ficar numa tela
-// compartilhada. A única coisa persistida entre sessões é a preferência de
-// tema (claro/escuro), que não é informação sensível.
+// SESSÃO via sessionStorage — sobrevive a reload e F5,
+// mas é apagada ao fechar a aba/navegador.
 // ==========================================
 const sessaoMemoria = {
   token: null,
@@ -13,21 +10,35 @@ const sessaoMemoria = {
 };
 
 function obterToken() {
-  return sessaoMemoria.token;
+  if (sessaoMemoria.token) return sessaoMemoria.token;
+  const salvo = sessionStorage.getItem("sessao");
+  if (salvo) {
+    try {
+      const dados = JSON.parse(salvo);
+      sessaoMemoria.token = dados.token;
+      sessaoMemoria.usuario = dados.usuario;
+      return dados.token;
+    } catch (e) { /* ignora JSON inválido */ }
+  }
+  return null;
 }
 
 function obterUsuarioLogado() {
+  if (sessaoMemoria.usuario) return sessaoMemoria.usuario;
+  obterToken();
   return sessaoMemoria.usuario || {};
 }
 
 function salvarSessao(token, usuario) {
   sessaoMemoria.token = token;
   sessaoMemoria.usuario = usuario;
+  sessionStorage.setItem("sessao", JSON.stringify({ token, usuario }));
 }
 
 function limparSessao() {
   sessaoMemoria.token = null;
   sessaoMemoria.usuario = null;
+  sessionStorage.removeItem("sessao");
 }
 
 function atualizarAvatarTopo(usuario) {
@@ -288,9 +299,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Sempre começa deslogado: a sessão não sobrevive a reload nem a fechar a aba
-  // (a não ser que a gente esteja mostrando a tela de redefinir senha)
-  if (!tokenRecuperacao) {
+  // Verifica se há sessão salva (sessionStorage sobrevive a reload)
+  const tokenRecuperacao = obterToken();
+  if (tokenRecuperacao) {
+    alternarTelas(true);
+  } else {
     alternarTelas(false);
   }
 });
