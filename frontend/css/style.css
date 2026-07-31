@@ -2093,19 +2093,6 @@ button.item-status:active {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  margin: 10px auto 4px;
-}
-
-.login-logo-wrapper img {
-  height: 56px;
-  width: auto;
-}
-
-.login-logo-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   gap: 12px;
   margin: 10px auto 4px;
 }
@@ -2132,6 +2119,19 @@ button.item-status:active {
 .header-logo-wrapper img {
   height: 32px;
   width: auto;
+}
+
+.dark-mode .header-logo-wrapper img {
+  filter: invert(1) brightness(1.4);
+}
+
+.login-logo-wrapper img {
+  height: 72px;
+  width: auto;
+}
+
+.dark-mode .login-logo-wrapper img {
+  filter: invert(1) brightness(1.4);
 }
 
 .header-logo-wrapper span {
