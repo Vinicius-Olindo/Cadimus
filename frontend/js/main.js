@@ -1,6 +1,42 @@
 // ==========================================
 // main.js - Controle de Interface, UI e Filtros
 // ==========================================
+//
+// ESTRUTURA DO ARQUIVO:
+// [1]   CONSTANTES E HELPERS GLOBAIS
+// [2]   ESTADO GLOBAL
+// [3]   UI: Focus Trap, Toast, Aviso, Confirmação
+// [4]   INICIALIZAÇÃO (DOMContentLoaded)
+// [5]   FILTROS: Mês, Período, Dark Mode
+// [6]   CARTEIRAS: Carregamento, Renderização, Tabs
+// [7]   MODAIS: Carteira, Transferência, Orçamento, Membros
+// [8]   DESPESAS FIXAS
+// [9]   COMPRAS PARCELADAS
+// [10]  ORÇAMENTOS MENSAIS
+// [11]  METAS E DEPÓSITOS
+// [12]  CATEGORIAS (Utilitários)
+// [13]  LANÇAMENTOS: Modal, CRUD, Renderização
+// [14]  ANIMAÇÕES
+// [15]  RENDERIZAÇÃO: Lista de Lançamentos, Grupos
+// [16]  NOTIFICAÇÕES
+// [17]  EDIÇÃO EM LOTE
+// [18]  POPUP DE NOTA
+// [19]  COMPARATIVO POR PERÍODO
+// [20]  CARREGAMENTO PRINCIPAL (carregarLancamentos)
+// [21]  DASHBOARD: Resumo Categorias, Autores, KPIs
+// [22]  STATUS: Alternar Pago/Pendente
+// [23]  COMPARAÇÃO MÊS A MÊS
+// [24]  TENDÊNCIA E GRÁFICOS
+// [25]  TAXA DE POUPANÇA
+// [26]  APAGAR LANÇAMENTO
+// [27]  ADMIN: Painel, Usuários, Categorias
+// [28]  PLANEJAMENTO: Planos Financeiros
+// [29]  EXPORTAÇÃO GLOBAL
+// ==========================================
+
+// ==========================================
+// [1] CONSTANTES E HELPERS GLOBAIS
+// ==========================================
 
 // ==========================================
 // HELPER: headers autenticados para chamadas à API
@@ -239,6 +275,9 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // --- SELETOR DE MÊS (setas, sem depender do calendário nativo do navegador) ---
+// ==========================================
+// [2] ESTADO GLOBAL
+// ==========================================
 const NOMES_MESES = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
 
 function inicializarFiltroMes() {
@@ -324,6 +363,10 @@ function configurarMonitoresDeFiltro() {
   }
 }
 
+// ==========================================
+// [5] FILTROS: Mês, Período, Dark Mode
+// ==========================================
+
 // --- MODO ESCURO ---
 const ICONE_LUA = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>';
 const ICONE_SOL =
@@ -357,6 +400,10 @@ function inicializarDarkMode() {
     atualizarIconeTema();
   });
 }
+
+// ==========================================
+// [6] CARTEIRAS: Carregamento, Renderização, Tabs
+// ==========================================
 
 // ==========================================
 // CARTEIRAS (contas) — carregadas dinamicamente, sem limite fixo
@@ -530,6 +577,10 @@ function selecionarCarteira(id) {
 }
 
 // --- MODAL: NOVA CARTEIRA ---
+// ==========================================
+// [7] MODAIS: Carteira, Transferência, Orçamento, Membros
+// ==========================================
+
 function abrirModalCarteira() {
   const modal = document.getElementById("modal-carteira");
   if (modal) {
@@ -1003,6 +1054,10 @@ function configurarModalGerenciarMembros() {
 }
 
 
+// ==========================================
+// [8] DESPESAS FIXAS
+// ==========================================
+
 let despesasFixasCarregadas = [];
 
 function fecharModalDespesaFixa() {
@@ -1325,6 +1380,10 @@ async function abrirHistoricoFixa(fixaId, descricao) {
 }
 
 // ==========================================
+// [9] COMPRAS PARCELADAS
+// ==========================================
+
+// ==========================================
 // COMPRAS PARCELADAS (ex: "Notebook em 10x de R$300")
 // ==========================================
 let comprasParceladasCarregadas = [];
@@ -1545,6 +1604,10 @@ async function carregarPainelComprasParceladas() {
   renderizarNotificacoes();
 }
 
+// ==========================================
+// [10] ORÇAMENTOS MENSAIS
+// ==========================================
+
 // --- PAINEL DE ORÇAMENTOS ---
 let orcamentosCarregados = [];
 
@@ -1745,9 +1808,11 @@ async function abrirHistoricoParcela(compraId, descricao) {
 }
 
 // ==========================================
-// METAS POR CATEGORIA (ex: "Quero gastar no máximo R$500 com Delivery")
+// [11] METAS E DEPÓSITOS
 // ==========================================
-// METAS POR CATEGORIA (orçamento)
+
+// ==========================================
+// METAS POR CATEGORIA (ex: "Quero gastar no máximo R$500 com Delivery")
 // ==========================================
 let metasCarregadas = [];
 
@@ -2041,6 +2106,10 @@ function configurarModalDeposito() {
 }
 
 
+// ==========================================
+// [12] CATEGORIAS (Utilitários)
+// ==========================================
+
 // --- CATEGORIAS (carrega em qualquer select e permite cadastrar novas) ---
 async function popularSelectCategorias(select) {
   if (!select) return;
@@ -2114,6 +2183,10 @@ function adicionarOpcaoSelect(select, nome) {
 function adicionarCategoriaAoSelect(nome) {
   adicionarOpcaoSelect(document.getElementById("categoria"), nome);
 }
+
+// ==========================================
+// [13] LANÇAMENTOS: Modal, CRUD, Renderização
+// ==========================================
 
 // --- CONTROLE DO MODAL DE LANÇAMENTO ---
 function fecharModalLancamento() {
@@ -2296,6 +2369,10 @@ function configurarModal() {
   });
 }
 
+// ==========================================
+// [14] ANIMAÇÕES
+// ==========================================
+
 // --- ANIMAÇÃO DE CONTAGEM (números "sobem" até o valor final) ---
 const formatadorBRL = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 const valoresAnimadosAtuais = new WeakMap();
@@ -2351,6 +2428,10 @@ function obterGrupoData(dataStr) {
 
   return "Mais antigo";
 }
+
+// ==========================================
+// [15] RENDERIZAÇÃO: Lista de Lançamentos, Grupos
+// ==========================================
 
 const ORDEM_GRUPOS = ["Hoje", "Ontem", "Esta semana", "Semana passada", "Este mês", "Mês passado", "Mais antigo"];
 
@@ -2460,6 +2541,10 @@ function configurarBuscaLancamentos() {
     });
   }
 }
+
+// ==========================================
+// [16] NOTIFICAÇÕES
+// ==========================================
 
 // --- NOTIFICAÇÕES DE VENCIMENTO ---
 function verificarNotificacoes() {
@@ -2611,7 +2696,7 @@ function configurarNotificacoes() {
     e.stopPropagation();
     modal.style.display = "flex";
     renderizarNotificacoes();
-    capturarFoco(modal);
+    trapFoco(modal);
   });
 
   if (btnFechar) {
@@ -2631,6 +2716,10 @@ function configurarNotificacoes() {
 
 // --- EDIÇÃO EM LOTE ---
 let idsSelecionadosLote = new Set();
+
+// ==========================================
+// [17] EDIÇÃO EM LOTE
+// ==========================================
 
 function configurarLote() {
   const container = document.getElementById("lista-lancamentos");
@@ -2743,6 +2832,10 @@ function popularSelectLoteCategorias() {
 }
 
 // --- POPUP DE NOTA ---
+// ==========================================
+// [18] POPUP DE NOTA
+// ==========================================
+
 function configurarPopupNota() {
   document.addEventListener("click", (e) => {
     const alvo = e.target.closest(".item-nota-clique");
@@ -2807,6 +2900,10 @@ function configurarComparativoPeriodo() {
     });
   });
 }
+
+// ==========================================
+// [19] COMPARATIVO POR PERÍODO
+// ==========================================
 
 let periodoDadosAnterior = { receitas: 0, despesas: 0, saldo: 0 };
 let periodoDadosAtual = { receitas: 0, despesas: 0, saldo: 0 };
@@ -2920,6 +3017,10 @@ async function renderizarComparativoPeriodo() {
     variacaoEl.className = `periodo-variacao-valor ${variacao >= 0 ? "positivo" : "negativo"}`;
   }
 }
+
+// ==========================================
+// [20] CARREGAMENTO PRINCIPAL (carregarLancamentos)
+// ==========================================
 
 // --- COMUNICAÇÃO COM A API (BUSCA FILTRADA) ---
 let ultimaRequisicaoLancamentos = 0;
@@ -3068,6 +3169,10 @@ async function carregarLancamentos() {
   }
 }
 
+// ==========================================
+// [21] DASHBOARD: Resumo Categorias, Autores, KPIs
+// ==========================================
+
 // --- RAIO-X POR CATEGORIA (só despesas, é o que faz sentido controlar) ---
 function renderizarResumoCategorias(totaisPorCategoria) {
   const card = document.getElementById("resumo-categorias");
@@ -3159,6 +3264,10 @@ function renderizarResumoCategorias(totaisPorCategoria) {
   });
 }
 
+// ==========================================
+// [22] STATUS: Alternar Pago/Pendente
+// ==========================================
+
 // --- ALTERNAR STATUS (pago ⇄ pendente) ---
 async function alternarStatusLancamento(id, statusAtual) {
   const novoStatus = statusAtual === "pago" ? "pendente" : "pago";
@@ -3187,6 +3296,10 @@ async function alternarStatusLancamento(id, statusAtual) {
 
 // --- COMPARAÇÃO COM O MÊS ANTERIOR ---
 let ultimaRequisicaoComparacao = 0;
+
+// ==========================================
+// [23] COMPARAÇÃO MÊS A MÊS
+// ==========================================
 
 async function carregarComparacaoMesAnterior(despesasAtuais) {
   const carteiraId = document.getElementById("seletor-carteira").value;
@@ -3294,6 +3407,10 @@ function renderizarResumoAutores(dados) {
 }
 
 // --- TENDÊNCIA (últimos 6 meses, terminando no mês visualizado) ---
+// ==========================================
+// [24] TENDÊNCIA E GRÁFICOS
+// ==========================================
+
 const cacheTendencia = new Map();
 let ultimaRequisicaoTendencia = 0;
 const NOMES_MESES_ABREV = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
@@ -3491,6 +3608,10 @@ function renderizarComparativo6Meses(meses, dados, mesAtualIdx, anoAtual) {
 }
 
 
+// ==========================================
+// [25] TAXA DE POUPANÇA
+// ==========================================
+
 // --- TAXA DE POUPANÇA ---
 function calcularTaxaPoupanca(totalReceitas, totalDespesas) {
   const card = document.getElementById("card-poupanca");
@@ -3567,6 +3688,10 @@ function calcularCapacidadeGuarda() {
 }
 
 
+// ==========================================
+// [26] APAGAR LANÇAMENTO
+// ==========================================
+
 // --- FUNÇÃO PARA EXCLUIR REGISTROS ---
 async function apagarLancamento(id) {
   if (!(await pedirConfirmacao("Deseja realmente excluir este lançamento permanentemente?", { textoConfirmar: "Excluir", perigo: true }))) return;
@@ -3591,6 +3716,10 @@ async function apagarLancamento(id) {
     await mostrarAviso("Erro ao se conectar com a nuvem.");
   }
 }
+
+// ==========================================
+// [27] ADMIN: Painel, Usuários, Categorias
+// ==========================================
 
 // ==========================================
 // CONTROLE DO PAINEL ADMIN / CONFIGURAÇÕES
@@ -3625,6 +3754,10 @@ function configurarPainelAdmin() {
 
 // --- PLANEJAMENTO ---
 let planosCarregados = [];
+
+// ==========================================
+// [28] PLANEJAMENTO: Planos Financeiros
+// ==========================================
 
 function configurarPlano() {
   const btnPlano = document.getElementById("btn-planejamento");
@@ -5029,6 +5162,10 @@ async function excluirCategoria(id, botao) {
     botao.innerText = "Excluir";
   }
 }
+
+// ==========================================
+// [29] EXPORTAÇÃO GLOBAL
+// ==========================================
 
 window.carregarLancamentos = carregarLancamentos;
 window.apagarLancamento = apagarLancamento;
