@@ -111,6 +111,16 @@
                 </svg>
                 <span class="btn-topo-label">Exportar</span>
               </button>
+              <button id="btn-relatorio-pdf" class="btn-topo-icone" title="Gerar relatório PDF">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="16" y1="13" x2="8" y2="13"/>
+                  <line x1="16" y1="17" x2="8" y2="17"/>
+                  <polyline points="10 9 9 9 8 9"/>
+                </svg>
+                <span class="btn-topo-label">Relatório</span>
+              </button>
               <button id="btn-planejamento" class="btn-topo-icone" title="Planejamento financeiro">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M12 2L2 7l10 5 10-5-10-5z"/>
@@ -393,6 +403,20 @@
                 <button type="button" id="btn-novo-orcamento" class="btn-link-adicionar">+ Novo</button>
               </div>
               <div id="lista-orcamentos-painel"></div>
+            </div>
+
+            <div class="card resumo-categorias" id="card-score" style="display: none">
+              <span class="resumo-categorias-titulo">Saúde financeira</span>
+              <div class="score-container">
+                <div class="score-ring">
+                  <svg viewBox="0 0 120 120" class="score-svg">
+                    <circle cx="60" cy="60" r="52" class="score-ring-bg"/>
+                    <circle cx="60" cy="60" r="52" class="score-ring-fill" id="score-ring-fill"/>
+                  </svg>
+                  <div class="score-valor" id="score-valor">0</div>
+                </div>
+                <div class="score-detalhes" id="score-detalhes"></div>
+              </div>
             </div>
           </div>
         </div>

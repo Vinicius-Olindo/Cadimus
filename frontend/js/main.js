@@ -272,7 +272,76 @@ document.addEventListener("DOMContentLoaded", () => {
   if (btnNovoOrcamento) {
     btnNovoOrcamento.addEventListener("click", () => window.abrirModalOrcamento());
   }
+
+  // Botão de relatório PDF
+  const btnRelatorioPdf = document.getElementById("btn-relatorio-pdf");
+  if (btnRelatorioPdf) {
+    btnRelatorioPdf.addEventListener("click", gerarRelatorioPDF);
+  }
+
+  // PWA: instalação na tela inicial
+  configurarInstallBanner();
 });
+
+// --- PWA INSTALL BANNER ---
+let deferredInstallPrompt = null;
+
+function configurarInstallBanner() {
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    mostrarBannerInstalacao();
+  });
+
+  window.addEventListener("appinstalled", () => {
+    deferredInstallPrompt = null;
+    ocultarBannerInstalacao();
+    mostrarToast("App instalado com sucesso!", "sucesso");
+  });
+}
+
+function mostrarBannerInstalacao() {
+  if (localStorage.getItem("cadimus_install_dismissed") === "1") return;
+  if (typeof obterUsuarioLogado !== "function") return;
+  const usuario = obterUsuarioLogado();
+  if (!usuario) return;
+
+  let banner = document.getElementById("pwa-install-banner");
+  if (!banner) {
+    banner = document.createElement("div");
+    banner.id = "pwa-install-banner";
+    banner.className = "pwa-install-banner";
+    banner.innerHTML = `
+      <span class="pwa-install-texto">📱 Instale o Gestor Financeiro na sua tela inicial</span>
+      <div class="pwa-install-acoes">
+        <button type="button" class="pwa-install-btn" id="pwa-install-btn">Instalar</button>
+        <button type="button" class="pwa-install-dismiss" id="pwa-install-dismiss">Agora não</button>
+      </div>
+    `;
+    document.body.appendChild(banner);
+
+    document.getElementById("pwa-install-btn").addEventListener("click", async () => {
+      if (!deferredInstallPrompt) return;
+      deferredInstallPrompt.prompt();
+      const { outcome } = await deferredInstallPrompt.userChoice;
+      if (outcome === "accepted") {
+        mostrarToast("Instalando app...");
+      }
+      deferredInstallPrompt = null;
+      ocultarBannerInstalacao();
+    });
+
+    document.getElementById("pwa-install-dismiss").addEventListener("click", () => {
+      localStorage.setItem("cadimus_install_dismissed", "1");
+      ocultarBannerInstalacao();
+    });
+  }
+}
+
+function ocultarBannerInstalacao() {
+  const banner = document.getElementById("pwa-install-banner");
+  if (banner) banner.remove();
+}
 
 // --- SELETOR DE MÊS (setas, sem depender do calendário nativo do navegador) ---
 // ==========================================
@@ -3182,6 +3251,7 @@ async function carregarLancamentos() {
     carregarComparativo6Meses();
     calcularTaxaPoupanca(totalReceitas, totalDespesas);
     calcularCapacidadeGuarda();
+    calcularScoreSaude(totalReceitas, totalDespesas, totaisPorCategoria);
   } catch (erro) {
     if (idDestaRequisicao !== ultimaRequisicaoLancamentos) return;
     console.error("Erro:", erro);
@@ -3790,6 +3860,232 @@ function calcularCapacidadeGuarda() {
   } else {
     const guardaSemanal = Math.round(guardaMensal / 4);
     descEl.textContent = `Dá pra guardar ~${formatadorBRL.format(guardaSemanal)}/semana.`;
+  }
+}
+
+// --- SCORE DE SAÚDE FINANCEIRA (0-100) ---
+function calcularScoreSaude(totalReceitas, totalDespesas, totaisPorCategoria) {
+  const card = document.getElementById("card-score");
+  const ringFill = document.getElementById("score-ring-fill");
+  const valorEl = document.getElementById("score-valor");
+  const detalhesEl = document.getElementById("score-detalhes");
+  if (!card || !ringFill || !valorEl || !detalhesEl) return;
+
+  const totalPago = totalReceitas + totalDespesas;
+  if (totalPago === 0) {
+    card.style.display = "none";
+    return;
+  }
+
+  let score = 0;
+  const criterios = [];
+
+  // 1. Taxa de poupança (40 pts) — receitas vs despesas
+  const taxaPoupanca = totalReceitas > 0 ? ((totalReceitas - totalDespesas) / totalReceitas) * 100 : 0;
+  const ptsPoupanca = Math.min(40, Math.max(0, Math.round(taxaPoupanca * 0.8)));
+  score += ptsPoupanca;
+  criterios.push({
+    nome: "Taxa de poupança",
+    valor: `${Math.round(taxaPoupanca)}%`,
+    pontos: ptsPoupanca,
+    max: 40,
+  });
+
+  // 2. Controle de gastos (25 pts) — despesas < receitas
+  const razaoGastos = totalReceitas > 0 ? (totalDespesas / totalReceitas) * 100 : 100;
+  const ptsControle = razaoGastos <= 80 ? 25 : razaoGastos <= 100 ? Math.round(25 * (1 - (razaoGastos - 80) / 40)) : 0;
+  score += ptsControle;
+  criterios.push({
+    nome: "Controle de gastos",
+    valor: `${Math.round(razaoGastos)}%`,
+    pontos: ptsControle,
+    max: 25,
+  });
+
+  // 3. Diversificação (15 pts) — menos concentração = melhor
+  const numCategorias = Object.keys(totaisPorCategoria).length;
+  const maiorCategoria = Object.values(totaisPorCategoria).sort((a, b) => b - a)[0] || 0;
+  const concentracao = totalDespesas > 0 ? (maiorCategoria / totalDespesas) * 100 : 0;
+  const ptsDiversificacao = numCategorias >= 5 && concentracao < 40 ? 15 : numCategorias >= 3 ? 10 : numCategorias >= 1 ? 5 : 0;
+  score += ptsDiversificacao;
+  criterios.push({
+    nome: "Diversificação",
+    valor: `${numCategorias} cats`,
+    pontos: ptsDiversificacao,
+    max: 15,
+  });
+
+  // 4. Regularidade (10 pts) — fixas ativas < 50% do salário
+  let totalFixas = 0;
+  if (typeof despesasFixasCarregadas !== "undefined") {
+    despesasFixasCarregadas.forEach((f) => { if (f.ativo) totalFixas += f.valor || 0; });
+  }
+  const usuario = obterUsuarioLogado();
+  const salario = usuario.salario || 0;
+  const pctFixas = salario > 0 ? (totalFixas / salario) * 100 : 100;
+  const ptsRegularidade = pctFixas <= 30 ? 10 : pctFixas <= 50 ? 6 : 0;
+  score += ptsRegularidade;
+  criterios.push({
+    nome: "Fixas do salário",
+    valor: `${Math.round(pctFixas)}%`,
+    pontos: ptsRegularidade,
+    max: 10,
+  });
+
+  // 5. Pagamentos em dia (10 pts) — sem atrasados
+  const temAtrasado = typeof ultimoLoteLancamentos !== "undefined" && ultimoLoteLancamentos.some((l) => l.status === "atrasado");
+  const ptsAtrasados = temAtrasado ? 0 : 10;
+  score += ptsAtrasados;
+  criterios.push({
+    nome: "Pagamentos em dia",
+    valor: temAtrasado ? "Atrasados" : "Em dia",
+    pontos: ptsAtrasados,
+    max: 10,
+  });
+
+  // Renderizar
+  card.style.display = "flex";
+  valorEl.textContent = score;
+
+  const circ = 2 * Math.PI * 52; // 326.73
+  const offset = circ - (score / 100) * circ;
+  ringFill.style.strokeDashoffset = offset;
+
+  let cor;
+  if (score >= 70) cor = "var(--cor-receita)";
+  else if (score >= 40) cor = "var(--cor-pendente)";
+  else cor = "var(--cor-despesa)";
+  ringFill.style.stroke = cor;
+  valorEl.style.color = cor;
+
+  detalhesEl.innerHTML = "";
+  criterios.forEach((c) => {
+    const pct = c.pontos / c.max;
+    let cls = pct >= 0.7 ? "score-criterio-ok" : pct >= 0.4 ? "score-criterio-medio" : "score-criterio-ruim";
+    const icone = pct >= 0.7 ? "✓" : pct >= 0.4 ? "!" : "✗";
+    const div = document.createElement("div");
+    div.className = "score-criterio";
+    div.innerHTML = `
+      <span class="score-criterio-icone ${cls}">${icone}</span>
+      <span class="score-criterio-texto">${c.nome}</span>
+      <span class="score-criterio-valor">${c.valor}</span>
+    `;
+    detalhesEl.appendChild(div);
+  });
+}
+
+
+// --- RELATÓRIO PDF (via impressão do navegador) ---
+function gerarRelatorioPDF() {
+  const usuario = obterUsuarioLogado();
+  const nomeMes = document.getElementById("rotulo-mes")?.textContent || "";
+  const dados = typeof ultimoLoteLancamentos !== "undefined" ? ultimoLoteLancamentos : [];
+
+  let totalReceitas = 0, totalDespesas = 0;
+  const porCategoria = {};
+
+  dados.forEach((l) => {
+    if (l.status !== "pago") return;
+    if (l.tipo === "receita") totalReceitas += l.valor;
+    else {
+      totalDespesas += l.valor;
+      porCategoria[l.categoria] = (porCategoria[l.categoria] || 0) + l.valor;
+    }
+  });
+
+  const saldo = totalReceitas - totalDespesas;
+  const categorias = Object.entries(porCategoria).sort((a, b) => b[1] - a[1]);
+
+  const html = `
+  <!DOCTYPE html>
+  <html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8"/>
+    <title>Relatório Financeiro - ${nomeMes}</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font-family: 'Segoe UI', Arial, sans-serif; padding: 40px; color: #333; }
+      h1 { font-size: 1.5rem; margin-bottom: 4px; }
+      .sub { color: #666; font-size: 0.85rem; margin-bottom: 24px; }
+      .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+      .kpi { border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; text-align: center; }
+      .kpi-rotulo { font-size: 0.75rem; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+      .kpi-valor { font-size: 1.4rem; font-weight: 700; margin-top: 4px; }
+      .kpi-receita .kpi-valor { color: #2e7d32; }
+      .kpi-despesa .kpi-valor { color: #c62828; }
+      .kpi-saldo .kpi-valor { color: ${saldo >= 0 ? "#2e7d32" : "#c62828"}; }
+      h2 { font-size: 1.1rem; margin: 20px 0 10px; border-bottom: 1px solid #e0e0e0; padding-bottom: 6px; }
+      table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+      th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid #f0f0f0; }
+      th { background: #f9f9f9; font-weight: 600; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.5px; }
+      .text-right { text-align: right; }
+      .text-receita { color: #2e7d32; }
+      .text-despesa { color: #c62828; }
+      .footer { margin-top: 30px; font-size: 0.7rem; color: #999; text-align: center; border-top: 1px solid #e0e0e0; padding-top: 10px; }
+      @media print { body { padding: 20px; } }
+    </style>
+  </head>
+  <body>
+    <h1>Relatório Financeiro</h1>
+    <div class="sub">${usuario.nome || "Usuário"} — ${nomeMes}</div>
+
+    <div class="kpi-grid">
+      <div class="kpi kpi-receita">
+        <div class="kpi-rotulo">Saldo</div>
+        <div class="kpi-valor">${formatadorBRL.format(totalReceitas)}</div>
+      </div>
+      <div class="kpi kpi-despesa">
+        <div class="kpi-rotulo">Despesas</div>
+        <div class="kpi-valor">${formatadorBRL.format(totalDespesas)}</div>
+      </div>
+      <div class="kpi kpi-saldo">
+        <div class="kpi-rotulo">Saldo do período</div>
+        <div class="kpi-valor">${formatadorBRL.format(saldo)}</div>
+      </div>
+    </div>
+
+    <h2>Despesas por categoria</h2>
+    ${categorias.length > 0 ? `
+    <table>
+      <thead><tr><th>Categoria</th><th class="text-right">Valor</th><th class="text-right">% do total</th></tr></thead>
+      <tbody>
+        ${categorias.map(([cat, val]) => `
+          <tr>
+            <td>${escaparHtml(cat)}</td>
+            <td class="text-right text-despesa">${formatadorBRL.format(val)}</td>
+            <td class="text-right">${((val / totalDespesas) * 100).toFixed(1)}%</td>
+          </tr>
+        `).join("")}
+      </tbody>
+    </table>
+    ` : "<p style='color:#999;font-size:0.85rem'>Nenhuma despesa paga neste período.</p>"}
+
+    <h2>Lançamentos (${dados.length})</h2>
+    <table>
+      <thead><tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Status</th><th class="text-right">Valor</th></tr></thead>
+      <tbody>
+        ${dados.map((l) => `
+          <tr>
+            <td>${new Date(l.data_compra + "T12:00:00").toLocaleDateString("pt-BR")}</td>
+            <td>${escaparHtml(l.descricao || "")}</td>
+            <td>${escaparHtml(l.categoria || "")}</td>
+            <td>${l.status}</td>
+            <td class="text-right ${l.tipo === "receita" ? "text-receita" : "text-despesa"}">${l.tipo === "receita" ? "+" : "-"}${formatadorBRL.format(l.valor)}</td>
+          </tr>
+        `).join("")}
+      </tbody>
+    </table>
+
+    <div class="footer">Gerado por Gestor Financeiro em ${new Date().toLocaleDateString("pt-BR")} às ${new Date().toLocaleTimeString("pt-BR")}</div>
+  </body></html>`;
+
+  const janela = window.open("", "_blank");
+  if (janela) {
+    janela.document.write(html);
+    janela.document.close();
+    setTimeout(() => janela.print(), 500);
+  } else {
+    mostrarToast("Permita pop-ups para gerar o relatório.", "aviso");
   }
 }
 
