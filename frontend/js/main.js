@@ -4189,8 +4189,11 @@ function definirPreviewFoto(dataUrl) {
   const btnRemover = document.getElementById("btn-remover-foto");
   document.getElementById("nova-foto-perfil").value = dataUrl || "";
 
-  if (dataUrl) {
-    preview.src = dataUrl;
+  // Sanitizar URL (data URLs de preview são permitidos, http/https também)
+  const urlSegura = dataUrl && (dataUrl.startsWith("data:") || sanitizarUrl(dataUrl)) ? dataUrl : "";
+
+  if (urlSegura) {
+    preview.src = urlSegura;
     preview.style.display = "block";
     vazio.style.display = "none";
     btnRemover.style.display = "inline-block";
@@ -4545,8 +4548,9 @@ async function carregarUsuarios() {
 
         const div = document.createElement("div");
         div.className = "linha-item linha-usuario" + (ehAtivo ? "" : " linha-inativa");
-        const avatarHtml = user.foto_perfil
-          ? `<img class="avatar-lista" src="${escaparHtml(user.foto_perfil)}" alt="" />`
+        const fotoSegura = sanitizarUrl(user.foto_perfil);
+        const avatarHtml = fotoSegura
+          ? `<img class="avatar-lista" src="${fotoSegura}" alt="" />`
           : `<div class="avatar-lista avatar-vazio">${escaparHtml((user.nome || user.nome_usuario).charAt(0).toUpperCase())}</div>`;
         div.innerHTML = `
           ${avatarHtml}

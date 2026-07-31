@@ -1,6 +1,25 @@
 const API_URL = window.CADIMUS_API_URL || "https://cadimus-backend.olinbytedigital.workers.dev";
 
 // ==========================================
+// SANITIZAÇÃO DE URL — previne XSS via CSS injection
+// ==========================================
+function sanitizarUrl(url) {
+  if (!url || typeof url !== "string") return "";
+  const trimada = url.trim();
+  if (!trimada) return "";
+
+  try {
+    const parsed = new URL(trimada);
+    // Apenas http e https são permitidos
+    if (!["http:", "https:"].includes(parsed.protocol)) return "";
+    return trimada;
+  } catch {
+    // URL inválida — retorna vazio
+    return "";
+  }
+}
+
+// ==========================================
 // SESSÃO via sessionStorage — sobrevive a reload e F5,
 // mas é apagada ao fechar a aba/navegador.
 // ==========================================
@@ -48,9 +67,10 @@ function atualizarAvatarTopo(usuario) {
   const nomeExibicao = usuario.nome || usuario.nome_usuario || "";
   avatar.title = nomeExibicao;
 
-  if (usuario.foto_perfil) {
+  const fotoSegura = sanitizarUrl(usuario.foto_perfil);
+  if (fotoSegura) {
     avatar.classList.remove("avatar-vazio");
-    avatar.style.backgroundImage = `url("${usuario.foto_perfil}")`;
+    avatar.style.backgroundImage = `url("${fotoSegura}")`;
     avatar.textContent = "";
   } else {
     avatar.classList.add("avatar-vazio");
@@ -65,9 +85,9 @@ function atualizarAvatarTopo(usuario) {
   if (ddEmail) ddEmail.textContent = usuario.usuario || "";
   if (ddFoto) {
     ddFoto.title = nomeExibicao;
-    if (usuario.foto_perfil) {
+    if (fotoSegura) {
       ddFoto.classList.remove("avatar-vazio");
-      ddFoto.style.backgroundImage = `url("${usuario.foto_perfil}")`;
+      ddFoto.style.backgroundImage = `url("${fotoSegura}")`;
       ddFoto.textContent = "";
     } else {
       ddFoto.classList.add("avatar-vazio");
