@@ -295,9 +295,6 @@ button:active {
   display: block;
 }
 
-  line-height: 1;
-}
-
 .painel-notificacoes {
   width: 100%;
   max-width: 420px;
@@ -415,11 +412,6 @@ button:active {
   color: var(--cor-texto-suave);
   font-size: 0.82rem;
   font-style: italic;
-}
-  font-size: 0.8rem;
-  background: transparent;
-  color: var(--cor-texto-suave);
-  border-color: var(--cor-pauta-forte);
 }
 
 .btn-topo-sair:hover {
@@ -574,15 +566,6 @@ button:active {
 /* ==========================================
    ABAS DE CARTEIRA (Casa / Pessoal)
    ========================================== */
-.carteira-tabs {
-  display: inline-flex;
-  gap: 2px;
-  padding: 3px;
-  background: var(--cor-superficie);
-  border: var(--borda) solid var(--cor-pauta-forte);
-  border-radius: 999px;
-}
-
 .carteira-tabs {
   display: inline-flex;
   gap: 2px;
@@ -2080,13 +2063,6 @@ button.item-status:active {
   height: 2px;
   background: var(--cor-marca);
   opacity: 0.5;
-}
-
-.login-logo {
-  display: block;
-  height: 64px;
-  width: auto;
-  margin: 10px auto 4px;
 }
 
 .login-logo-wrapper {
