@@ -18,7 +18,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
     <link rel="stylesheet" href="css/variables.css" />
     <link rel="stylesheet" href="css/style.css" />
@@ -38,7 +38,7 @@
             <input type="password" id="senha" placeholder="Senha" autocomplete="current-password" required />
             <button type="submit">Entrar</button>
             <div class="login-links">
-              <a href="javascript:void(0)" id="link-esqueci-senha" class="login-link">Esqueci minha senha</a>
+              <button type="button" id="link-esqueci-senha" class="login-link">Esqueci minha senha</button>
             </div>
           </form>
         </div>
@@ -64,7 +64,7 @@
 
             <button type="submit" id="btn-salvar-nova-senha">Salvar nova senha</button>
             <div class="login-links">
-              <a href="javascript:void(0)" id="link-voltar-login" class="login-link">Voltar para o login</a>
+              <button type="button" id="link-voltar-login" class="login-link">Voltar para o login</button>
             </div>
           </form>
         </div>
@@ -592,7 +592,7 @@
     </main>
 
     <!-- MODAL: ZERAR TODOS OS DADOS -->
-    <div id="modal-zerar-dados" class="modal-overlay" style="display: none">
+    <div id="modal-zerar-dados" class="modal-overlay" role="dialog" aria-modal="true" style="display: none">
       <div class="modal-content">
         <h3>Apagar todos os dados financeiros</h3>
         <p class="modal-subtitulo">
@@ -609,7 +609,7 @@
     </div>
 
     <!-- MODAL: NOVO LANÇAMENTO -->
-    <div id="modal-lancamento" class="modal-overlay" style="display: none">
+    <div id="modal-lancamento" class="modal-overlay" role="dialog" aria-modal="true" style="display: none">
       <div class="modal-content">
         <h3 id="titulo-modal-lancamento">Novo lançamento</h3>
         <form id="form-lancamento">
@@ -679,7 +679,7 @@
     </div>
 
     <!-- MODAL: TRANSFERÊNCIA ENTRE CARTEIRAS -->
-    <div id="modal-transferencia" class="modal-overlay" style="display: none">
+    <div id="modal-transferencia" class="modal-overlay" role="dialog" aria-modal="true" style="display: none">
       <div class="modal-content">
         <h3>Transferir entre carteiras</h3>
         <form id="form-transferencia">
@@ -720,7 +720,7 @@
     </div>
 
     <!-- MODAL: ORÇAMENTO MENSAL -->
-    <div id="modal-orcamento" class="modal-overlay" style="display: none">
+    <div id="modal-orcamento" class="modal-overlay" role="dialog" aria-modal="true" style="display: none">
       <div class="modal-content">
         <h3 id="titulo-modal-orcamento">Orçamento mensal</h3>
         <form id="form-orcamento">
@@ -769,7 +769,7 @@
     </div>
 
     <!-- MODAL: ESQUECI MINHA SENHA -->
-    <div id="modal-esqueci-senha" class="modal-overlay" style="display: none">
+    <div id="modal-esqueci-senha" class="modal-overlay" role="dialog" aria-modal="true" style="display: none">
       <div class="modal-content">
         <h3>Esqueci minha senha</h3>
         <form id="form-esqueci-senha">
@@ -784,7 +784,7 @@
     </div>
 
     <!-- MODAL: CONVIDAR USUÁRIO -->
-    <div id="modal-convite" class="modal-overlay" style="display: none">
+    <div id="modal-convite" class="modal-overlay" role="dialog" aria-modal="true" style="display: none">
       <div class="modal-content">
         <h3>Convidar usuário</h3>
         <form id="form-convite">
@@ -840,7 +840,7 @@
     </section>
 
     <!-- MODAL: NOVA CARTEIRA -->
-    <div id="modal-carteira" class="modal-overlay" style="display: none">
+    <div id="modal-carteira" class="modal-overlay" role="dialog" aria-modal="true" style="display: none">
       <div class="modal-content">
         <h3>Nova carteira</h3>
         <form id="form-carteira">
@@ -868,7 +868,7 @@
     </div>
 
     <!-- MODAL: CONFIGURAÇÕES DA CARTEIRA (membros + excluir) -->
-    <div id="modal-gerenciar-membros" class="modal-overlay" style="display: none">
+    <div id="modal-gerenciar-membros" class="modal-overlay" role="dialog" aria-modal="true" style="display: none">
       <div class="modal-content">
         <h3 id="titulo-gerenciar-membros">Gerenciar membros</h3>
         <input type="hidden" id="gerenciar-membros-carteira-id" value="" />
@@ -887,7 +887,7 @@
     </div>
 
     <!-- MODAL: DESPESAS FIXAS -->
-    <div id="modal-despesas-fixas" class="modal-overlay" style="display: none">
+    <div id="modal-despesas-fixas" class="modal-overlay" role="dialog" aria-modal="true" style="display: none">
       <div class="modal-content">
         <h3 id="titulo-modal-fixa">Despesas fixas</h3>
         <p class="modal-subtitulo">Lançadas automaticamente todo mês, nesta carteira, sempre no mesmo valor.</p>
@@ -945,7 +945,7 @@
     </div>
 
     <!-- MODAL: HISTÓRICO DE PAGAMENTOS (DESPESA FIXA) -->
-    <div id="modal-historico-fixa" class="modal-overlay" style="display: none">
+    <div id="modal-historico-fixa" class="modal-overlay" role="dialog" aria-modal="true" style="display: none">
       <div class="modal-content modal-historico">
         <h3 id="titulo-historico-fixa">Histórico de pagamentos</h3>
         <div id="historico-fixa-lista" class="historico-fixa-lista"></div>
@@ -954,7 +954,7 @@
     </div>
 
     <!-- MODAL: HISTÓRICO DE PARCELAS -->
-    <div id="modal-historico-parcela" class="modal-overlay" style="display: none">
+    <div id="modal-historico-parcela" class="modal-overlay" role="dialog" aria-modal="true" style="display: none">
       <div class="modal-content modal-historico">
         <h3 id="titulo-historico-parcela">Histórico de parcelas</h3>
         <div id="historico-parcela-lista" class="historico-fixa-lista"></div>
@@ -963,7 +963,7 @@
     </div>
 
     <!-- MODAL: LANÇAMENTO RECORRENTE -->
-    <div id="modal-recorrencia" class="modal-overlay" style="display: none">
+    <div id="modal-recorrencia" class="modal-overlay" role="dialog" aria-modal="true" style="display: none">
       <div class="modal-content">
         <h3 id="titulo-modal-recorrencia">Nova recorrência</h3>
         <p class="modal-subtitulo">Gera lançamentos automaticamente com a frequência escolhida.</p>
@@ -1055,7 +1055,7 @@
     </div>
 
     <!-- MODAL: COMPRA PARCELADA -->
-    <div id="modal-compra-parcelada" class="modal-overlay" style="display: none">
+    <div id="modal-compra-parcelada" class="modal-overlay" role="dialog" aria-modal="true" style="display: none">
       <div class="modal-content">
         <h3>Compra parcelada</h3>
         <p class="modal-subtitulo">Gera uma parcela por mês, sozinha, até completar o total (ex: 3/10).</p>
@@ -1115,7 +1115,7 @@
     </div>
 
     <!-- MODAL: META POR CATEGORIA -->
-    <div id="modal-meta" class="modal-overlay" style="display: none">
+    <div id="modal-meta" class="modal-overlay" role="dialog" aria-modal="true" style="display: none">
       <div class="modal-content">
         <h3>Meta de gasto</h3>
         <p class="modal-subtitulo" id="meta-categoria-label">Categoria</p>
@@ -1138,7 +1138,7 @@
     </div>
 
     <!-- MODAL: DEPÓSITO EM META -->
-    <div id="modal-meta-deposito" class="modal-overlay" style="display: none">
+    <div id="modal-meta-deposito" class="modal-overlay" role="dialog" aria-modal="true" style="display: none">
       <div class="modal-content modal-meta-deposito">
         <h3 id="titulo-meta-deposito">Depósito na meta</h3>
 
@@ -1179,7 +1179,7 @@
     </div>
 
     <!-- MODAL: NOTIFICAÇÕES -->
-    <div id="modal-notificacoes" class="modal-overlay" style="display: none">
+    <div id="modal-notificacoes" class="modal-overlay" role="dialog" aria-modal="true" style="display: none">
       <div class="modal-content modal-notificacoes">
         <div class="painel-notificacoes-header">
           <h3>Vencimentos próximos</h3>
@@ -1192,7 +1192,7 @@
     </div>
 
     <!-- MODAL: CRIAR/EDITAR PLANO -->
-    <div id="modal-plano" class="modal-overlay" style="display: none">
+    <div id="modal-plano" class="modal-overlay" role="dialog" aria-modal="true" style="display: none">
       <div class="modal-content">
         <h3 id="titulo-modal-plano">Novo plano</h3>
         <form id="form-plano">
@@ -1285,7 +1285,7 @@
     </div>
 
     <!-- MODAL: DEPÓSITO EM PLANO -->
-    <div id="modal-plano-deposito" class="modal-overlay" style="display: none">
+    <div id="modal-plano-deposito" class="modal-overlay" role="dialog" aria-modal="true" style="display: none">
       <div class="modal-content modal-plano-deposito">
         <h3 id="titulo-plano-deposito">Depósito no plano</h3>
 
@@ -1331,7 +1331,7 @@
     </div>
 
     <!-- MODAL: RENOMEAR CATEGORIA -->
-    <div id="modal-renomear-categoria" class="modal-overlay" style="display: none">
+    <div id="modal-renomear-categoria" class="modal-overlay" role="dialog" aria-modal="true" style="display: none">
       <div class="modal-content">
         <h3>Renomear categoria</h3>
         <p class="modal-subtitulo">Atualiza o nome em todos os lançamentos e despesas fixas que já usam essa categoria.</p>
@@ -1348,7 +1348,7 @@
     </div>
 
     <!-- MODAL: IMPORTAR EXTRATO -->
-    <div id="modal-importar" class="modal-overlay" style="display: none">
+    <div id="modal-importar" class="modal-overlay" role="dialog" aria-modal="true" style="display: none">
       <div class="modal-content modal-importar">
         <h3>Importar extrato</h3>
         <p class="modal-subtitulo">Arraste ou selecione um arquivo .OFX ou .CSV do seu banco.</p>
@@ -1395,7 +1395,7 @@
     </div>
 
     <!-- MODAL: EXPORTAR LANÇAMENTOS -->
-    <div id="modal-exportar" class="modal-overlay" style="display: none">
+    <div id="modal-exportar" class="modal-overlay" role="dialog" aria-modal="true" style="display: none">
       <div class="modal-content modal-exportar">
         <h3>Exportar lançamentos</h3>
         <p class="modal-subtitulo">Escolha o formato e os filtros para exportação.</p>
@@ -1452,7 +1452,7 @@
     </div>
 
     <!-- MODAL: AVISO (substitui alert()) -->
-    <div id="modal-aviso" class="modal-overlay" style="display: none">
+    <div id="modal-aviso" class="modal-overlay" role="dialog" aria-modal="true" style="display: none">
       <div class="modal-content modal-compacto">
         <p id="aviso-texto" class="modal-aviso-texto"></p>
         <button type="button" id="btn-aviso-ok">OK</button>
@@ -1460,7 +1460,7 @@
     </div>
 
     <!-- MODAL: CONFIRMAÇÃO (substitui confirm()) -->
-    <div id="modal-confirmacao" class="modal-overlay" style="display: none">
+    <div id="modal-confirmacao" class="modal-overlay" role="dialog" aria-modal="true" style="display: none">
       <div class="modal-content modal-compacto">
         <p id="confirmacao-texto" class="modal-aviso-texto"></p>
         <div class="modal-confirmacao-acoes">

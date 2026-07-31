@@ -538,7 +538,7 @@ button:active {
   cursor: pointer;
   font-size: 14px;
   color: var(--cor-texto);
-  font-family: 'DM Sans', 'Inter', sans-serif;
+  font-family: var(--fonte-corpo);
   text-align: left;
   transition: background 0.12s ease;
 }
@@ -2106,7 +2106,7 @@ button.item-status:active {
 }
 
 .login-logo-wrapper .login-logo-texto {
-  font-family: "DM Sans", sans-serif;
+  font-family: var(--fonte-corpo);
   font-weight: 700;
   font-size: 2.2rem;
   color: var(--cor-texto);
@@ -2138,7 +2138,7 @@ button.item-status:active {
 }
 
 .header-logo-wrapper span {
-  font-family: "DM Sans", sans-serif;
+  font-family: var(--fonte-corpo);
   font-weight: 700;
   font-size: 1.15rem;
   color: var(--cor-texto);
@@ -2187,6 +2187,10 @@ button.item-status:active {
   color: var(--cor-texto-suave);
   text-decoration: none;
   cursor: pointer;
+  background: none;
+  border: none;
+  font: inherit;
+  padding: 0;
 }
 
 .login-link:hover {

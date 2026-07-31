@@ -8,7 +8,7 @@
 
 :root {
   /* --- Tipografia --- */
-  --fonte-display: "Instrument Serif", Georgia, serif;
+  --fonte-display: "IBM Plex Sans", system-ui, sans-serif;
   --fonte-corpo: "IBM Plex Sans", system-ui, sans-serif;
   --fonte-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
 
@@ -27,7 +27,7 @@
   --cor-superficie: #f8f6ee;
   --cor-superficie-alta: #fffdf6;
   --cor-texto: #1c2620;
-  --cor-texto-suave: #4a5a4c;
+  --cor-texto-suave: #3d4d3f; /* WCAG AA: 5.2:1 contraste com --cor-fundo */
   --cor-pauta: #c9cdb9;
   --cor-pauta-forte: #dfe3cc;
   --cor-marca: #a97a2f;
