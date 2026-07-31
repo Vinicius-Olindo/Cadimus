@@ -2451,9 +2451,12 @@ function configurarComparativoPeriodo() {
   });
 }
 
-function renderizarComparativoPeriodo() {
+let periodoDadosAnterior = { receitas: 0, despesas: 0, saldo: 0 };
+let periodoDadosAtual = { receitas: 0, despesas: 0, saldo: 0 };
+
+async function renderizarComparativoPeriodo() {
   const carteiraId = document.getElementById("seletor-carteira")?.value;
-  if (!carteiraId || ultimoLoteLancamentos.length === 0) return;
+  if (!carteiraId) return;
 
   const agora = new Date();
   let inicioAtual, fimAtual, inicioAnterior, fimAnterior, rotuloAtual, rotuloAnterior;
@@ -2491,9 +2494,9 @@ function renderizarComparativoPeriodo() {
     rotuloAnterior = `${agora.getFullYear() - 1}`;
   }
 
-  const calcularTotais = (inicio, fim) => {
+  const calcularTotaisDeLancamentos = (lancamentos, inicio, fim) => {
     let receitas = 0, despesas = 0;
-    ultimoLoteLancamentos.forEach((l) => {
+    lancamentos.forEach((l) => {
       if (l.status !== "pago") return;
       const d = new Date(l.data_compra + "T12:00:00");
       if (d >= inicio && d <= fim) {
@@ -2504,29 +2507,57 @@ function renderizarComparativoPeriodo() {
     return { receitas, despesas, saldo: receitas - despesas };
   };
 
-  const atual = calcularTotais(inicioAtual, fimAtual);
-  const anterior = calcularTotais(inicioAnterior, fimAnterior);
+  const buscarLancamentosPeriodo = async (inicio, fim) => {
+    const anoInicio = inicio.getFullYear();
+    const mesInicio = inicio.getMonth() + 1;
+    const anoFim = fim.getFullYear();
+    const mesFim = fim.getMonth() + 1;
+    const todos = [];
+    for (let a = anoInicio; a <= anoFim; a++) {
+      const mStart = a === anoInicio ? mesInicio : 1;
+      const mEnd = a === anoFim ? mesFim : 12;
+      for (let m = mStart; m <= mEnd; m++) {
+        const url = `${API_URL}/api/lancamentos?carteira_id=${carteiraId}&mes=${String(m).padStart(2, "0")}&ano=${a}`;
+        try {
+          const res = await fetch(url, { headers: headersAutenticados(false) });
+          if (res.ok) {
+            const dados = await res.json();
+            todos.push(...dados);
+          }
+        } catch (e) { /* ignora erro individual */ }
+      }
+    }
+    return todos;
+  };
+
+  const [lancAtual, lancAnterior] = await Promise.all([
+    buscarLancamentosPeriodo(inicioAtual, fimAtual),
+    buscarLancamentosPeriodo(inicioAnterior, fimAnterior)
+  ]);
+
+  periodoDadosAtual = calcularTotaisDeLancamentos(lancAtual, inicioAtual, fimAtual);
+  periodoDadosAnterior = calcularTotaisDeLancamentos(lancAnterior, inicioAnterior, fimAnterior);
 
   document.getElementById("periodo-atual-rotulo").textContent = rotuloAtual;
   document.getElementById("periodo-anterior-rotulo").textContent = rotuloAnterior;
 
-  document.getElementById("periodo-atual-receitas").textContent = formatadorBRL.format(atual.receitas);
-  document.getElementById("periodo-atual-despesas").textContent = formatadorBRL.format(atual.despesas);
-  document.getElementById("periodo-atual-saldo").textContent = formatadorBRL.format(atual.saldo);
+  document.getElementById("periodo-atual-receitas").textContent = formatadorBRL.format(periodoDadosAtual.receitas);
+  document.getElementById("periodo-atual-despesas").textContent = formatadorBRL.format(periodoDadosAtual.despesas);
+  document.getElementById("periodo-atual-saldo").textContent = formatadorBRL.format(periodoDadosAtual.saldo);
 
-  document.getElementById("periodo-anterior-receitas").textContent = formatadorBRL.format(anterior.receitas);
-  document.getElementById("periodo-anterior-despesas").textContent = formatadorBRL.format(anterior.despesas);
-  document.getElementById("periodo-anterior-saldo").textContent = formatadorBRL.format(anterior.saldo);
+  document.getElementById("periodo-anterior-receitas").textContent = formatadorBRL.format(periodoDadosAnterior.receitas);
+  document.getElementById("periodo-anterior-despesas").textContent = formatadorBRL.format(periodoDadosAnterior.despesas);
+  document.getElementById("periodo-anterior-saldo").textContent = formatadorBRL.format(periodoDadosAnterior.saldo);
 
   const variacaoEl = document.getElementById("periodo-variacao-saldo");
-  if (anterior.saldo === 0 && atual.saldo === 0) {
+  if (periodoDadosAnterior.saldo === 0 && periodoDadosAtual.saldo === 0) {
     variacaoEl.textContent = "—";
     variacaoEl.className = "periodo-variacao-valor neutro";
-  } else if (anterior.saldo === 0) {
-    variacaoEl.textContent = atual.saldo > 0 ? "+∞" : "-∞";
-    variacaoEl.className = `periodo-variacao-valor ${atual.saldo >= 0 ? "positivo" : "negativo"}`;
+  } else if (periodoDadosAnterior.saldo === 0) {
+    variacaoEl.textContent = periodoDadosAtual.saldo > 0 ? "+∞" : "-∞";
+    variacaoEl.className = `periodo-variacao-valor ${periodoDadosAtual.saldo >= 0 ? "positivo" : "negativo"}`;
   } else {
-    const variacao = ((atual.saldo - anterior.saldo) / Math.abs(anterior.saldo)) * 100;
+    const variacao = ((periodoDadosAtual.saldo - periodoDadosAnterior.saldo) / Math.abs(periodoDadosAnterior.saldo)) * 100;
     const sinal = variacao >= 0 ? "+" : "";
     variacaoEl.textContent = `${sinal}${variacao.toFixed(0)}%`;
     variacaoEl.className = `periodo-variacao-valor ${variacao >= 0 ? "positivo" : "negativo"}`;
