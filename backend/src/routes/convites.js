@@ -200,7 +200,7 @@ async function aceitarConvite(body, env) {
     const senhaHash = await hashSenha(senha);
     const nomeFinal = nome || convite.nome;
 
-    // Cria o usuário com criado_por do admin que gerou o convite
+    // Usuários criados por convite sempre recebem perfil "comum"
     const resultado = await env.DB.prepare(
       `INSERT INTO usuarios (nome_usuario, senha_hash, perfil, nome, email, criado_por) VALUES (?, ?, ?, ?, ?, ?)`
     ).bind(nomeUsuario, senhaHash, convite.perfil, nomeFinal, convite.email, convite.criado_por).run();

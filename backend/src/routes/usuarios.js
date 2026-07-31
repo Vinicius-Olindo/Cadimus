@@ -91,10 +91,11 @@ export async function processarUsuarios(request, env, ctx) {
   // ==========================================
   if (metodo === "GET") {
     try {
-      // Superadmin vê todos; outros só veem quem eles criaram
+      // Apenas o superadmin original (id=1) vê todos os usuários.
+      // Outros admins (mesmo com perfil superadmin) só veem quem eles criaram.
       let query;
       let binds = [];
-      if (usuarioLogado.perfil === "superadmin") {
+      if (Number(usuarioLogado.id) === 1) {
         query = `SELECT id, nome_usuario, perfil, nome, telefone, email, foto_perfil, criado_em, ultimo_acesso, ativo, criado_por, salario FROM usuarios ORDER BY id ASC`;
       } else {
         query = `SELECT id, nome_usuario, perfil, nome, telefone, email, foto_perfil, criado_em, ultimo_acesso, ativo, criado_por, salario FROM usuarios WHERE criado_por = ? ORDER BY id ASC`;
