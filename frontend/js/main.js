@@ -222,6 +222,13 @@ document.addEventListener("DOMContentLoaded", () => {
   configurarModalRenomearCategoria();
   configurarPainelAdmin();
   configurarPlano();
+  configurarModalTransferencia();
+
+  // Botão de transferência
+  const btnTransferencia = document.getElementById("btn-transferencia");
+  if (btnTransferencia) {
+    btnTransferencia.addEventListener("click", () => window.abrirModalTransferencia());
+  }
 });
 
 // --- SELETOR DE MÊS (setas, sem depender do calendário nativo do navegador) ---
@@ -620,6 +627,110 @@ function configurarModalCarteira() {
       await mostrarAviso("Falha na comunicação com o servidor.");
     } finally {
       btnSalvar.innerText = "Criar carteira";
+      btnSalvar.disabled = false;
+    }
+  });
+}
+
+// --- MODAL: TRANSFERÊNCIA ENTRE CARTEIRAS ---
+function configurarModalTransferencia() {
+  const modal = document.getElementById("modal-transferencia");
+  const btnFechar = document.getElementById("btn-fechar-modal-transferencia");
+  const form = document.getElementById("form-transferencia");
+  const selectOrigem = document.getElementById("transferencia-carteira-origem");
+  const selectDestino = document.getElementById("transferencia-carteira-destino");
+
+  if (!modal || !btnFechar || !form) return;
+
+  // Preencher selects com as carteiras do usuário
+  function preencherSelectsCarteiras() {
+    if (!carteirasDoUsuario || carteirasDoUsuario.length === 0) return;
+
+    const opcoesHtml = carteirasDoUsuario
+      .map((c) => `<option value="${c.id}">${escaparHtml(c.nome)}</option>`)
+      .join("");
+
+    selectOrigem.innerHTML = `<option value="" disabled selected>Selecionar carteira</option>${opcoesHtml}`;
+    selectDestino.innerHTML = `<option value="" disabled selected>Selecionar carteira</option>${opcoesHtml}`;
+  }
+
+  // Abrir modal
+  function abrirModalTransferencia() {
+    preencherSelectsCarteiras();
+    document.getElementById("transferencia-data").valueAsDate = new Date();
+    modal.style.display = "flex";
+    trapFoco(modal);
+  }
+
+  // Expor globalmente para chamar do botão
+  window.abrirModalTransferencia = abrirModalTransferencia;
+
+  // Fechar modal
+  btnFechar.addEventListener("click", () => {
+    modal.style.display = "none";
+    liberarFoco();
+    form.reset();
+  });
+
+  // Submeter transferência
+  form.addEventListener("submit", async (evento) => {
+    evento.preventDefault();
+
+    const btnSalvar = document.getElementById("btn-salvar-transferencia");
+    btnSalvar.innerText = "Transferindo...";
+    btnSalvar.disabled = true;
+
+    try {
+      const origemId = Number(selectOrigem.value);
+      const destinoId = Number(selectDestino.value);
+      const valor = parseFloat(document.getElementById("transferencia-valor").value);
+      const data = document.getElementById("transferencia-data").value;
+      const descricao = document.getElementById("transferencia-descricao").value.trim();
+
+      // Validações locais
+      if (!origemId || !destinoId) {
+        await mostrarAviso("Selecione as carteiras de origem e destino.");
+        return;
+      }
+
+      if (origemId === destinoId) {
+        await mostrarAviso("As carteiras de origem e destino devem ser diferentes.");
+        return;
+      }
+
+      if (!valor || valor <= 0) {
+        await mostrarAviso("Informe um valor válido.");
+        return;
+      }
+
+      const resposta = await fetch(`${API_URL}/api/transferencias`, {
+        method: "POST",
+        headers: headersAutenticados(),
+        body: JSON.stringify({
+          valor,
+          data_transferencia: data,
+          carteira_origem_id: origemId,
+          carteira_destino_id: destinoId,
+          descricao,
+        }),
+      });
+
+      if (tratarSessaoExpirada(resposta)) return;
+
+      if (resposta.ok) {
+        modal.style.display = "none";
+        liberarFoco();
+        form.reset();
+        carregarLancamentos();
+        mostrarToast("Transferência realizada com sucesso!");
+      } else {
+        const erro = await resposta.json();
+        await mostrarAviso(`Erro: ${erro.erro}`);
+      }
+    } catch (erro) {
+      await mostrarAviso("Falha na comunicação com o servidor.");
+    } finally {
+      btnSalvar.innerText = "Transferir";
       btnSalvar.disabled = false;
     }
   });
@@ -2609,19 +2720,26 @@ async function carregarLancamentos() {
     const inputMes = document.getElementById("filtro-mes").value;
 
     let urlComFiltros = `${API_URL}/api/lancamentos?carteira_id=${carteiraId}`;
+    let urlTransferencias = `${API_URL}/api/transferencias?carteira_id=${carteiraId}`;
 
     if (inputMes) {
       const [ano, mes] = inputMes.split("-");
       urlComFiltros += `&mes=${mes}&ano=${ano}`;
+      urlTransferencias += `&mes=${mes}&ano=${ano}`;
     }
 
-    const [resposta] = await Promise.all([fetch(urlComFiltros, { headers: headersAutenticados(false) }), promiseMetas]);
+    const [resposta, respostaTransferencias] = await Promise.all([
+      fetch(urlComFiltros, { headers: headersAutenticados(false) }),
+      fetch(urlTransferencias, { headers: headersAutenticados(false) }),
+      promiseMetas,
+    ]);
 
     // Chegou uma requisição mais nova enquanto esperávamos? Descarta esta resposta.
     if (idDestaRequisicao !== ultimaRequisicaoLancamentos) return;
 
-    if (tratarSessaoExpirada(resposta)) return;
+    if (tratarSessaoExpirada(resposta) || tratarSessaoExpirada(respostaTransferencias)) return;
     const dados = await resposta.json();
+    const transferencias = await respostaTransferencias.json();
 
     if (idDestaRequisicao !== ultimaRequisicaoLancamentos) return;
 
@@ -2649,6 +2767,8 @@ async function carregarLancamentos() {
     let totalReceitas = 0;
     let totalDespesas = 0;
     let totalPendente = 0;
+    let totalTransferenciasSaida = 0;
+    let totalTransferenciasEntrada = 0;
     const totaisPorCategoria = {};
 
     dados.forEach((lancamento) => {
@@ -2668,11 +2788,23 @@ async function carregarLancamentos() {
       }
     });
 
+    // Calcular transferências (saída e entrada)
+    const carteiraIdNum = Number(carteiraId);
+    transferencias.forEach((t) => {
+      if (t.carteira_origem_id === carteiraIdNum) {
+        totalTransferenciasSaida += t.valor;
+      }
+      if (t.carteira_destino_id === carteiraIdNum) {
+        totalTransferenciasEntrada += t.valor;
+      }
+    });
+
     renderizarListaLancamentos();
     popularSelectLoteCategorias();
     renderizarComparativoPeriodo();
 
-    const saldoCalculado = totalReceitas - totalDespesas;
+    // Saldo = Receitas - Despesas - Transferências Saída + Transferências Entrada
+    const saldoCalculado = totalReceitas - totalDespesas - totalTransferenciasSaida + totalTransferenciasEntrada;
 
     animarValorMonetario(document.getElementById("total-receitas"), totalReceitas);
     animarValorMonetario(document.getElementById("total-despesas"), totalDespesas);

@@ -863,6 +863,33 @@ button:active {
   transform: scale(0.98);
 }
 
+.botoes-cabecalho {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.btn-secundario {
+  background: var(--cor-superficie);
+  color: var(--cor-texto);
+  border: var(--borda) solid var(--cor-pauta-forte);
+  padding: 10px 16px;
+  border-radius: var(--raio-md);
+  font-size: 0.82rem;
+  box-shadow: var(--sombra-cartao);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-secundario:hover {
+  background: var(--cor-pauta);
+  border-color: var(--cor-marca);
+}
+
+.btn-secundario:active {
+  transform: scale(0.98);
+}
+
 /* ==========================================
    GRADE DE INDICADORES (KPIs) — o painel de controle propriamente dito
    ========================================== */
@@ -3400,6 +3427,16 @@ textarea::placeholder {
 
   .modal-content .linha-form-dupla {
     grid-template-columns: 1fr;
+  }
+
+  .botoes-cabecalho {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .btn-secundario {
+    padding: 8px 12px;
+    font-size: 0.78rem;
   }
 
   .linha-usuario {

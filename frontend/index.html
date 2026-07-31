@@ -299,7 +299,10 @@
 
             <div class="lancamentos-cabecalho">
               <h3>Lançamentos</h3>
-              <button id="btn-novo-gasto">+ Novo lançamento</button>
+              <div class="botoes-cabecalho">
+                <button id="btn-transferencia" class="btn-secundario">↔ Transferir</button>
+                <button id="btn-novo-gasto">+ Novo lançamento</button>
+              </div>
             </div>
             <div class="lote-barra" id="lote-barra" style="display: none">
               <span class="lote-contador" id="lote-contador">0 selecionados</span>
@@ -663,6 +666,47 @@
 
           <button type="submit" id="btn-salvar-lancamento">Salvar</button>
           <button type="button" id="btn-fechar-modal">Cancelar</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL: TRANSFERÊNCIA ENTRE CARTEIRAS -->
+    <div id="modal-transferencia" class="modal-overlay" style="display: none">
+      <div class="modal-content">
+        <h3>Transferir entre carteiras</h3>
+        <form id="form-transferencia">
+          <div class="campo">
+            <label for="transferencia-carteira-origem">Carteira de origem</label>
+            <select id="transferencia-carteira-origem" required>
+              <option value="" disabled selected>Selecionar carteira</option>
+            </select>
+          </div>
+
+          <div class="campo">
+            <label for="transferencia-carteira-destino">Carteira de destino</label>
+            <select id="transferencia-carteira-destino" required>
+              <option value="" disabled selected>Selecionar carteira</option>
+            </select>
+          </div>
+
+          <div class="linha-form-dupla">
+            <div class="campo">
+              <label for="transferencia-valor">Valor</label>
+              <input type="number" id="transferencia-valor" step="0.01" placeholder="0,00" required />
+            </div>
+            <div class="campo">
+              <label for="transferencia-data">Data</label>
+              <input type="date" id="transferencia-data" required />
+            </div>
+          </div>
+
+          <div class="campo">
+            <label for="transferencia-descricao">Descrição <span class="campo-optional">(opcional)</span></label>
+            <input type="text" id="transferencia-descricao" placeholder="Ex: Transferência para poupança..." />
+          </div>
+
+          <button type="submit" id="btn-salvar-transferencia">Transferir</button>
+          <button type="button" id="btn-fechar-modal-transferencia">Cancelar</button>
         </form>
       </div>
     </div>

@@ -12,6 +12,7 @@ import { processarPlanos, processarPlanoDepositos } from "./routes/planos.js";
 import { processarComprasParceladas } from "./routes/comprasParceladas.js";
 import { processarLancamentosRecorrentes } from "./routes/lancamentosRecorrentes.js";
 import { processarConvites } from "./routes/convites.js";
+import { processarTransferencias } from "./routes/transferencias.js";
 import { processarLimpezaDados } from "./routes/manutencao.js";
 
 // ==========================================
@@ -138,6 +139,13 @@ export default {
       // ==========================================
       if (url.pathname.startsWith("/api/convites")) {
         return comCors(await processarConvites(request, env, ctx), frontendUrl, request);
+      }
+
+      // ==========================================
+      // ROTA 12: TRANSFERÊNCIAS ENTRE CARTEIRAS
+      // ==========================================
+      if (url.pathname.startsWith("/api/transferencias")) {
+        return comCors(await processarTransferencias(request, env, ctx), frontendUrl, request);
       }
 
       // ==========================================
