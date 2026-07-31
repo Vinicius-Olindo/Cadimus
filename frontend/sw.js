@@ -4,11 +4,12 @@
 // NUNCA intercepta chamadas à API — dados financeiros sempre vêm da rede.
 // ==========================================
 
-const CACHE_NAME = "cadimus-cache-v3";
+const CACHE_NAME = "cadimus-cache-v4";
 
 const ARQUIVOS_PARA_CACHE = [
   "./",
   "./index.html",
+  "./offline.html",
   "./manifest.json",
   "./css/variables.css",
   "./css/style.css",
@@ -53,6 +54,7 @@ self.addEventListener("fetch", (evento) => {
 
   // Stale-while-revalidate: responde rápido com o cache, mas já busca uma versão
   // nova em segundo plano pra próxima vez — assim não fica preso a uma versão velha.
+  // Se a rede falhar e não tiver cache, serve a página offline.
   evento.respondWith(
     caches.open(CACHE_NAME).then((cache) =>
       cache.match(evento.request).then((respostaCache) => {
@@ -63,9 +65,9 @@ self.addEventListener("fetch", (evento) => {
             }
             return respostaRede;
           })
-          .catch(() => respostaCache);
+          .catch(() => null);
 
-        return respostaCache || buscaRede;
+        return respostaCache || buscaRede || cache.match("./offline.html");
       }),
     ),
   );

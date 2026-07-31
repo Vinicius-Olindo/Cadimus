@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cadimus — Offline</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #e7e3d6;
+      color: #1c2620;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .offline-box {
+      text-align: center;
+      max-width: 360px;
+    }
+    .offline-icone {
+      font-size: 3rem;
+      margin-bottom: 16px;
+    }
+    .offline-titulo {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .offline-texto {
+      font-size: 0.9rem;
+      color: #4a5a4c;
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+    .offline-btn {
+      display: inline-block;
+      padding: 10px 24px;
+      background: #a97a2f;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .offline-btn:hover { background: #8c621f; }
+  </style>
+</head>
+<body>
+  <div class="offline-box">
+    <div class="offline-icone">📡</div>
+    <h1 class="offline-titulo">Você está offline</h1>
+    <p class="offline-texto">Verifique sua conexão com a internet e tente novamente.</p>
+    <button class="offline-btn" onclick="location.reload()">Tentar novamente</button>
+  </div>
+</body>
+</html>
