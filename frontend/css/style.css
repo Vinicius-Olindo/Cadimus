@@ -1003,7 +1003,7 @@ button:active {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding: 18px 20px;
+  padding: 20px;
 }
 
 .comparativo-periodo-header {
@@ -1016,7 +1016,7 @@ button:active {
 
 .comparativo-periodo-titulo {
   font-size: 0.7rem;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1.2px;
   color: var(--cor-texto-suave);
@@ -1024,14 +1024,14 @@ button:active {
 
 .comparativo-periodo-seletor {
   display: flex;
-  gap: 4px;
+  gap: 2px;
   background: var(--cor-pauta-fraca);
   border-radius: var(--raio-botoes);
   padding: 3px;
 }
 
 .periodo-btn {
-  padding: 5px 12px;
+  padding: 5px 14px;
   border: none;
   border-radius: calc(var(--raio-botoes) - 2px);
   background: transparent;
@@ -1042,44 +1042,51 @@ button:active {
   transition: all 0.15s ease;
 }
 
+.periodo-btn:hover {
+  color: var(--cor-texto);
+}
+
 .periodo-btn.ativo {
   background: var(--cor-fundo);
   color: var(--cor-texto);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  font-weight: 600;
 }
 
 .comparativo-periodo-conteudo {
   display: flex;
-  align-items: stretch;
-  gap: 16px;
+  align-items: center;
+  gap: 12px;
   flex-wrap: wrap;
 }
 
 .periodo-coluna {
   flex: 1;
-  min-width: 140px;
+  min-width: 130px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
+  background: color-mix(in srgb, var(--cor-pauta-fraca) 40%, transparent);
+  border-radius: var(--raio-lg);
+  padding: 14px 16px;
 }
 
 .periodo-rotulo {
   font-size: 0.78rem;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--cor-texto);
 }
 
 .periodo-metricas {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .periodo-metrica {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 8px;
 }
 
 .periodo-metrica-rotulo {
@@ -1093,13 +1100,33 @@ button:active {
   font-weight: 600;
 }
 
+.periodo-metrica-destaque {
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px dashed var(--cor-pauta-forte);
+}
+
+.periodo-metrica-destaque .periodo-metrica-valor {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--cor-texto);
+}
+
 .periodo-seta {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 4px;
   color: var(--cor-texto-suave);
-  opacity: 0.5;
   flex-shrink: 0;
+  opacity: 0.6;
+}
+
+.periodo-seta-linha {
+  width: 1px;
+  height: 8px;
+  background: var(--cor-pauta-forte);
 }
 
 .periodo-variacao {
@@ -1108,17 +1135,18 @@ button:active {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  min-width: 100px;
-  padding: 12px;
+  min-width: 90px;
+  padding: 14px 12px;
   background: color-mix(in srgb, var(--cor-pauta-fraca) 50%, transparent);
-  border-radius: var(--raio-botoes);
+  border-radius: var(--raio-lg);
 }
 
 .periodo-variacao-label {
-  font-size: 0.68rem;
+  font-size: 0.65rem;
   text-transform: uppercase;
   letter-spacing: 0.8px;
   color: var(--cor-texto-suave);
+  font-weight: 600;
 }
 
 .periodo-variacao-valor {
