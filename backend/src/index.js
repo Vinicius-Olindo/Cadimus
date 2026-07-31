@@ -13,6 +13,7 @@ import { processarComprasParceladas } from "./routes/comprasParceladas.js";
 import { processarLancamentosRecorrentes } from "./routes/lancamentosRecorrentes.js";
 import { processarConvites } from "./routes/convites.js";
 import { processarTransferencias } from "./routes/transferencias.js";
+import { processarOrcamentos } from "./routes/orcamentos.js";
 import { processarLimpezaDados } from "./routes/manutencao.js";
 
 // ==========================================
@@ -146,6 +147,13 @@ export default {
       // ==========================================
       if (url.pathname.startsWith("/api/transferencias")) {
         return comCors(await processarTransferencias(request, env, ctx), frontendUrl, request);
+      }
+
+      // ==========================================
+      // ROTA 13: ORÇAMENTOS MENSAIS POR CATEGORIA
+      // ==========================================
+      if (url.pathname.startsWith("/api/orcamentos")) {
+        return comCors(await processarOrcamentos(request, env, ctx), frontendUrl, request);
       }
 
       // ==========================================

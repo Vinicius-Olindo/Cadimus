@@ -3165,6 +3165,107 @@ textarea::placeholder {
   background: color-mix(in srgb, var(--cor-despesa) 10%, transparent);
 }
 
+/* ==========================================
+   ORÇAMENTOS MENTAIS
+   ========================================== */
+.orcamento-item {
+  padding: 12px 0;
+  border-bottom: var(--borda) solid var(--cor-pauta);
+  position: relative;
+}
+
+.orcamento-item:last-child {
+  border-bottom: none;
+}
+
+.orcamento-cabecalho {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.orcamento-categoria {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--cor-texto);
+}
+
+.orcamento-status {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--raio-sm);
+}
+
+.orcamento-status.status-ok {
+  background: color-mix(in srgb, var(--cor-receita) 15%, transparent);
+  color: var(--cor-receita);
+}
+
+.orcamento-status.status-alerta {
+  background: color-mix(in srgb, var(--cor-pendente) 15%, transparent);
+  color: var(--cor-pendente);
+}
+
+.orcamento-status.status-estourado {
+  background: color-mix(in srgb, var(--cor-despesa) 15%, transparent);
+  color: var(--cor-despesa);
+}
+
+.orcamento-barra-fundo {
+  height: 8px;
+  background: var(--cor-fundo-alt);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.orcamento-barra-progresso {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.orcamento-valores {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+}
+
+.orcamento-gasto {
+  color: var(--cor-texto-suave);
+}
+
+.orcamento-saldo {
+  font-weight: 600;
+  color: var(--cor-texto);
+}
+
+.orcamento-btn-excluir {
+  position: absolute;
+  top: 12px;
+  right: 0;
+  background: none;
+  border: none;
+  color: var(--cor-texto-suave);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--raio-sm);
+  transition: all 0.15s;
+  opacity: 0;
+}
+
+.orcamento-item:hover .orcamento-btn-excluir {
+  opacity: 1;
+}
+
+.orcamento-btn-excluir:hover {
+  color: var(--cor-despesa);
+  background: color-mix(in srgb, var(--cor-despesa) 10%, transparent);
+}
+
 /* Avatar na listagem de usuários */
 .avatar-lista {
   flex: 0 0 auto;
