@@ -345,12 +345,20 @@
           <div class="area-controle">
             <div class="card resumo-categorias" id="resumo-categorias" style="display: none">
               <span class="resumo-categorias-titulo">Para onde foi o dinheiro</span>
+              <div class="grafico-categorias-container">
+                <div class="grafico-donut" id="grafico-donut"></div>
+                <div class="grafico-legenda" id="grafico-legenda"></div>
+              </div>
               <div id="lista-categorias-resumo"></div>
             </div>
 
             <div class="card resumo-categorias" id="card-tendencia" style="display: none">
-              <span class="resumo-categorias-titulo">Tendência (6 meses)</span>
+              <span class="resumo-categorias-titulo">Evolução mensal</span>
               <div id="grafico-tendencia" class="tendencia-grafico"></div>
+              <div class="tendencia-legendas" id="tendencia-legendas">
+                <span class="tendencia-legenda-item"><span class="tendencia-legenda-cor" style="background:var(--cor-receita)"></span> Saldo</span>
+                <span class="tendencia-legenda-item"><span class="tendencia-legenda-cor" style="background:var(--cor-despesa)"></span> Despesas</span>
+              </div>
             </div>
 
             <div class="card resumo-categorias" id="card-comparativo" style="display: none">

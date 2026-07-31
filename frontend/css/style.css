@@ -1332,60 +1332,7 @@ button:active {
   color: var(--cor-receita);
 }
 
-/* Gráfico de tendência (6 meses) */
-.tendencia-grafico {
-  display: flex;
-  align-items: flex-end;
-  gap: 10px;
-  padding-top: 22px;
-}
-
-.tendencia-coluna {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  min-width: 0;
-}
-
-.tendencia-valor {
-  font-family: var(--fonte-mono);
-  font-size: 0.6rem;
-  color: var(--cor-texto-suave);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-}
-
-.tendencia-barra-trilho {
-  width: 100%;
-  height: 70px;
-  display: flex;
-  align-items: flex-end;
-  background: var(--cor-pauta-forte);
-  border-radius: 4px 4px 0 0;
-  overflow: hidden;
-}
-
-.tendencia-barra {
-  width: 100%;
-  height: 0%;
-  background: var(--cor-texto-suave);
-  transition: height 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.tendencia-barra-atual {
-  background: var(--cor-marca);
-}
-
-.tendencia-rotulo {
-  font-size: 0.64rem;
-  color: var(--cor-texto-suave);
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-}
+/* Gráfico de tendência (evolução mensal com linhas) — estilos SVG no final do arquivo */
 
 .stat-desc {
   font-size: 0.68rem;
@@ -4559,4 +4506,168 @@ textarea::placeholder {
     animation: none;
     opacity: 1;
   }
+}
+
+/* ==========================================
+   GRÁFICO DONUT (PIE CHART)
+   ========================================== */
+
+.grafico-categorias-container {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 16px;
+}
+
+.grafico-donut {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.grafico-donut::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: var(--cor-fundo-card, #fff);
+}
+
+.grafico-legenda {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+.grafico-legenda-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+}
+
+.grafico-legenda-cor {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.grafico-legenda-nome {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.grafico-legenda-valor {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .grafico-categorias-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .grafico-donut {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto;
+  }
+
+  .grafico-donut::after {
+    width: 60px;
+    height: 60px;
+  }
+}
+
+/* ==========================================
+   GRÁFICO DE LINHA (EVOLUÇÃO MENSAL)
+   ========================================== */
+
+.tendencia-grafico {
+  position: relative;
+}
+
+.tendencia-svg {
+  width: 100%;
+  height: auto;
+}
+
+.tendencia-grid-line {
+  stroke: var(--cor-borda, #e0e0e0);
+  stroke-width: 0.5;
+  stroke-dasharray: 4 4;
+}
+
+.tendencia-line {
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.tendencia-receita {
+  stroke: var(--cor-receita, #2e7d32);
+}
+
+.tendencia-despesa {
+  stroke: var(--cor-despesa, #c62828);
+}
+
+.tendencia-dot {
+  stroke-width: 1.5;
+  cursor: pointer;
+}
+
+.tendencia-dot.tendencia-receita {
+  fill: var(--cor-receita, #2e7d32);
+  stroke: var(--cor-fundo-card, #fff);
+}
+
+.tendencia-dot.tendencia-despesa {
+  fill: var(--cor-despesa, #c62828);
+  stroke: var(--cor-fundo-card, #fff);
+}
+
+.tendencia-rotulos {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 30px;
+}
+
+.tendencia-rotulos .tendencia-rotulo {
+  font-size: 0.7rem;
+  color: var(--cor-texto-suave, #666);
+}
+
+.tendencia-legendas {
+  display: flex;
+  gap: 16px;
+  margin-top: 8px;
+  justify-content: center;
+}
+
+.tendencia-legenda-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: var(--cor-texto, #333);
+}
+
+.tendencia-legenda-cor {
+  width: 10px;
+  height: 3px;
+  border-radius: 2px;
 }

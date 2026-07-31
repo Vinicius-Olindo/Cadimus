@@ -2465,7 +2465,11 @@ function renderizarListaLancamentos() {
 
   if (filtrados.length === 0) {
     const temFiltro = termo || tipoFiltro || statusFiltro || categoriaFiltro;
-    container.appendChild(criarAvisoListaVazia(temFiltro ? "Nenhum lançamento encontrado com esses filtros." : undefined));
+    if (temFiltro) {
+      container.appendChild(criarAvisoListaVazia("Nenhum lançamento encontrado com esses filtros.", "Limpar filtros", "limpar-filtros"));
+    } else {
+      container.appendChild(criarAvisoListaVazia());
+    }
     return;
   }
 
@@ -2509,6 +2513,21 @@ function renderizarListaLancamentos() {
   });
 }
 
+function limparFiltros() {
+  const campoBusca = document.getElementById("busca-lancamento");
+  const filtroTipo = document.getElementById("filtro-tipo");
+  const filtroStatus = document.getElementById("filtro-status");
+  const filtroCategoria = document.getElementById("filtro-categoria-lancamento");
+
+  if (campoBusca) campoBusca.value = "";
+  if (filtroTipo) filtroTipo.value = "";
+  if (filtroStatus) filtroStatus.value = "";
+  if (filtroCategoria) filtroCategoria.value = "";
+
+  termoBuscaAtual = "";
+  renderizarListaLancamentos();
+}
+
 function configurarBuscaLancamentos() {
   const campo = document.getElementById("busca-lancamento");
   if (!campo) return;
@@ -2538,6 +2557,7 @@ function configurarBuscaLancamentos() {
       else if (acao === "apagar") apagarLancamento(id);
       else if (acao === "status") alternarStatusLancamento(id, alvo.dataset.statusAtual);
       else if (acao === "novo-lancamento") abrirModalNovoLancamento();
+      else if (acao === "limpar-filtros") limparFiltros();
     });
   }
 }
@@ -3177,16 +3197,52 @@ async function carregarLancamentos() {
 function renderizarResumoCategorias(totaisPorCategoria) {
   const card = document.getElementById("resumo-categorias");
   const container = document.getElementById("lista-categorias-resumo");
+  const donutEl = document.getElementById("grafico-donut");
+  const legendaEl = document.getElementById("grafico-legenda");
   if (!card || !container) return;
 
   const categorias = Object.entries(totaisPorCategoria).sort((a, b) => b[1] - a[1]);
 
   if (categorias.length === 0) {
     card.style.display = "none";
+    if (donutEl) donutEl.style.background = "none";
+    if (legendaEl) legendaEl.innerHTML = "";
     return;
   }
 
   card.style.display = "flex";
+
+  const cores = ["#4caf50","#2196f3","#ff9800","#e91e63","#9c27b0","#00bcd4","#f44336","#607d8b","#795548","#cddc39"];
+  const totalDespesas = categorias.reduce((soma, [, v]) => soma + v, 0);
+
+  let conicParts = [];
+  let accum = 0;
+  categorias.forEach(([cat, valor], i) => {
+    const pct = (valor / totalDespesas) * 100;
+    const cor = cores[i % cores.length];
+    conicParts.push(`${cor} ${accum}% ${accum + pct}%`);
+    accum += pct;
+  });
+
+  if (donutEl) {
+    donutEl.style.background = `conic-gradient(${conicParts.join(", ")})`;
+  }
+
+  if (legendaEl) {
+    legendaEl.innerHTML = "";
+    categorias.forEach(([cat, valor], i) => {
+      const cor = cores[i % cores.length];
+      const pct = ((valor / totalDespesas) * 100).toFixed(1);
+      const item = document.createElement("div");
+      item.className = "grafico-legenda-item";
+      item.innerHTML = `
+        <span class="grafico-legenda-cor" style="background:${cor}"></span>
+        <span class="grafico-legenda-nome">${escaparHtml(cat)}</span>
+        <span class="grafico-legenda-valor">${pct}%</span>
+      `;
+      legendaEl.appendChild(item);
+    });
+  }
   container.innerHTML = "";
 
   const maiorValor = categorias[0][1];
@@ -3436,7 +3492,7 @@ async function carregarTendencia() {
     meses.push({ ano: a, mes: m });
   }
 
-  const totais = await Promise.all(
+  const dados = await Promise.all(
     meses.map(async ({ ano, mes }) => {
       const chave = `${carteiraId}:${ano}-${String(mes + 1).padStart(2, "0")}`;
       if (cacheTendencia.has(chave)) return cacheTendencia.get(chave);
@@ -3445,28 +3501,30 @@ async function carregarTendencia() {
         const resposta = await fetch(`${API_URL}/api/lancamentos?carteira_id=${carteiraId}&mes=${mes + 1}&ano=${ano}`, {
           headers: headersAutenticados(false),
         });
-        if (!resposta.ok) return 0;
+        if (!resposta.ok) return { receitas: 0, despesas: 0 };
         const dadosMes = await resposta.json();
-        const total = dadosMes.filter((l) => l.tipo === "despesa" && l.status === "pago").reduce((soma, l) => soma + l.valor, 0);
+        const receitas = dadosMes.filter((l) => l.tipo === "receita" && l.status === "pago").reduce((soma, l) => soma + l.valor, 0);
+        const despesas = dadosMes.filter((l) => l.tipo === "despesa" && l.status === "pago").reduce((soma, l) => soma + l.valor, 0);
+        const total = { receitas, despesas };
         cacheTendencia.set(chave, total);
         return total;
       } catch {
-        return 0;
+        return { receitas: 0, despesas: 0 };
       }
     }),
   );
 
   if (idRequisicao !== ultimaRequisicaoTendencia) return;
 
-  renderizarTendencia(meses, totais, mesBase, anoBase);
+  renderizarTendencia(meses, dados, mesBase, anoBase);
 }
 
-function renderizarTendencia(meses, totais, mesAtualIdx, anoAtual) {
+function renderizarTendencia(meses, dados, mesAtualIdx, anoAtual) {
   const card = document.getElementById("card-tendencia");
   const container = document.getElementById("grafico-tendencia");
   if (!card || !container) return;
 
-  const algumValor = totais.some((v) => v > 0);
+  const algumValor = dados.some((d) => d.receitas > 0 || d.despesas > 0);
   if (!algumValor) {
     card.style.display = "none";
     return;
@@ -3475,29 +3533,77 @@ function renderizarTendencia(meses, totais, mesAtualIdx, anoAtual) {
   card.style.display = "flex";
   container.innerHTML = "";
 
-  const maior = Math.max(...totais, 1);
+  const todosValores = dados.flatMap((d) => [d.receitas, d.despesas]);
+  const maior = Math.max(...todosValores, 1);
 
-  meses.forEach(({ ano, mes }, i) => {
-    const altura = Math.round((totais[i] / maior) * 100);
-    const ehMesAtual = mes === mesAtualIdx && ano === anoAtual;
+  const svgNS = "http://www.w3.org/2000/svg";
+  const W = 280, H = 120, PAD_X = 30, PAD_Y = 10;
+  const plotW = W - PAD_X * 2;
+  const plotH = H - PAD_Y * 2;
 
-    const coluna = document.createElement("div");
-    coluna.className = "tendencia-coluna";
-    coluna.innerHTML = `
-      <span class="tendencia-valor">${totais[i] > 0 ? formatadorBRL.format(totais[i]).replace("R$", "").trim() : ""}</span>
-      <div class="tendencia-barra-trilho">
-        <div class="tendencia-barra ${ehMesAtual ? "tendencia-barra-atual" : ""}" data-altura="${altura}"></div>
-      </div>
-      <span class="tendencia-rotulo">${NOMES_MESES_ABREV[mes]}</span>
-    `;
-    container.appendChild(coluna);
-  });
+  const svg = document.createElementNS(svgNS, "svg");
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  svg.setAttribute("class", "tendencia-svg");
 
-  requestAnimationFrame(() => {
-    container.querySelectorAll(".tendencia-barra").forEach((barra) => {
-      barra.style.height = `${barra.dataset.altura}%`;
+  const gridGroup = document.createElementNS(svgNS, "g");
+  for (let i = 0; i <= 4; i++) {
+    const y = PAD_Y + (plotH / 4) * i;
+    const line = document.createElementNS(svgNS, "line");
+    line.setAttribute("x1", PAD_X);
+    line.setAttribute("y1", y);
+    line.setAttribute("x2", W - PAD_X);
+    line.setAttribute("y2", y);
+    line.setAttribute("class", "tendencia-grid-line");
+    gridGroup.appendChild(line);
+  }
+  svg.appendChild(gridGroup);
+
+  function buildPath(values) {
+    return values.map((v, i) => {
+      const x = PAD_X + (plotW / (values.length - 1)) * i;
+      const y = PAD_Y + plotH - (v / maior) * plotH;
+      return `${i === 0 ? "M" : "L"} ${x} ${y}`;
+    }).join(" ");
+  }
+
+  function addLine(values, cssClass) {
+    if (values.every((v) => v === 0)) return;
+    const path = document.createElementNS(svgNS, "path");
+    path.setAttribute("d", buildPath(values));
+    path.setAttribute("class", `tendencia-line ${cssClass}`);
+    svg.appendChild(path);
+
+    values.forEach((v, i) => {
+      if (v === 0) return;
+      const cx = PAD_X + (plotW / (values.length - 1)) * i;
+      const cy = PAD_Y + plotH - (v / maior) * plotH;
+      const circle = document.createElementNS(svgNS, "circle");
+      circle.setAttribute("cx", cx);
+      circle.setAttribute("cy", cy);
+      circle.setAttribute("r", 3);
+      circle.setAttribute("class", `tendencia-dot ${cssClass}`);
+      svg.appendChild(circle);
+
+      const title = document.createElementNS(svgNS, "title");
+      title.textContent = formatadorBRL.format(v);
+      circle.appendChild(title);
     });
+  }
+
+  addLine(dados.map((d) => d.receitas), "tendencia-receita");
+  addLine(dados.map((d) => d.despesas), "tendencia-despesa");
+
+  container.appendChild(svg);
+
+  const rotulos = document.createElement("div");
+  rotulos.className = "tendencia-rotulos";
+  meses.forEach(({ mes }, i) => {
+    const span = document.createElement("span");
+    span.className = "tendencia-rotulo";
+    span.textContent = NOMES_MESES_ABREV[mes];
+    rotulos.appendChild(span);
   });
+  container.appendChild(rotulos);
 }
 
 
@@ -3850,6 +3956,9 @@ function configurarSalarioPlano() {
     const valor = parseFloat(input.value) || 0;
     const usuario = obterUsuarioLogado();
 
+    btnSalvar.disabled = true;
+    btnSalvar.innerText = "Salvando...";
+
     try {
       const resposta = await fetch(`${API_URL}/api/usuarios/${usuario.id}`, {
         method: "PUT",
@@ -3870,6 +3979,9 @@ function configurarSalarioPlano() {
       }
     } catch (erro) {
       console.error("Erro ao salvar salário:", erro);
+    } finally {
+      btnSalvar.disabled = false;
+      btnSalvar.innerText = "Salvar";
     }
   });
 }
