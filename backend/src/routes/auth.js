@@ -75,7 +75,8 @@ export async function processarLogin(request, env, ctx) {
 
       return new Response(JSON.stringify(mensagemGenerica), { status: 200 });
     } catch (erro) {
-      return new Response(JSON.stringify({ erro: "Erro interno.", detalhe: erro.message }), { status: 500 });
+      console.error("Erro:", erro);
+      return new Response(JSON.stringify({ erro: "Erro interno." }), { status: 500 });
     }
   }
 
@@ -119,7 +120,8 @@ export async function processarLogin(request, env, ctx) {
 
       return new Response(JSON.stringify({ mensagem: "Senha redefinida com sucesso! Já pode fazer login." }), { status: 200 });
     } catch (erro) {
-      return new Response(JSON.stringify({ erro: "Erro interno.", detalhe: erro.message }), { status: 500 });
+      console.error("Erro:", erro);
+      return new Response(JSON.stringify({ erro: "Erro interno." }), { status: 500 });
     }
   }
 
@@ -193,7 +195,8 @@ export async function processarLogin(request, env, ctx) {
       }),
       { status: 200 },
     );
-  } catch (erro) {
-    return new Response(JSON.stringify({ erro: "Erro interno.", detalhe: erro.message }), { status: 500 });
-  }
+    } catch (erro) {
+      console.error("Erro:", erro);
+      return new Response(JSON.stringify({ erro: "Erro interno." }), { status: 500 });
+    }
 }

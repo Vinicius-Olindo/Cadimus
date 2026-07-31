@@ -50,6 +50,7 @@ export async function processarLimpezaDados(request, env, ctx) {
       { status: 200 },
     );
   } catch (erro) {
-    return new Response(JSON.stringify({ erro: "Erro ao limpar os dados.", detalhe: erro.message }), { status: 500 });
+    console.error("Erro:", erro);
+    return new Response(JSON.stringify({ erro: "Erro ao limpar os dados." }), { status: 500 });
   }
 }

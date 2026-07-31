@@ -89,7 +89,8 @@ export async function processarCategorias(request, env, ctx) {
 
       return new Response(JSON.stringify({ mensagem: "Categoria renomeada em todos os lançamentos existentes." }), { status: 200 });
     } catch (erro) {
-      return new Response(JSON.stringify({ erro: "Erro ao renomear categoria.", detalhe: erro.message }), { status: 500 });
+      console.error("Erro:", erro);
+      return new Response(JSON.stringify({ erro: "Erro ao renomear categoria." }), { status: 500 });
     }
   }
 

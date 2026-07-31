@@ -45,7 +45,8 @@ export async function processarConvites(request, env, ctx) {
         perfil: convite.perfil,
       }), { status: 200 });
     } catch (erro) {
-      return new Response(JSON.stringify({ erro: "Erro ao validar convite.", detalhe: erro.message }), { status: 500 });
+      console.error("Erro:", erro);
+      return new Response(JSON.stringify({ erro: "Erro ao validar convite." }), { status: 500 });
     }
   }
 
@@ -112,7 +113,8 @@ export async function processarConvites(request, env, ctx) {
         expira_em: expiraEm,
       }), { status: 201 });
     } catch (erro) {
-      return new Response(JSON.stringify({ erro: "Erro ao criar convite.", detalhe: erro.message }), { status: 500 });
+      console.error("Erro:", erro);
+      return new Response(JSON.stringify({ erro: "Erro ao criar convite." }), { status: 500 });
     }
   }
 
@@ -137,7 +139,8 @@ export async function processarConvites(request, env, ctx) {
       await env.DB.prepare(`DELETE FROM convites WHERE id = ?`).bind(id).run();
       return new Response(JSON.stringify({ mensagem: "Convite removido." }), { status: 200 });
     } catch (erro) {
-      return new Response(JSON.stringify({ erro: "Erro ao remover convite.", detalhe: erro.message }), { status: 500 });
+      console.error("Erro:", erro);
+      return new Response(JSON.stringify({ erro: "Erro ao remover convite." }), { status: 500 });
     }
   }
 
@@ -227,6 +230,7 @@ async function aceitarConvite(body, env) {
       usuario: nomeUsuario,
     }), { status: 201 });
   } catch (erro) {
-    return new Response(JSON.stringify({ erro: "Erro ao criar conta.", detalhe: erro.message }), { status: 500 });
+    console.error("Erro:", erro);
+    return new Response(JSON.stringify({ erro: "Erro ao criar conta." }), { status: 500 });
   }
 }

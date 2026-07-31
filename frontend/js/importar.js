@@ -222,30 +222,29 @@ async function executarImportacao() {
   let importados = 0;
   let erros = 0;
 
-  for (const t of selecionadas) {
-    try {
-      const corpo = {
-        tipo: t.tipo,
-        descricao: t.descricao,
-        valor: t.valor,
-        data_compra: t.data || new Date().toISOString().slice(0, 10),
-        categoria: t.categoriaManual || "Outros",
-        meio_pagamento: "outro",
-        status: "pago",
-        carteira_id: carteiraId,
-      };
-
-      const resposta = await fetch(`${API_URL}/api/lancamentos`, {
-        method: "POST",
-        headers: headersAutenticados(),
-        body: JSON.stringify(corpo),
-      });
-
-      if (resposta.ok) importados++;
-      else erros++;
-    } catch {
-      erros++;
-    }
+  const TAMANHO_LOTE = 10;
+  for (let i = 0; i < selecionadas.length; i += TAMANHO_LOTE) {
+    const lote = selecionadas.slice(i, i + TAMANHO_LOTE);
+    const resultados = await Promise.allSettled(
+      lote.map((t) => {
+        const corpo = {
+          tipo: t.tipo,
+          descricao: t.descricao,
+          valor: t.valor,
+          data_compra: t.data || new Date().toISOString().slice(0, 10),
+          categoria: t.categoriaManual || "Outros",
+          meio_pagamento: "outro",
+          status: "pago",
+          carteira_id: carteiraId,
+        };
+        return fetch(`${API_URL}/api/lancamentos`, {
+          method: "POST",
+          headers: headersAutenticados(),
+          body: JSON.stringify(corpo),
+        });
+      })
+    );
+    resultados.forEach((r) => (r.status === "fulfilled" && r.value.ok ? importados++ : erros++));
   }
 
   btn.disabled = false;

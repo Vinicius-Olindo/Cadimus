@@ -2093,15 +2093,33 @@ function configurarBuscaLancamentos() {
   const campo = document.getElementById("busca-lancamento");
   if (!campo) return;
 
+  let timeoutBusca;
   campo.addEventListener("input", (evento) => {
-    termoBuscaAtual = evento.target.value;
-    renderizarListaLancamentos();
+    clearTimeout(timeoutBusca);
+    timeoutBusca = setTimeout(() => {
+      termoBuscaAtual = evento.target.value;
+      renderizarListaLancamentos();
+    }, 250);
   });
 
   ["filtro-tipo", "filtro-status", "filtro-categoria-lancamento"].forEach((id) => {
     const el = document.getElementById(id);
     if (el) el.addEventListener("change", renderizarListaLancamentos);
   });
+
+  const containerLancamentos = document.getElementById("lista-lancamentos");
+  if (containerLancamentos) {
+    containerLancamentos.addEventListener("click", (e) => {
+      const alvo = e.target.closest("[data-action]");
+      if (!alvo) return;
+      const acao = alvo.dataset.action;
+      const id = Number(alvo.dataset.id);
+      if (acao === "editar") editarLancamento(id);
+      else if (acao === "apagar") apagarLancamento(id);
+      else if (acao === "status") alternarStatusLancamento(id, alvo.dataset.statusAtual);
+      else if (acao === "novo-lancamento") abrirModalNovoLancamento();
+    });
+  }
 }
 
 // --- NOTIFICAÇÕES DE VENCIMENTO ---

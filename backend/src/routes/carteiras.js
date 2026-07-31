@@ -114,7 +114,8 @@ export async function processarCarteiras(request, env, ctx) {
 
       return new Response(JSON.stringify({ id: novaCarteiraId, nome, tipo }), { status: 201 });
     } catch (erro) {
-      return new Response(JSON.stringify({ erro: "Erro ao criar carteira.", detalhe: erro.message }), { status: 500 });
+      console.error("Erro:", erro);
+      return new Response(JSON.stringify({ erro: "Erro ao criar carteira." }), { status: 500 });
     }
   }
 
@@ -166,7 +167,8 @@ export async function processarCarteiras(request, env, ctx) {
 
       return new Response(JSON.stringify({ mensagem: "Membros atualizados com sucesso!" }), { status: 200 });
     } catch (erro) {
-      return new Response(JSON.stringify({ erro: "Erro ao atualizar membros.", detalhe: erro.message }), { status: 500 });
+      console.error("Erro:", erro);
+      return new Response(JSON.stringify({ erro: "Erro ao atualizar membros." }), { status: 500 });
     }
   }
 
@@ -189,7 +191,8 @@ export async function processarCarteiras(request, env, ctx) {
 
       return new Response(JSON.stringify({ mensagem: "Ordem salva." }), { status: 200 });
     } catch (erro) {
-      return new Response(JSON.stringify({ erro: "Erro ao salvar ordem.", detalhe: erro.message }), { status: 500 });
+      console.error("Erro:", erro);
+      return new Response(JSON.stringify({ erro: "Erro ao salvar ordem." }), { status: 500 });
     }
   }
 
@@ -227,7 +230,8 @@ export async function processarCarteiras(request, env, ctx) {
 
       return new Response(JSON.stringify({ mensagem: "Carteira excluída." }), { status: 200 });
     } catch (erro) {
-      return new Response(JSON.stringify({ erro: "Erro ao excluir carteira.", detalhe: erro.message }), { status: 500 });
+      console.error("Erro:", erro);
+      return new Response(JSON.stringify({ erro: "Erro ao excluir carteira." }), { status: 500 });
     }
   }
 

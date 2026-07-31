@@ -47,7 +47,8 @@ export async function processarLancamentosRecorrentes(request, env, ctx) {
         .all();
       return new Response(JSON.stringify(results), { status: 200 });
     } catch (erro) {
-      return new Response(JSON.stringify({ erro: "Erro ao buscar recorrências.", detalhe: erro.message }), { status: 500 });
+      console.error("Erro:", erro);
+      return new Response(JSON.stringify({ erro: "Erro ao buscar recorrências." }), { status: 500 });
     }
   }
 
@@ -112,7 +113,8 @@ export async function processarLancamentosRecorrentes(request, env, ctx) {
 
       return new Response(JSON.stringify({ id: resultado.meta.last_row_id, mensagem: "Recorrência criada!" }), { status: 201 });
     } catch (erro) {
-      return new Response(JSON.stringify({ erro: "Erro ao criar recorrência.", detalhe: erro.message }), { status: 500 });
+      console.error("Erro:", erro);
+      return new Response(JSON.stringify({ erro: "Erro ao criar recorrência." }), { status: 500 });
     }
   }
 
@@ -165,7 +167,8 @@ export async function processarLancamentosRecorrentes(request, env, ctx) {
 
       return new Response(JSON.stringify({ mensagem: "Atualizado." }), { status: 200 });
     } catch (erro) {
-      return new Response(JSON.stringify({ erro: "Erro ao atualizar.", detalhe: erro.message }), { status: 500 });
+      console.error("Erro:", erro);
+      return new Response(JSON.stringify({ erro: "Erro ao atualizar." }), { status: 500 });
     }
   }
 
@@ -192,7 +195,8 @@ export async function processarLancamentosRecorrentes(request, env, ctx) {
 
       return new Response(JSON.stringify({ mensagem: "Recorrência excluída." }), { status: 200 });
     } catch (erro) {
-      return new Response(JSON.stringify({ erro: "Erro ao excluir.", detalhe: erro.message }), { status: 500 });
+      console.error("Erro:", erro);
+      return new Response(JSON.stringify({ erro: "Erro ao excluir." }), { status: 500 });
     }
   }
 

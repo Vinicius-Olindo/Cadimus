@@ -45,35 +45,39 @@ export async function processarMetas(request, env, ctx) {
         .bind(...params)
         .all();
 
-      // Para cada meta, busca total depositado e calcula guarda_semanal se tiver prazo
+      const metaIds = results.map((m) => m.id);
+      let depositosMap = {};
+
+      if (metaIds.length > 0) {
+        const placeholders = metaIds.map(() => "?").join(",");
+        const { results: depositosResults } = await env.DB.prepare(
+          `SELECT meta_id, COALESCE(SUM(valor), 0) AS total FROM meta_depositos WHERE meta_id IN (${placeholders}) GROUP BY meta_id`
+        ).bind(...metaIds).all();
+        depositosMap = Object.fromEntries(depositosResults.map((d) => [d.meta_id, d.total]));
+      }
+
       const agora = new Date();
-      const metasComProgresso = await Promise.all(
-        results.map(async (meta) => {
-          const { results: depositos } = await env.DB.prepare(
-            `SELECT COALESCE(SUM(valor), 0) AS total FROM meta_depositos WHERE meta_id = ?`
-          ).bind(meta.id).all();
+      const metasComProgresso = results.map((meta) => {
+        const totalDepositado = depositosMap[meta.id] || 0;
+        const falta = Math.max(0, meta.valor_limite - totalDepositado);
+        let guarda_semanal = null;
+        let semanas_restantes = null;
 
-          const totalDepositado = depositos[0]?.total || 0;
-          const falta = Math.max(0, meta.valor_limite - totalDepositado);
-          let guarda_semanal = null;
-          let semanas_restantes = null;
+        if (meta.data_limite && falta > 0) {
+          const dataLimite = new Date(meta.data_limite + "T23:59:59");
+          const diffMs = dataLimite - agora;
+          semanas_restantes = Math.max(1, Math.ceil(diffMs / (7 * 24 * 60 * 60 * 1000)));
+          guarda_semanal = Math.ceil(falta / semanas_restantes * 100) / 100;
+        }
 
-          if (meta.data_limite && falta > 0) {
-            const dataLimite = new Date(meta.data_limite + "T23:59:59");
-            const diffMs = dataLimite - agora;
-            semanas_restantes = Math.max(1, Math.ceil(diffMs / (7 * 24 * 60 * 60 * 1000)));
-            guarda_semanal = Math.ceil(falta / semanas_restantes * 100) / 100;
-          }
-
-          return {
-            ...meta,
-            total_depositado: totalDepositado,
-            falta,
-            guarda_semanal,
-            semanas_restantes,
-          };
-        })
-      );
+        return {
+          ...meta,
+          total_depositado: totalDepositado,
+          falta,
+          guarda_semanal,
+          semanas_restantes,
+        };
+      });
 
       if (metaId) {
         const metasFiltradas = metasComProgresso.filter((m) => m.id === Number(metaId));
@@ -82,7 +86,8 @@ export async function processarMetas(request, env, ctx) {
 
       return new Response(JSON.stringify(metasComProgresso), { status: 200 });
     } catch (erro) {
-      return new Response(JSON.stringify({ erro: "Erro ao buscar metas.", detalhe: erro.message }), { status: 500 });
+      console.error("Erro:", erro);
+      return new Response(JSON.stringify({ erro: "Erro ao buscar metas." }), { status: 500 });
     }
   }
 
@@ -118,7 +123,8 @@ export async function processarMetas(request, env, ctx) {
 
       return new Response(JSON.stringify({ mensagem: "Meta salva com sucesso!" }), { status: 200 });
     } catch (erro) {
-      return new Response(JSON.stringify({ erro: "Erro ao salvar meta.", detalhe: erro.message }), { status: 500 });
+      console.error("Erro:", erro);
+      return new Response(JSON.stringify({ erro: "Erro ao salvar meta." }), { status: 500 });
     }
   }
 
@@ -145,7 +151,8 @@ export async function processarMetas(request, env, ctx) {
 
       return new Response(JSON.stringify({ mensagem: "Meta removida." }), { status: 200 });
     } catch (erro) {
-      return new Response(JSON.stringify({ erro: "Erro ao remover meta.", detalhe: erro.message }), { status: 500 });
+      console.error("Erro:", erro);
+      return new Response(JSON.stringify({ erro: "Erro ao remover meta." }), { status: 500 });
     }
   }
 
@@ -196,7 +203,8 @@ export async function processarMetaDepositos(request, env, ctx) {
 
       return new Response(JSON.stringify(results), { status: 200 });
     } catch (erro) {
-      return new Response(JSON.stringify({ erro: "Erro ao buscar depósitos.", detalhe: erro.message }), { status: 500 });
+      console.error("Erro:", erro);
+      return new Response(JSON.stringify({ erro: "Erro ao buscar depósitos." }), { status: 500 });
     }
   }
 
@@ -233,7 +241,8 @@ export async function processarMetaDepositos(request, env, ctx) {
 
       return new Response(JSON.stringify({ id: resultado.meta.last_row_id, mensagem: "Depósito registrado!" }), { status: 201 });
     } catch (erro) {
-      return new Response(JSON.stringify({ erro: "Erro ao registrar depósito.", detalhe: erro.message }), { status: 500 });
+      console.error("Erro:", erro);
+      return new Response(JSON.stringify({ erro: "Erro ao registrar depósito." }), { status: 500 });
     }
   }
 
@@ -264,7 +273,8 @@ export async function processarMetaDepositos(request, env, ctx) {
 
       return new Response(JSON.stringify({ mensagem: "Depósito removido." }), { status: 200 });
     } catch (erro) {
-      return new Response(JSON.stringify({ erro: "Erro ao remover depósito.", detalhe: erro.message }), { status: 500 });
+      console.error("Erro:", erro);
+      return new Response(JSON.stringify({ erro: "Erro ao remover depósito." }), { status: 500 });
     }
   }
 

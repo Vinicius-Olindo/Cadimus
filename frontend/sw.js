@@ -4,7 +4,7 @@
 // NUNCA intercepta chamadas à API — dados financeiros sempre vêm da rede.
 // ==========================================
 
-const CACHE_NAME = "cadimus-cache-v2";
+const CACHE_NAME = "cadimus-cache-v3";
 
 const ARQUIVOS_PARA_CACHE = [
   "./",

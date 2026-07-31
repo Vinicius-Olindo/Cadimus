@@ -147,7 +147,8 @@ export default {
         return comCors(await processarLimpezaDados(request, env, ctx), frontendUrl, request);
       }
     } catch (erro) {
-      return new Response(JSON.stringify({ erro: "Erro interno no servidor", detalhe: erro.message }), {
+      console.error("Erro não tratado:", erro);
+      return new Response(JSON.stringify({ erro: "Erro interno no servidor." }), {
         status: 500,
         headers: {
           "Access-Control-Allow-Origin": resolverOrigemPermitida(request, frontendUrl),

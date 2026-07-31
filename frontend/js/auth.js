@@ -1,4 +1,4 @@
-const API_URL = "https://cadimus-backend.olinbytedigital.workers.dev";
+const API_URL = window.CADIMUS_API_URL || "https://cadimus-backend.olinbytedigital.workers.dev";
 
 // ==========================================
 // SESSÃO via sessionStorage — sobrevive a reload e F5,

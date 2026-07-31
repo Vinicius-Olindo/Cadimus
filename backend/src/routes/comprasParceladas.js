@@ -109,7 +109,8 @@ export async function processarComprasParceladas(request, env, ctx) {
 
       return new Response(JSON.stringify({ id: resultado.meta.last_row_id, mensagem: "Compra parcelada cadastrada!" }), { status: 201 });
     } catch (erro) {
-      return new Response(JSON.stringify({ erro: "Erro ao cadastrar compra parcelada.", detalhe: erro.message }), { status: 500 });
+      console.error("Erro:", erro);
+      return new Response(JSON.stringify({ erro: "Erro ao cadastrar compra parcelada." }), { status: 500 });
     }
   }
 
@@ -179,7 +180,8 @@ export async function processarComprasParceladas(request, env, ctx) {
 
       return new Response(JSON.stringify({ mensagem: "Atualizado com sucesso." }), { status: 200 });
     } catch (erro) {
-      return new Response(JSON.stringify({ erro: "Erro ao atualizar.", detalhe: erro.message }), { status: 500 });
+      console.error("Erro:", erro);
+      return new Response(JSON.stringify({ erro: "Erro ao atualizar." }), { status: 500 });
     }
   }
 

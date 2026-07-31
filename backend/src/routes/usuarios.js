@@ -256,7 +256,8 @@ export async function processarUsuarios(request, env, ctx) {
 
       return new Response(JSON.stringify({ mensagem: "Usuário atualizado com sucesso!" }), { status: 200 });
     } catch (erro) {
-      return new Response(JSON.stringify({ erro: "Erro ao atualizar.", detalhe: erro.message }), { status: 500 });
+      console.error("Erro:", erro);
+      return new Response(JSON.stringify({ erro: "Erro ao atualizar." }), { status: 500 });
     }
   }
 
@@ -297,7 +298,8 @@ export async function processarUsuarios(request, env, ctx) {
 
       return new Response(JSON.stringify({ ativo: novoStatus, mensagem: novoStatus === 1 ? "Usuário ativado." : "Usuário desativado." }), { status: 200 });
     } catch (erro) {
-      return new Response(JSON.stringify({ erro: "Erro ao alterar status.", detalhe: erro.message }), { status: 500 });
+      console.error("Erro:", erro);
+      return new Response(JSON.stringify({ erro: "Erro ao alterar status." }), { status: 500 });
     }
   }
 
@@ -344,7 +346,8 @@ export async function processarUsuarios(request, env, ctx) {
 
       return new Response(JSON.stringify({ mensagem: "Usuário excluído." }), { status: 200 });
     } catch (erro) {
-      return new Response(JSON.stringify({ erro: "Erro ao excluir.", detalhe: erro.message }), { status: 500 });
+      console.error("Erro:", erro);
+      return new Response(JSON.stringify({ erro: "Erro ao excluir." }), { status: 500 });
     }
   }
 

@@ -49,40 +49,45 @@ export async function processarPlanos(request, env, ctx) {
 
       const { results } = await env.DB.prepare(query).bind(...params).all();
 
-      // Buscar depósitos de cada plano e calcular progresso
-      const planosComProgresso = await Promise.all(
-        results.map(async (plano) => {
-          const { results: depositos } = await env.DB.prepare(
-            `SELECT COALESCE(SUM(valor), 0) AS total FROM plano_depositos WHERE plano_id = ?`
-          ).bind(plano.id).all();
+      const planoIds = results.map((p) => p.id);
+      let depositosMap = {};
 
-          const depositado = depositos[0]?.total || 0;
-          const falta = Math.max(0, plano.valor_alvo - depositado);
-          let parcela_mensal = null;
-          let meses_restantes = null;
+      if (planoIds.length > 0) {
+        const placeholders = planoIds.map(() => "?").join(",");
+        const { results: depositosResults } = await env.DB.prepare(
+          `SELECT plano_id, COALESCE(SUM(valor), 0) AS total FROM plano_depositos WHERE plano_id IN (${placeholders}) GROUP BY plano_id`
+        ).bind(...planoIds).all();
+        depositosMap = Object.fromEntries(depositosResults.map((d) => [d.plano_id, d.total]));
+      }
 
-          if (plano.data_limite && falta > 0) {
-            const dataLimite = new Date(plano.data_limite + "T23:59:59");
-            const agora = new Date();
-            const diffMs = dataLimite - agora;
-            meses_restantes = Math.max(1, Math.ceil(diffMs / (30 * 24 * 60 * 60 * 1000)));
-            parcela_mensal = Math.ceil(falta / meses_restantes * 100) / 100;
-          }
+      const agora = new Date();
+      const planosComProgresso = results.map((plano) => {
+        const depositado = depositosMap[plano.id] || 0;
+        const falta = Math.max(0, plano.valor_alvo - depositado);
+        let parcela_mensal = null;
+        let meses_restantes = null;
 
-          return {
-            ...plano,
-            depositado,
-            falta,
-            parcela_mensal,
-            meses_restantes,
-            percentual: plano.valor_alvo > 0 ? Math.min(100, Math.round((depositado / plano.valor_alvo) * 100)) : 0,
-          };
-        })
-      );
+        if (plano.data_limite && falta > 0) {
+          const dataLimite = new Date(plano.data_limite + "T23:59:59");
+          const diffMs = dataLimite - agora;
+          meses_restantes = Math.max(1, Math.ceil(diffMs / (30 * 24 * 60 * 60 * 1000)));
+          parcela_mensal = Math.ceil(falta / meses_restantes * 100) / 100;
+        }
+
+        return {
+          ...plano,
+          depositado,
+          falta,
+          parcela_mensal,
+          meses_restantes,
+          percentual: plano.valor_alvo > 0 ? Math.min(100, Math.round((depositado / plano.valor_alvo) * 100)) : 0,
+        };
+      });
 
       return new Response(JSON.stringify(planosComProgresso), { status: 200 });
     } catch (erro) {
-      return new Response(JSON.stringify({ erro: "Erro ao buscar planos.", detalhe: erro.message }), { status: 500 });
+      console.error("Erro:", erro);
+      return new Response(JSON.stringify({ erro: "Erro ao buscar planos." }), { status: 500 });
     }
   }
 
@@ -117,7 +122,8 @@ export async function processarPlanos(request, env, ctx) {
 
       return new Response(JSON.stringify({ mensagem: "Plano criado!", id: resultado.meta?.last_row_id }), { status: 201 });
     } catch (erro) {
-      return new Response(JSON.stringify({ erro: "Erro ao criar plano.", detalhe: erro.message }), { status: 500 });
+      console.error("Erro:", erro);
+      return new Response(JSON.stringify({ erro: "Erro ao criar plano." }), { status: 500 });
     }
   }
 
@@ -164,7 +170,8 @@ export async function processarPlanos(request, env, ctx) {
 
       return new Response(JSON.stringify({ mensagem: "Plano atualizado!" }), { status: 200 });
     } catch (erro) {
-      return new Response(JSON.stringify({ erro: "Erro ao atualizar plano.", detalhe: erro.message }), { status: 500 });
+      console.error("Erro:", erro);
+      return new Response(JSON.stringify({ erro: "Erro ao atualizar plano." }), { status: 500 });
     }
   }
 
@@ -191,7 +198,8 @@ export async function processarPlanos(request, env, ctx) {
 
       return new Response(JSON.stringify({ mensagem: "Plano removido." }), { status: 200 });
     } catch (erro) {
-      return new Response(JSON.stringify({ erro: "Erro ao remover plano.", detalhe: erro.message }), { status: 500 });
+      console.error("Erro:", erro);
+      return new Response(JSON.stringify({ erro: "Erro ao remover plano." }), { status: 500 });
     }
   }
 
@@ -231,7 +239,8 @@ export async function processarPlanoDepositos(request, env, ctx) {
 
       return new Response(JSON.stringify(results), { status: 200 });
     } catch (erro) {
-      return new Response(JSON.stringify({ erro: "Erro ao buscar depósitos.", detalhe: erro.message }), { status: 500 });
+      console.error("Erro:", erro);
+      return new Response(JSON.stringify({ erro: "Erro ao buscar depósitos." }), { status: 500 });
     }
   }
 
@@ -263,7 +272,8 @@ export async function processarPlanoDepositos(request, env, ctx) {
 
       return new Response(JSON.stringify({ mensagem: "Depósito registrado!" }), { status: 201 });
     } catch (erro) {
-      return new Response(JSON.stringify({ erro: "Erro ao registrar depósito.", detalhe: erro.message }), { status: 500 });
+      console.error("Erro:", erro);
+      return new Response(JSON.stringify({ erro: "Erro ao registrar depósito." }), { status: 500 });
     }
   }
 
@@ -289,7 +299,8 @@ export async function processarPlanoDepositos(request, env, ctx) {
 
       return new Response(JSON.stringify({ mensagem: "Depósito removido." }), { status: 200 });
     } catch (erro) {
-      return new Response(JSON.stringify({ erro: "Erro ao remover depósito.", detalhe: erro.message }), { status: 500 });
+      console.error("Erro:", erro);
+      return new Response(JSON.stringify({ erro: "Erro ao remover depósito." }), { status: 500 });
     }
   }
 

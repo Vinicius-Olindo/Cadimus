@@ -61,8 +61,8 @@ function criarLinhaLancamento(lancamento) {
   const usuarioLogado = obterUsuarioLogado();
   const podeGerenciar = lancamento.criado_por === usuarioLogado.id || usuarioLogado.perfil === "superadmin";
   const botoesGerenciar = podeGerenciar
-    ? `<button class="btn-editar" onclick="editarLancamento(${lancamento.id})" title="Editar registro">${ICONE_LAPIS}</button>
-       <button class="btn-excluir" onclick="apagarLancamento(${lancamento.id})" title="Apagar registro">${ICONE_LIXEIRA}</button>`
+    ? `<button class="btn-editar" data-action="editar" data-id="${lancamento.id}" title="Editar registro">${ICONE_LAPIS}</button>
+       <button class="btn-excluir" data-action="apagar" data-id="${lancamento.id}" title="Apagar registro">${ICONE_LIXEIRA}</button>`
     : "";
 
   // Nota truncada quando o lançamento tem observação
@@ -95,7 +95,7 @@ function criarLinhaLancamento(lancamento) {
             <div class="item-valores">
                 ${carimboAutorHtml}
                 <span class="item-meio-pagamento">${lancamento.meio_pagamento}</span>
-                <button type="button" class="item-status ${classeStatus}" onclick="alternarStatusLancamento(${lancamento.id}, '${lancamento.status}')" title="Clique para marcar como ${lancamento.status === "pago" ? "pendente" : "pago"}">${textoStatus}</button>
+                <button type="button" class="item-status ${classeStatus}" data-action="status" data-id="${lancamento.id}" data-status-atual="${lancamento.status}" title="Clique para marcar como ${lancamento.status === "pago" ? "pendente" : "pago"}">${textoStatus}</button>
                 <span class="item-valor ${classeTipo}">${sinal} ${valorFormatado}</span>
                 ${botoesGerenciar}
             </div>
@@ -153,7 +153,7 @@ function criarAvisoListaVazia(mensagem) {
           </svg>
         </div>
         <p class="lista-vazia-texto">${mensagem || "Nenhum lançamento neste período."}</p>
-        <button type="button" class="lista-vazia-btn" onclick="abrirModalNovoLancamento()">
+        <button type="button" class="lista-vazia-btn" data-action="novo-lancamento">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
