@@ -300,8 +300,8 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Verifica se há sessão salva (sessionStorage sobrevive a reload)
-  const tokenRecuperacao = obterToken();
-  if (tokenRecuperacao) {
+  const tokenSessao = obterToken();
+  if (tokenSessao) {
     alternarTelas(true);
   } else {
     alternarTelas(false);
