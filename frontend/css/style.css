@@ -4932,6 +4932,257 @@ textarea::placeholder {
 }
 
 /* ==========================================
+   PLANEJAMENTO — KPI GRID
+   ========================================== */
+.plano-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.plano-kpi {
+  background: var(--cor-fundo-card, #fff);
+  border: 1px solid var(--cor-borda, #e0e0e0);
+  border-radius: 10px;
+  padding: 14px;
+  text-align: center;
+  border-top: 3px solid var(--cor-receita, #2e7d32);
+}
+
+.plano-kpi-despesa { border-top-color: var(--cor-despesa, #c62828); }
+.plano-kpi-invest { border-top-color: var(--cor-marca, #a97a2f); }
+.plano-kpi-economia { border-top-color: #1565c0; }
+
+.plano-kpi-rotulo {
+  display: block;
+  font-size: 0.68rem;
+  color: var(--cor-texto-suave, #888);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.plano-kpi-valor {
+  display: block;
+  font-size: 1.15rem;
+  font-weight: 700;
+  font-family: var(--fonte-mono);
+  color: var(--cor-texto, #333);
+}
+
+/* ==========================================
+   PLANEJAMENTO — INDICADORES
+   ========================================== */
+.plano-indicadores {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.plano-ind-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  background: var(--cor-fundo, #f8f8f8);
+}
+
+.plano-ind-icone {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.plano-ind-info {
+  flex: 1;
+}
+
+.plano-ind-nome {
+  font-size: 0.72rem;
+  color: var(--cor-texto-suave, #888);
+}
+
+.plano-ind-valor {
+  font-size: 0.88rem;
+  font-weight: 600;
+  font-family: var(--fonte-mono);
+}
+
+/* ==========================================
+   PLANEJAMENTO — ALERTAS
+   ========================================== */
+.plano-alerta-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  font-size: 0.82rem;
+}
+
+.plano-alerta-item:last-child { margin-bottom: 0; }
+
+.plano-alerta-ok {
+  background: rgba(46, 125, 50, 0.08);
+  color: var(--cor-receita, #2e7d32);
+  border-left: 3px solid var(--cor-receita, #2e7d32);
+}
+
+.plano-alerta-aviso {
+  background: rgba(249, 168, 37, 0.08);
+  color: #b8860b;
+  border-left: 3px solid var(--cor-pendente, #f9a825);
+}
+
+.plano-alerta-erro {
+  background: rgba(198, 40, 40, 0.08);
+  color: var(--cor-despesa, #c62828);
+  border-left: 3px solid var(--cor-despesa, #c62828);
+}
+
+/* ==========================================
+   PLANEJAMENTO — COMPARAÇÃO
+   ========================================== */
+.plano-comp-linha {
+  display: grid;
+  grid-template-columns: 120px 1fr 1fr 80px;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--cor-borda, #f0f0f0);
+  font-size: 0.82rem;
+}
+
+.plano-comp-linha:last-child { border-bottom: none; }
+
+.plano-comp-header {
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.68rem;
+  color: var(--cor-texto-suave, #888);
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid var(--cor-borda, #e0e0e0);
+}
+
+.plano-comp-categoria {
+  font-weight: 500;
+}
+
+.plano-comp-valor {
+  font-family: var(--fonte-mono);
+  text-align: right;
+}
+
+.plano-comp-diferenca {
+  font-weight: 600;
+  text-align: right;
+}
+
+.plano-comp-diferenca.positivo { color: var(--cor-despesa, #c62828); }
+.plano-comp-diferenca.negativo { color: var(--cor-receita, #2e7d32); }
+
+/* ==========================================
+   PLANEJAMENTO — SIMULAÇÃO
+   ========================================== */
+.plano-simulacao-form {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  margin-bottom: 20px;
+}
+
+.plano-simulacao-form .campo {
+  flex: 1;
+}
+
+.plano-sim-result {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.plano-sim-card {
+  text-align: center;
+  padding: 14px;
+  border-radius: 8px;
+  background: var(--cor-fundo, #f8f8f8);
+}
+
+.plano-sim-periodo {
+  font-size: 0.72rem;
+  color: var(--cor-texto-suave, #888);
+  margin-bottom: 4px;
+}
+
+.plano-sim-valor {
+  font-size: 1.1rem;
+  font-weight: 700;
+  font-family: var(--fonte-mono);
+  color: var(--cor-receita, #2e7d32);
+}
+
+/* ==========================================
+   PLANEJAMENTO — LISTA GENÉRICA
+   ========================================== */
+.plano-lista-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--cor-fundo, #f8f8f8);
+  margin-bottom: 8px;
+}
+
+.plano-lista-item:last-child { margin-bottom: 0; }
+
+.plano-lista-info {
+  flex: 1;
+}
+
+.plano-lista-nome {
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.plano-lista-detalhe {
+  font-size: 0.72rem;
+  color: var(--cor-texto-suave, #888);
+}
+
+.plano-lista-valor {
+  font-family: var(--fonte-mono);
+  font-weight: 600;
+}
+
+.plano-lista-status {
+  font-size: 0.7rem;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.plano-status-recebido { background: rgba(46,125,50,0.1); color: var(--cor-receita); }
+.plano-status-pendente { background: rgba(249,168,37,0.1); color: var(--cor-pendente); }
+
+@media (max-width: 700px) {
+  .plano-kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .plano-indicadores { grid-template-columns: 1fr; }
+  .plano-simulacao-form { flex-direction: column; }
+  .plano-sim-result { grid-template-columns: 1fr; }
+  .plano-comp-linha { grid-template-columns: 80px 1fr 1fr 60px; font-size: 0.75rem; }
+}
+
+/* ==========================================
    ONBOARDING INTERATIVO
    ========================================== */
 

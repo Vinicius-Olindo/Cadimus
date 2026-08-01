@@ -527,6 +527,182 @@
         </div>
       </section>
 
+      <!-- SEÇÃO PLANEJAMENTO FINANCEIRO -->
+      <section id="planejamento-section" style="display: none">
+        <header class="top-bar">
+          <div class="top-bar-linha1">
+            <h2>Planejamento Financeiro</h2>
+            <div class="acoes-topo">
+              <div class="seletor-mes">
+                <button type="button" id="btn-plano-mes-anterior" aria-label="Mês anterior">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+                </button>
+                <span id="plano-rotulo-mes"></span>
+                <button type="button" id="btn-plano-mes-seguinte" aria-label="Próximo mês">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+                </button>
+              </div>
+              <button id="btn-voltar-dashboard-plano" class="btn-secundario">Voltar</button>
+            </div>
+          </div>
+        </header>
+
+        <!-- TABS -->
+        <div class="plano-tabs">
+          <button type="button" class="plano-tab ativo" data-painel="plano-resumo">Resumo</button>
+          <button type="button" class="plano-tab" data-painel="plano-orcamento">Orçamento</button>
+          <button type="button" class="plano-tab" data-painel="plano-metas">Metas</button>
+          <button type="button" class="plano-tab" data-painel="plano-receitas">Receitas</button>
+          <button type="button" class="plano-tab" data-painel="plano-despesas">Despesas</button>
+          <button type="button" class="plano-tab" data-painel="plano-comparar">Comparar</button>
+          <button type="button" class="plano-tab" data-painel="plano-simular">Simular</button>
+        </div>
+
+        <!-- PAINEL: RESUMO GERAL -->
+        <div id="plano-resumo" class="plano-painel">
+          <div class="plano-container">
+            <!-- KPI Cards -->
+            <div class="plano-kpi-grid" id="plano-kpi-grid">
+              <div class="plano-kpi">
+                <span class="plano-kpi-rotulo">Receita Planejada</span>
+                <span class="plano-kpi-valor" id="plano-kpi-receita">R$ 0,00</span>
+              </div>
+              <div class="plano-kpi plano-kpi-despesa">
+                <span class="plano-kpi-rotulo">Despesas Planejadas</span>
+                <span class="plano-kpi-valor" id="plano-kpi-despesas">R$ 0,00</span>
+              </div>
+              <div class="plano-kpi plano-kpi-invest">
+                <span class="plano-kpi-rotulo">Investimentos</span>
+                <span class="plano-kpi-valor" id="plano-kpi-invest">R$ 0,00</span>
+              </div>
+              <div class="plano-kpi plano-kpi-economia">
+                <span class="plano-kpi-rotulo">Economia Prevista</span>
+                <span class="plano-kpi-valor" id="plano-kpi-economia">R$ 0,00</span>
+              </div>
+              <div class="plano-kpi">
+                <span class="plano-kpi-rotulo">Poupança</span>
+                <span class="plano-kpi-valor" id="plano-kpi-pct">0%</span>
+              </div>
+              <div class="plano-kpi">
+                <span class="plano-kpi-rotulo">Saldo Previsto</span>
+                <span class="plano-kpi-valor" id="plano-kpi-saldo">R$ 0,00</span>
+              </div>
+            </div>
+
+            <!-- Salário -->
+            <div class="card plano-card-salario">
+              <h3 class="plano-subtitulo">Salário mensal</h3>
+              <div class="plano-salario-linha">
+                <span class="plano-salario-valor" id="plano-salario-display">R$ 0,00</span>
+                <button type="button" id="btn-editar-salario" class="btn-link-adicionar">Editar</button>
+              </div>
+              <div id="plano-salario-form" style="display: none">
+                <input type="number" id="plano-salario-input" placeholder="Ex: 5000" step="0.01" min="0" />
+                <div class="plano-salario-acoes">
+                  <button type="button" id="btn-salvar-salario" class="btn-primario">Salvar</button>
+                  <button type="button" id="btn-cancelar-salario" class="btn-secundario">Cancelar</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Indicadores -->
+            <div class="card">
+              <h3 class="plano-subtitulo">Indicadores Financeiros</h3>
+              <div class="plano-indicadores" id="plano-indicadores"></div>
+            </div>
+
+            <!-- Alertas -->
+            <div class="card" id="plano-card-alertas" style="display:none">
+              <h3 class="plano-subtitulo">Alertas</h3>
+              <div id="plano-alertas"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAINEL: ORÇAMENTO POR CATEGORIA -->
+        <div id="plano-orcamento" class="plano-painel" style="display:none">
+          <div class="plano-container">
+            <div class="card">
+              <div class="plano-metas-cabecalho">
+                <h3 class="plano-subtitulo">Orçamento por Categoria</h3>
+                <button type="button" id="btn-novo-orcamento-plano" class="btn-link-adicionar">+ Novo orçamento</button>
+              </div>
+              <div id="plano-lista-orcamentos"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAINEL: METAS -->
+        <div id="plano-metas" class="plano-painel" style="display:none">
+          <div class="plano-container">
+            <div class="card">
+              <div class="plano-metas-cabecalho">
+                <h3 class="plano-subtitulo">Metas Financeiras</h3>
+                <button type="button" id="btn-nova-meta-plano" class="btn-link-adicionar">+ Nova meta</button>
+              </div>
+              <div id="plano-lista-metas"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAINEL: RECEITAS PLANEJADAS -->
+        <div id="plano-receitas" class="plano-painel" style="display:none">
+          <div class="plano-container">
+            <div class="card">
+              <div class="plano-metas-cabecalho">
+                <h3 class="plano-subtitulo">Receitas Planejadas</h3>
+                <button type="button" id="btn-nova-receita-plano" class="btn-link-adicionar">+ Nova receita</button>
+              </div>
+              <div id="plano-lista-receitas"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAINEL: DESPESAS PLANEJADAS -->
+        <div id="plano-despesas" class="plano-painel" style="display:none">
+          <div class="plano-container">
+            <div class="card">
+              <div class="plano-metas-cabecalho">
+                <h3 class="plano-subtitulo">Despesas Planejadas</h3>
+                <button type="button" id="btn-nova-despesa-plano" class="btn-link-adicionar">+ Nova despesa</button>
+              </div>
+              <div id="plano-lista-despesas"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAINEL: COMPARAR PLANEJADO × REAL -->
+        <div id="plano-comparar" class="plano-painel" style="display:none">
+          <div class="plano-container">
+            <div class="card">
+              <h3 class="plano-subtitulo">Comparação: Planejado × Real</h3>
+              <div id="plano-comparacao"></div>
+            </div>
+            <div class="card">
+              <h3 class="plano-subtitulo">Recomendações</h3>
+              <div id="plano-recomendacoes"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAINEL: SIMULAÇÕES -->
+        <div id="plano-simular" class="plano-painel" style="display:none">
+          <div class="plano-container">
+            <div class="card">
+              <h3 class="plano-subtitulo">Simulações</h3>
+              <div class="plano-simulacao-form">
+                <div class="campo">
+                  <label for="simulacao-valor">Economizar por mês</label>
+                  <input type="number" id="simulacao-valor" placeholder="Ex: 300" step="0.01" min="0" />
+                </div>
+                <button type="button" id="btn-simular" class="btn-primario">Simular</button>
+              </div>
+              <div id="plano-resultado-simulacao"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- SEÇÃO ADMIN / CONFIGURAÇÕES -->
       <section id="admin-section" style="display: none">
         <header class="top-bar">
