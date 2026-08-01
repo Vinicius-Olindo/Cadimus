@@ -5958,43 +5958,52 @@ textarea::placeholder {
 /* ======================== RODAPÉ ======================== */
 .app-footer {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  padding: 10px 20px;
+  padding: 14px 20px 12px;
   border-top: 1px solid var(--cor-pauta-fraca);
   background: var(--cor-fundo);
   font-size: 0.75rem;
   color: var(--cor-texto-suave);
   flex-shrink: 0;
-  gap: 12px;
+  gap: 6px;
 }
-.footer-esquerda {
+.footer-linha-superior {
+  width: 60px;
+  height: 2px;
+  background: var(--cor-pauta-fraca);
+  border-radius: 1px;
+  margin-bottom: 4px;
+}
+.footer-linha1 {
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
 }
 .footer-brand {
+  font-weight: 600;
+  color: var(--cor-texto);
+  letter-spacing: 0.02em;
+}
+.footer-sincronizado {
   display: flex;
   align-items: center;
   gap: 5px;
-  font-weight: 600;
-  color: var(--cor-texto);
-}
-.footer-brand svg { color: var(--cor-marca); }
-.footer-versao {
-  padding: 1px 6px;
-  border-radius: 4px;
-  background: var(--cor-pauta-forte);
-  font-size: 0.65rem;
-  font-weight: 500;
-}
-.footer-centro {
   color: var(--cor-texto-suave);
 }
-.footer-direita {
+.footer-sincronizado svg { color: var(--cor-marca); opacity: 0.7; }
+.footer-linha2 {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
+  flex-wrap: wrap;
+}
+.footer-linha3 {
+  margin-top: 2px;
+  color: var(--cor-texto-suave);
 }
 .footer-link {
   color: var(--cor-texto-suave);
@@ -6008,11 +6017,12 @@ textarea::placeholder {
   transition: color 0.15s;
 }
 .footer-link:hover { color: var(--cor-marca); }
+.footer-link-destaque { color: var(--cor-marca); font-weight: 500; }
+.footer-link-destaque:hover { text-decoration: underline; }
 .footer-sep { color: var(--cor-pauta-fraca); }
-.footer-copy { color: var(--cor-texto-suave); }
 
 @media (max-width: 600px) {
-  .app-footer { flex-direction: column; gap: 6px; padding: 10px 14px; text-align: center; }
-  .footer-esquerda, .footer-direita { justify-content: center; }
-  .footer-centro { display: none; }
+  .footer-linha1 { flex-direction: column; gap: 4px; }
+  .footer-linha2 { font-size: 0.7rem; gap: 4px; }
+  .footer-linha3 { font-size: 0.7rem; }
 }

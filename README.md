@@ -337,3 +337,7 @@ RESEND_API_KEY=re_sua_chave_aqui
 ## Licença
 
 Projeto privado. Todos os direitos reservados.
+
+---
+
+**Desenvolvimento por [Olinbyte Digital](https://olinbytedigital.pages.dev/)**

@@ -2187,22 +2187,27 @@
 
     <!-- RODAPÉ -->
     <footer class="app-footer" id="app-footer">
-      <div class="footer-esquerda">
-        <span class="footer-brand">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
-          Gestor Financeiro
+      <div class="footer-linha-superior"></div>
+      <div class="footer-linha1">
+        <span class="footer-brand">Cadimus &copy; 2026</span>
+        <span class="footer-sincronizado" id="footer-sincronizado">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+          <span id="footer-status-texto">Sincronizado</span>
         </span>
-        <span class="footer-versao">v1.0.0</span>
       </div>
-      <div class="footer-centro">
-        <span id="footer-usuario"></span>
-      </div>
-      <div class="footer-direita">
-        <a href="https://github.com/Vinicius-Olindo/Cadimus" target="_blank" rel="noopener" class="footer-link">GitHub</a>
+      <div class="footer-linha2">
+        <span>Versão 1.0.0</span>
+        <span class="footer-sep">·</span>
+        <button type="button" class="footer-link" id="footer-politica">Política de Privacidade</button>
+        <span class="footer-sep">·</span>
+        <button type="button" class="footer-link" id="footer-termos">Termos de Uso</button>
         <span class="footer-sep">·</span>
         <button type="button" class="footer-link" id="footer-ajuda">Ajuda</button>
         <span class="footer-sep">·</span>
-        <span class="footer-copy">&copy; 2026 Cadimus</span>
+        <button type="button" class="footer-link" id="footer-changelog">Changelog</button>
+      </div>
+      <div class="footer-linha3">
+        <span>Desenvolvimento por <a href="https://olinbytedigital.pages.dev/" target="_blank" rel="noopener" class="footer-link footer-link-destaque">Olinbyte Digital</a></span>
       </div>
     </footer>
 

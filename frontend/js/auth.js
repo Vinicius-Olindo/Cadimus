@@ -103,7 +103,6 @@ function alternarTelas(estaLogado) {
   const sAdmin = document.getElementById("admin-section");
   const bAdmin = document.getElementById("btn-admin");
   const footer = document.getElementById("app-footer");
-  const footerUsuario = document.getElementById("footer-usuario");
 
   if (estaLogado) {
     sLogin.style.display = "none";
@@ -113,7 +112,6 @@ function alternarTelas(estaLogado) {
 
     const u = obterUsuarioLogado();
     if (bAdmin) bAdmin.style.display = u.perfil === "superadmin" ? "inline-block" : "none";
-    if (footerUsuario && u) footerUsuario.textContent = u.nome || u.usuario || "";
     atualizarAvatarTopo(u);
     if (window.carregarCarteiras) window.carregarCarteiras();
 
