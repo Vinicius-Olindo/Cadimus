@@ -15,6 +15,7 @@ import { processarConvites } from "./routes/convites.js";
 import { processarTransferencias } from "./routes/transferencias.js";
 import { processarOrcamentos } from "./routes/orcamentos.js";
 import { processarLimpezaDados } from "./routes/manutencao.js";
+import { processarCartoesCredito } from "./routes/cartoesCredito.js";
 
 // ==========================================
 // HELPER: adiciona os headers de CORS à resposta e força Content-Type JSON.
@@ -154,6 +155,13 @@ export default {
       // ==========================================
       if (url.pathname.startsWith("/api/orcamentos")) {
         return comCors(await processarOrcamentos(request, env, ctx), frontendUrl, request);
+      }
+
+      // ==========================================
+      // ROTA 14: CARTÕES DE CRÉDITO
+      // ==========================================
+      if (url.pathname.startsWith("/api/cartoes-credito")) {
+        return comCors(await processarCartoesCredito(request, env, ctx), frontendUrl, request);
       }
 
       // ==========================================

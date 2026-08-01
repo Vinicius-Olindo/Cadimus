@@ -95,6 +95,12 @@
                 </svg>
                 <span class="btn-topo-label">Parceladas</span>
               </button>
+              <button id="btn-cartoes-credito" class="btn-topo-icone" title="Cartões de crédito">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+                </svg>
+                <span class="btn-topo-label">Cartões</span>
+              </button>
               <button id="btn-importar-extrato" class="btn-topo-icone" title="Importar extrato">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -403,6 +409,14 @@
                 <button type="button" id="btn-novo-orcamento" class="btn-link-adicionar">+ Novo</button>
               </div>
               <div id="lista-orcamentos-painel"></div>
+            </div>
+
+            <div class="card resumo-categorias" id="card-cartoes-credito" style="display: none">
+              <div class="despesas-fixas-cabecalho">
+                <span class="resumo-categorias-titulo">Cartões de crédito</span>
+                <button type="button" id="btn-novo-cartao" class="btn-link-adicionar">+ Novo</button>
+              </div>
+              <div id="lista-cartoes-painel"></div>
             </div>
 
             <div class="card resumo-categorias" id="card-score" style="display: none">
@@ -796,6 +810,56 @@
 
           <button type="submit" id="btn-salvar-orcamento">Salvar orçamento</button>
           <button type="button" id="btn-fechar-modal-orcamento">Cancelar</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL: CARTÃO DE CRÉDITO -->
+    <div id="modal-cartao-credito" class="modal-overlay" role="dialog" aria-modal="true" style="display: none">
+      <div class="modal-content">
+        <h3 id="titulo-modal-cartao">Novo cartão de crédito</h3>
+        <form id="form-cartao-credito">
+          <input type="hidden" id="cartao-editando-id" value="" />
+
+          <div class="campo">
+            <label for="cartao-nome">Nome (ex: Nubank XP)</label>
+            <input type="text" id="cartao-nome" placeholder="Meu cartão" required />
+          </div>
+
+          <div class="campo">
+            <label for="cartao-bandeira">Bandeira</label>
+            <select id="cartao-bandeira">
+              <option value="visa">Visa</option>
+              <option value="mastercard">Mastercard</option>
+              <option value="elo">Elo</option>
+              <option value="amex">American Express</option>
+              <option value="outro" selected>Outro</option>
+            </select>
+          </div>
+
+          <div class="campo">
+            <label for="cartao-ultimos4">Últimos 4 dígitos (opcional)</label>
+            <input type="text" id="cartao-ultimos4" maxlength="4" pattern="\d{4}" placeholder="1234" />
+          </div>
+
+          <div class="campo-linha">
+            <div class="campo">
+              <label for="cartao-dia-fechamento">Dia fechamento</label>
+              <input type="number" id="cartao-dia-fechamento" min="1" max="31" required />
+            </div>
+            <div class="campo">
+              <label for="cartao-dia-vencimento">Dia vencimento</label>
+              <input type="number" id="cartao-dia-vencimento" min="1" max="31" required />
+            </div>
+          </div>
+
+          <div class="campo">
+            <label for="cartao-limite">Limite (opcional)</label>
+            <input type="number" id="cartao-limite" step="0.01" min="0" placeholder="0,00" />
+          </div>
+
+          <button type="submit" id="btn-salvar-cartao">Salvar cartão</button>
+          <button type="button" id="btn-fechar-modal-cartao">Cancelar</button>
         </form>
       </div>
     </div>
