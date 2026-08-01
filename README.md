@@ -13,11 +13,19 @@ PWA completa para controle financeiro pessoal e familiar. Construída com Cloudf
 
 ## Funcionalidades
 
+### Dashboard
+- Cards de Saldo, Despesas, Pendências e Atrasados
+- Score de saúde financeira (0-100) com anel SVG animado
+- Gráfico de categorias (donut) em "Para onde foi o dinheiro"
+- Evolução mensal (SVG line chart) — Receitas vs Despesas
+- Notificações de vencimento com badge vermelho no sino
+- Comparativo por período (Mês/Trimestre/Ano)
+
 ### Lançamentos
 - Cadastro de receitas e despesas com data, categoria, descrição, valor e nota
-- Filtros por tipo, status (pago/pendente/atrasado) e categoria
+- Filtros avançados: tipo, status (pago/pendente/atrasado) e categoria (lógica AND)
 - Busca por descrição ou categoria
-- Agrupamento automático por período (Hoje, Ontem, Esta semana, etc.)
+- Agrupamento automático por período (Hoje, Ontem, Esta semana, Semana passada, Este mês, Mês passado, Mais antigo)
 - Colapso/expandir grupos de data
 - Edição em lote (até 50 lançamentos por vez)
 
@@ -26,32 +34,51 @@ PWA completa para controle financeiro pessoal e familiar. Construída com Cloudf
 - Pagamento mensal com histórico
 - Atrasado automaticamente quando não pago
 - Geração automática na virada do mês
+- Layout com status colorido (Pago=verde, Pendente=amarelo, Atrasado=vermelho)
 
 ### Compras Parceladas
 - Cadastro com número de parcelas e data inicial
 - Toggle play/pause para pausar temporariamente
 - Histórico de pagamentos por parcela
+- Vinculação a cartão de crédito
+
+### Cartões de Crédito
+- CRUD completo (criar, editar, excluir)
+- Bandeira com cores (Visa, Mastercard, Elo, Amex, etc.)
+- Limite, data de fechamento e vencimento
+- Barra de utilização com gasto atual vs limite
+- Parcelas ativas vinculadas
 
 ### Lançamentos Recorrentes
 - Frequência semanal, quinzenal, mensal, trimestral ou anual
 - Geração automática dos próximos lançamentos
 
-### Planejamento Financeiro
-- **Metas**: defina valores-alvo por categoria com prazo e depósitos
-- **Planos**: projetos com ícone, cor, prioridade, deadline e compartilhamento
-- **Distribuição mensal**: visualiza fixas + parcelas + planos ativos + sobra
-- **Capacidade de guarda**: cálculo automático baseado no salário
-- **Taxa de poupança**: percentual de economia mensal
+### Transferências entre Carteiras
+- Transferência de valores entre contas
+- Histórico de transferências
 
-### Dashboard
-- Cards de Saldo, Despesas, Saldo do período, Capacidade de guarda e Taxa de poupança
-- Comparativo por período (Mês/Trimestre/Ano) com variação percentual
-- Gráfico de barras comparativo 6 meses (Saldo vs Despesas)
-- Raio-x de categorias com ranking
+### Planejamento Financeiro (7 abas)
+- **Resumo**: KPIs, salário, indicadores financeiros, alertas inteligentes
+- **Orçamento**: Orçamento por categoria com barras de progresso
+- **Metas**: Metas financeiras com depósito e progresso
+- **Receitas**: Receitas planejadas com status
+- **Despesas**: Fixas + Parceladas consolidadas
+- **Comparar**: Comparação planejado × real + recomendações
+- **Simular**: Calculadora de economia (12/24/60 meses)
+
+### Relatórios Financeiros (7 abas)
+- **Resumo**: 6 KPIs com tendências + Fluxo de Caixa SVG + Barras Receitas×Despesas + Donut + 10 Indicadores
+- **Categorias**: Evolução por categoria (linhas SVG) + Ranking com barras
+- **Contas**: Tabela por conta + Tabela por forma de pagamento
+- **Detalhes**: Maiores despesas/receitas + Gastos recorrentes
+- **Comparativo**: Período atual × anterior + Progresso de metas
+- **Insights**: Análises automáticas (gasto > receita, categorias com variação, fixas > 60%)
+- **Tabela**: Tabela completa com busca, ordenação e paginação
+- Filtros: período (hoje/semana/mês/3m/6m/ano/personalizado), carteira, categoria, tipo
+- Exportação: PDF (impressão), CSV, JSON
 
 ### Notificações
 - Avisos de vencimento para fixas, parceladas e lançamentos pendentes
-- Notificação semanal para metas com prazo
 - Badge vermelho que persiste até itens serem pagos
 - Modal popup ao clicar no sino
 
@@ -63,28 +90,54 @@ PWA completa para controle financeiro pessoal e familiar. Construída com Cloudf
 
 ### Importação e Exportação
 - Importação de extratos bancários (OFX e CSV)
+- Importação em lote com `Promise.allSettled` (batches de 10)
 - Exportação em CSV e OFX
-- Resumo por período na exportação
+
+### Configurações (Layout modular com sidebar)
+- **Perfil**: Foto, nome, email, telefone, salário, perfil, senha
+- **Contas**: Carteiras (adicionar/editar)
+- **Cartões**: Cartões de crédito
+- **Categorias**: CRUD com busca
+- **Metas**: Metas financeiras
+- **Orçamentos**: Orçamentos por categoria
+- **Recorrências**: Lançamentos recorrentes
+- **Usuários**: Lista + convidar (só admin)
+- **Tema**: Claro/Escuro/Automático + toggles (animações, ocultar valores)
+- **Dados**: Importar/Exportar
+- **Sistema**: Versão, banco, hospedagem
+- **Zona de Perigo**: Apagar dados financeiros
 
 ### Administração (Superadmin)
 - Gerenciamento de usuários (criar, editar, excluir)
-- Painel de categorias
 - Sistema de convites com link expirante (3 horas)
-- Visibilidade por criador (superadmin vê tudo)
+- Visibilidade por criador (`criado_por` — superadmin vê tudo)
+- Usuários convidados recebem carteira pessoal automática
 
-### Perfil do Usuário
-- Edição de nome, e-mail, telefone, foto de perfil e senha
-- Campo de salário para cálculos de planejamento
-- Avatar no header com dropdown (Perfil, Configurações, Sair)
+### Acessibilidade
+- WCAG AA contrast (`--cor-texto-suave: #3d4d3f` = 5.2:1)
+- ARIA `role="dialog"` e `aria-modal="true"` em todos os modais (23+)
+- Trapping de foco em modais
+- Redução de animação para quem tem `prefers-reduced-motion`
+- Alt text em imagens
+- Navegação por teclado
+
+### Segurança
+- Sanitização de URLs (`sanitizarUrl()` — http/https only)
+- Event delegation (sem inline `onclick`)
+- Remoção de `erro.message` de respostas (39 ocorrências em 14 arquivos)
+- Content Security Policy via `_headers`
+- XSS protection via escaping de HTML
 
 ### Extras
-- Modo escuro/claro com toggle
-- PWA instalável (manifest + service worker)
+- PWA instalável (manifest + service worker com cache v4 + stale-while-revalidate)
+- Offline fallback page
+- Onboarding interativo (tour guiado com 5 steps)
 - Animação de contagem nos valores monetários
 - Toast de feedback para ações
 - Modais customizados (substitui alert/confirm do navegador)
-- Trapping de foco em modais (acessibilidade)
-- Redução de animação para quem tem `prefers-reduced-motion`
+- Debounce de 250ms na busca
+- Fonts reduzidas (IBM Plex Sans + IBM Plex Mono)
+- Rodapé único com brand, versão, usuário e links
 
 ---
 
@@ -95,11 +148,12 @@ PWA completa para controle financeiro pessoal e familiar. Construída com Cloudf
 - CSS custom properties para design tokens
 - Service Worker com stale-while-revalidate
 - PWA com manifest e ícones maskable
+- Gráficos SVG (donut, line chart, bar chart)
 
 ### Backend
 - **Cloudflare Workers** (edge computing)
 - **Cloudflare D1** (SQLite serverless)
-- Roteamento manual com padrão de rotas
+- Roteamento manual com padrão de rotas otimizadas (GROUP BY + IN)
 
 ### Segurança
 - Hash de senhas com **PBKDF2** (100.000 iterações)
@@ -124,15 +178,17 @@ PWA completa para controle financeiro pessoal e familiar. Construída com Cloudf
 Cadimus/
 ├── frontend/
 │   ├── index.html              # SPA principal
+│   ├── offline.html            # Fallback offline
+│   ├── _headers                # CSP + security headers
 │   ├── manifest.json           # PWA manifest
-│   ├── sw.js                   # Service Worker
+│   ├── sw.js                   # Service Worker (cache v4)
 │   ├── css/
 │   │   ├── variables.css       # Design tokens
-│   │   └── style.css           # Estilos globais
+│   │   └── style.css           # Estilos globais (~6000 linhas)
 │   ├── js/
-│   │   ├── auth.js             # Autenticação e sessão
-│   │   ├── main.js             # Lógica principal da aplicação
-│   │   ├── components.js       # Componentes reutilizáveis (linhas de lançamento)
+│   │   ├── auth.js             # Autenticação, sessão, sanitização
+│   │   ├── main.js             # Lógica principal (~7000 linhas)
+│   │   ├── components.js       # Componentes reutilizáveis
 │   │   ├── importar.js         # Importação OFX/CSV
 │   │   ├── exportar.js         # Exportação CSV/OFX
 │   │   └── recorrentes.js      # Lançamentos recorrentes
@@ -148,17 +204,19 @@ Cadimus/
 │       ├── index.js            # Entry point e rotas
 │       ├── routes/
 │       │   ├── auth.js         # Login/logout/recuperação de senha
-│       │   ├── usuarios.js     # CRUD de usuários
+│       │   ├── usuarios.js     # CRUD de usuários (filtro por criado_por)
 │       │   ├── carteiras.js    # CRUD de carteiras
 │       │   ├── lancamentos.js  # CRUD + filtros + batch
 │       │   ├── despesasFixas.js
 │       │   ├── comprasParceladas.js
 │       │   ├── lancamentosRecorrentes.js
 │       │   ├── categorias.js
-│       │   ├── metas.js        # Metas de economia
-│       │   ├── planos.js       # Planos financeiros
+│       │   ├── metas.js        # Metas de economia (GROUP BY)
+│       │   ├── planos.js       # Planos financeiros (GROUP BY)
 │       │   ├── convites.js     # Sistema de convites
-│       │   ├── expenses.js
+│       │   ├── transferencias.js # Transferências entre carteiras
+│       │   ├── orcamentos.js   # Orçamentos por categoria
+│       │   ├── cartoesCredito.js # Cartões de crédito
 │       │   └── manutencao.js
 │       └── utils/
 │           ├── crypto.js       # PBKDF2 + comparação segura
@@ -169,7 +227,7 @@ Cadimus/
 │           ├── comprasParceladas.js
 │           └── lancamentosRecorrentes.js
 └── database/
-    └── migrations/             # 25 migrações SQL (0001-0025)
+    └── migrations/             # 28 migrações SQL (0001-0028)
 ```
 
 ---
@@ -213,12 +271,11 @@ python -m http.server 3000
 As migrações são aplicadas automaticamente no deploy. Para rodar manualmente:
 
 ```bash
-# Aplicar todas as migrações
+# Aplicar migrações individualmente
 wrangler d1 execute cadimus-db --remote --file=../database/migrations/0001_initial.sql
-wrangler d1 execute cadimus-db --remote --file=../database/migrations/0002_dados_iniciais.sql
-# ... etc
+wrangler d1 execute cadimus-db --remote --file=../database/migrations/0028_cartoes_credito.sql
 
-# Ou aplicar todas de uma vez (produção)
+# Aplicar todas de uma vez
 wrangler d1 migrations apply cadimus-db --remote
 ```
 
@@ -232,6 +289,13 @@ npm run deploy
 
 **Frontend:**
 O deploy automático acontece a cada push na branch `staging` (preview) ou `main` (produção) via Cloudflare Pages.
+
+### Branches
+
+| Branch | Ambiente | URL |
+|---|---|---|
+| `main` | Produção | cadimus.pages.dev |
+| `staging` | Preview | staging.cadimus.pages.dev |
 
 ---
 
@@ -253,12 +317,20 @@ RESEND_API_KEY=re_sua_chave_aqui
 
 ---
 
-## Branches
+## Migrações
 
-| Branch | Ambiente | URL |
-|---|---|---|
-| `main` | Produção | cadimus.pages.dev |
-| `staging` | Preview | staging.cadimus.pages.dev |
+| Migração | Descrição |
+|---|---|
+| 0001 | Tabelas iniciais (usuarios, categorias, lancamentos) |
+| 0002 | Dados iniciais (categorias padrão) |
+| 0003-0010 | Carteiras, despesas fixas, compras parceladas |
+| 0011-0015 | Recorrências, notificações, metas |
+| 0016-0020 | Planos financeiros, `criado_por`, campo nota |
+| 0021-0022 | Sistema de convites, `criado_por` FK |
+| 0023-0025 | Metas com prazo, planos com ícone/cor |
+| 0026 | Transferências entre carteiras |
+| 0027 | Orçamentos mensais por categoria |
+| 0028 | Cartões de crédito + FK em compras_parceladas |
 
 ---
 
