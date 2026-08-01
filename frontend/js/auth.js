@@ -175,6 +175,16 @@ document.addEventListener("DOMContentLoaded", () => {
       abrirConfiguracoesAdmin();
     });
 
+    document.getElementById("dropdown-btn-importar")?.addEventListener("click", () => {
+      dropdownAvatar.style.display = "none";
+      document.getElementById("btn-importar-extrato")?.click();
+    });
+
+    document.getElementById("dropdown-btn-exportar")?.addEventListener("click", () => {
+      dropdownAvatar.style.display = "none";
+      document.getElementById("btn-exportar-extrato")?.click();
+    });
+
     document.getElementById("dropdown-btn-sair")?.addEventListener("click", async () => {
       dropdownAvatar.style.display = "none";
       const token = obterToken();
