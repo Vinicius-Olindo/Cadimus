@@ -18,13 +18,14 @@
       --cor-despesa: #c62828;
     }
     @media (prefers-color-scheme: dark) {
-      :root {
-        --cor-fundo: #111311;
-        --cor-fundo-card: #1a1c1a;
-        --cor-texto: #e8e8e8;
-        --cor-texto-suave: #a8b8aa;
-        --cor-pauta-fraca: #2a2e2a;
-      }
+      :root { --auto-dark: 1; }
+    }
+    :root.dark-mode {
+      --cor-fundo: #111311;
+      --cor-fundo-card: #1a1c1a;
+      --cor-texto: #e8e8e8;
+      --cor-texto-suave: #a8b8aa;
+      --cor-pauta-fraca: #2a2e2a;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -89,6 +90,15 @@
     }
     .page-footer a { color: var(--cor-marca); text-decoration: none; }
   </style>
+  <script>
+    (function() {
+      var t = localStorage.getItem("cadimus_tema");
+      var autoDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      if (t === "dark" || (t !== "light" && autoDark)) {
+        document.documentElement.classList.add("dark-mode");
+      }
+    })();
+  </script>
 </head>
 <body>
   <header class="page-header">
