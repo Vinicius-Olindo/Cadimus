@@ -984,6 +984,15 @@ button:active {
   color: var(--cor-receita);
 }
 
+.stat-card-pendente {
+  border-top: 3px solid var(--cor-pendente);
+}
+
+.stat-card-pendente .stat-card-icone {
+  background: color-mix(in srgb, var(--cor-pendente) 12%, transparent);
+  color: var(--cor-pendente);
+}
+
 .stat-rotulo {
   font-size: 0.68rem;
   text-transform: uppercase;
