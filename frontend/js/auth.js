@@ -190,7 +190,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.getElementById("dropdown-btn-relatorio")?.addEventListener("click", () => {
       dropdownAvatar.style.display = "none";
-      document.getElementById("btn-relatorio-pdf")?.click();
+      const secaoDash = document.getElementById("dashboard-section");
+      const secaoRel = document.getElementById("relatorios-section");
+      if (secaoDash && secaoRel) {
+        secaoDash.style.display = "none";
+        secaoRel.style.display = "flex";
+        secaoRel.style.flexDirection = "column";
+        if (window.inicializarFiltrosRelatorio) window.inicializarFiltrosRelatorio();
+        if (window.carregarDadosRelatorio) window.carregarDadosRelatorio();
+      }
     });
 
     document.getElementById("dropdown-btn-sair")?.addEventListener("click", async () => {
