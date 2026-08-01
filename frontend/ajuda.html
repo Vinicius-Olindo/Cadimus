@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ajuda — Gestor Financeiro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cor-fundo: #f7f8f7;
+      --cor-fundo-card: #ffffff;
+      --cor-texto: #1a1a1a;
+      --cor-texto-suave: #3d4d3f;
+      --cor-marca: #a97a2f;
+      --cor-pauta-fraca: #e4e8e4;
+      --cor-receita: #2e7d32;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --cor-fundo: #111311;
+        --cor-fundo-card: #1a1c1a;
+        --cor-texto: #e8e8e8;
+        --cor-texto-suave: #a8b8aa;
+        --cor-pauta-fraca: #2a2e2a;
+      }
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'IBM Plex Sans', -apple-system, sans-serif;
+      background: var(--cor-fundo);
+      color: var(--cor-texto);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .page-header {
+      border-bottom: 1px solid var(--cor-pauta-fraca);
+      padding: 16px 24px;
+      background: var(--cor-fundo-card);
+    }
+    .page-header-inner {
+      max-width: 800px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .page-header a { color: var(--cor-texto-suave); text-decoration: none; font-size: 0.85rem; }
+    .page-header a:hover { color: var(--cor-marca); }
+    .page-header h1 { font-size: 1.1rem; font-weight: 600; }
+    .page-content {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 32px 24px 60px;
+      flex: 1;
+    }
+    .page-content h2 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin: 28px 0 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--cor-pauta-fraca);
+    }
+    .page-content h2:first-child { margin-top: 0; }
+    .page-content h3 { font-size: 0.95rem; font-weight: 600; margin: 18px 0 8px; color: var(--cor-texto); }
+    .page-content p, .page-content li { font-size: 0.9rem; color: var(--cor-texto-suave); margin-bottom: 8px; }
+    .page-content ul { padding-left: 20px; margin-bottom: 12px; }
+    .page-content li { margin-bottom: 5px; }
+    .page-content strong { color: var(--cor-texto); }
+    .page-content a { color: var(--cor-marca); }
+    .page-content code {
+      background: var(--cor-pauta-fraca);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.85em;
+    }
+    .page-content .faq-item {
+      background: var(--cor-fundo-card);
+      border: 1px solid var(--cor-pauta-fraca);
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+    }
+    .page-content .faq-item strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.9rem;
+    }
+    .page-content .faq-item p {
+      margin: 0;
+      font-size: 0.85rem;
+    }
+    .page-content .contato-box {
+      background: var(--cor-fundo-card);
+      border: 1px solid var(--cor-pauta-fraca);
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 16px;
+      text-align: center;
+    }
+    .page-content .contato-box p { margin-bottom: 6px; }
+    .page-footer {
+      border-top: 1px solid var(--cor-pauta-fraca);
+      padding: 16px 24px;
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--cor-texto-suave);
+    }
+    .page-footer a { color: var(--cor-marca); text-decoration: none; }
+  </style>
+</head>
+<body>
+  <header class="page-header">
+    <div class="page-header-inner">
+      <a href="/">&larr; Voltar</a>
+      <h1>Ajuda</h1>
+    </div>
+  </header>
+
+  <main class="page-content">
+    <h2>Primeiros Passos</h2>
+
+    <h3>Como criar minha conta?</h3>
+    <p>Acesse a página de <a href="/">login</a> e clique em <strong>"Criar conta"</strong>. Preencha nome, usuário, e-mail e senha. Após o cadastro, você terá acesso imediato ao Dashboard.</p>
+
+    <h3>Como fazer login?</h3>
+    <p>Digite seu <strong>usuário</strong> e <strong>senha</strong> na tela de login e clique em "Entrar". Sua sessão é mantida enquanto o navegador estiver aberto.</p>
+
+    <h3>Esqueci minha senha</h3>
+    <p>Na tela de login, clique em <strong>"Esqueceu a senha?"</strong> e informe seu e-mail. Você receberá um link para redefinir a senha válido por 30 minutos.</p>
+
+    <h2>Dashboard</h2>
+
+    <div class="faq-item">
+      <strong>O que significam os cards do topo?</strong>
+      <p><strong>Saldo</strong> = Receitas - Despesas do período. <strong>Despesas</strong> = Total de gastos. <strong>Pendências</strong> = Itens a pagar. <strong>Atrasados</strong> = Itens com data vencida.</p>
+    </div>
+
+    <div class="faq-item">
+      <strong>Como funciona o Score de Saúde?</strong>
+      <p>É uma nota de 0 a 100 baseada em 5 critérios: taxa de poupança, controle de gastos, diversificação de categorias, despesas fixas vs renda, e contas atrasadas. Quanto maior, melhor.</p>
+    </div>
+
+    <div class="faq-item">
+      <strong>Como troco de carteira?</strong>
+      <p>Use as abas de carteiras no topo do Dashboard. Clique na carteira desejada para ver apenas os lançamentos daquela conta.</p>
+    </div>
+
+    <h2>Lançamentos</h2>
+
+    <div class="faq-item">
+      <strong>Como adiciono um lançamento?</strong>
+      <p>Clique no botão <strong>"+"</strong> ou <strong>"Novo lançamento"</strong>. Preencha tipo (receita/despesa), descrição, valor, data, categoria, meio de pagamento e status. Clique em "Salvar".</p>
+    </div>
+
+    <div class="faq-item">
+      <strong>Como funciona o agrupamento por data?</strong>
+      <p>Os lançamentos são organizados automaticamente em grupos: Hoje, Ontem, Esta semana, Semana passada, Este mês, Mês passado e Mais antigo. Clique no nome do grupo para expandir/colapsar.</p>
+    </div>
+
+    <div class="faq-item">
+      <strong>Como edito vários lançamentos de uma vez?</strong>
+      <p>Ative o modo de seleção, escolha os lançamentos (até 50) e use a barra de ações em lote que aparece na parte inferior.</p>
+    </div>
+
+    <div class="faq-item">
+      <strong>O que significam as cores de status?</strong>
+      <p><strong style="color:var(--cor-receita)">Verde</strong> = Pago/Recebido. <strong style="color:#f9a825">Amarelo</strong> = Pendente. <strong>Vermelho</strong> = Atrasado.</p>
+    </div>
+
+    <h2>Despesas Fixas e Parceladas</h2>
+
+    <div class="faq-item">
+      <strong>Qual a diferença entre fixas e parceladas?</strong>
+      <p><strong>Fixas</strong> se repetem todo mês (aluguel, internet). <strong>Parceladas</strong> têm número finito de prestações (compra em 12x). Ambas podem ser pausadas temporariamente.</p>
+    </div>
+
+    <div class="faq-item">
+      <strong>Como pauso uma despesa?</strong>
+      <p>Clique no ícone de pause (⏸) ao lado da despesa. Ela será marcada como pausada e não será contabilizada até ser reativada.</p>
+    </div>
+
+    <h2>Planejamento</h2>
+
+    <div class="faq-item">
+      <strong>Como defino meu salário?</strong>
+      <p>Vá em <strong>Configurações > Perfil</strong> ou <strong>Planejamento > Resumo</strong> e clique em "Editar" ao lado do salário. O salário é usado para calcular indicadores e capacidade de guarda.</p>
+    </div>
+
+    <div class="faq-item">
+      <strong>Como crio uma meta?</strong>
+      <p>No Planejamento, vá na aba <strong>"Metas"</strong> e clique em "+ Nova meta". Defina a categoria, valor-alvo e data limite. Você pode fazer depósitos para acompanhar o progresso.</p>
+    </div>
+
+    <h2>Relatórios</h2>
+
+    <div class="faq-item">
+      <strong>Como acesso os relatórios?</strong>
+      <p>Clique no ícone de <strong>"Relatórios"</strong> no header. Você verá 7 abas: Resumo, Categorias, Contas, Detalhes, Comparativo, Insights e Tabela completa.</p>
+    </div>
+
+    <div class="faq-item">
+      <strong>Como exporto um relatório?</strong>
+      <p>Na tela de relatórios, clique em <strong>"Exportar"</strong> e escolha o formato: PDF, CSV, JSON ou Impressão.</p>
+    </div>
+
+    <h2>Importação e Exportação</h2>
+
+    <div class="faq-item">
+      <strong>Como importo extratos bancários?</strong>
+      <p>Vá no menu do avatar (canto superior direito) e clique em <strong>"Importar extrato"</strong>. Aceita arquivos OFX e CSV.</p>
+    </div>
+
+    <div class="faq-item">
+      <strong>Como exporto meus lançamentos?</strong>
+      <p>Vá no menu do avatar e clique em <strong>"Exportar lançamentos"</strong>. Escolha entre CSV e OFX.</p>
+    </div>
+
+    <h2>Configurações</h2>
+
+    <div class="faq-item">
+      <strong>Como mudo o tema?</strong>
+      <p>Vá em <strong>Configurações > Tema</strong> e escolha Claro, Escuro ou Automático. Também pode usar o botão de tema (☀/🌙) no header.</p>
+    </div>
+
+    <div class="faq-item">
+      <strong>Como convido outro usuário?</strong>
+      <p>Apenas administradores podem convidar. Vá em <strong>Configurações > Usuários</strong> e clique em "Convidar usuário". Um link será gerado com validade de 3 horas.</p>
+    </div>
+
+    <h2>Problemas Comuns</h2>
+
+    <div class="faq-item">
+      <strong>Os dados não aparecem</strong>
+      <p>Verifique se você está logado na conta correta. Se o problema persistir, tente fazer logout e login novamente.</p>
+    </div>
+
+    <div class="faq-item">
+      <strong>Como funciona o modo offline?</strong>
+      <p>O app mantém dados em cache. Se estiver sem internet, os dados mais recentes serão exibidos. As alterações são sincronizadas quando a conexão volta.</p>
+    </div>
+
+    <div class="faq-item">
+      <strong>Como apago todos os dados?</strong>
+      <p>Vá em <strong>Configurações > Zona de Perigo</strong>. Esta ação é irreversível e remove todos os lançamentos, fixas, parceladas e metas.</p>
+    </div>
+
+    <h2>Contato</h2>
+    <div class="contato-box">
+      <p><strong>Precisa de mais ajuda?</strong></p>
+      <p>Entre em contato conosco:</p>
+      <p><strong>E-mail:</strong> contato@olinbytedigital.pages.dev</p>
+      <p><strong>Desenvolvido por:</strong> <a href="https://olinbytedigital.pages.dev/" target="_blank">Olinbyte Digital</a></p>
+    </div>
+  </main>
+
+  <footer class="page-footer">
+    <p>&copy; 2026 Cadimus — <a href="https://olinbytedigital.pages.dev/" target="_blank">Olinbyte Digital</a></p>
+  </footer>
+</body>
+</html>

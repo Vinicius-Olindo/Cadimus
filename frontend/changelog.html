@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Changelog — Gestor Financeiro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cor-fundo: #f7f8f7;
+      --cor-fundo-card: #ffffff;
+      --cor-texto: #1a1a1a;
+      --cor-texto-suave: #3d4d3f;
+      --cor-marca: #a97a2f;
+      --cor-pauta-fraca: #e4e8e4;
+      --cor-receita: #2e7d32;
+      --cor-despesa: #c62828;
+      --cor-pendente: #f9a825;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --cor-fundo: #111311;
+        --cor-fundo-card: #1a1c1a;
+        --cor-texto: #e8e8e8;
+        --cor-texto-suave: #a8b8aa;
+        --cor-pauta-fraca: #2a2e2a;
+      }
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'IBM Plex Sans', -apple-system, sans-serif;
+      background: var(--cor-fundo);
+      color: var(--cor-texto);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .page-header {
+      border-bottom: 1px solid var(--cor-pauta-fraca);
+      padding: 16px 24px;
+      background: var(--cor-fundo-card);
+    }
+    .page-header-inner {
+      max-width: 800px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .page-header a { color: var(--cor-texto-suave); text-decoration: none; font-size: 0.85rem; }
+    .page-header a:hover { color: var(--cor-marca); }
+    .page-header h1 { font-size: 1.1rem; font-weight: 600; }
+    .page-content {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 32px 24px 60px;
+      flex: 1;
+    }
+    .changelog-entry {
+      background: var(--cor-fundo-card);
+      border: 1px solid var(--cor-pauta-fraca);
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .changelog-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .changelog-version {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--cor-texto);
+    }
+    .changelog-date {
+      font-size: 0.8rem;
+      color: var(--cor-texto-suave);
+    }
+    .changelog-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .tag-feature { background: rgba(46,125,50,0.1); color: var(--cor-receita); }
+    .tag-fix { background: rgba(198,40,40,0.1); color: var(--cor-despesa); }
+    .tag-improve { background: rgba(169,122,47,0.1); color: var(--cor-marca); }
+    .changelog-section { margin-top: 10px; }
+    .changelog-section-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--cor-texto);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .changelog-section ul {
+      list-style: none;
+      padding: 0;
+    }
+    .changelog-section li {
+      font-size: 0.85rem;
+      color: var(--cor-texto-suave);
+      padding: 3px 0;
+      padding-left: 16px;
+      position: relative;
+    }
+    .changelog-section li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 10px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--cor-pauta-fraca);
+    }
+    .li-feature::before { background: var(--cor-receita) !important; }
+    .li-fix::before { background: var(--cor-despesa) !important; }
+    .li-improve::before { background: var(--cor-marca) !important; }
+    .page-footer {
+      border-top: 1px solid var(--cor-pauta-fraca);
+      padding: 16px 24px;
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--cor-texto-suave);
+    }
+    .page-footer a { color: var(--cor-marca); text-decoration: none; }
+  </style>
+</head>
+<body>
+  <header class="page-header">
+    <div class="page-header-inner">
+      <a href="/">&larr; Voltar</a>
+      <h1>Changelog</h1>
+    </div>
+  </header>
+
+  <main class="page-content">
+
+    <div class="changelog-entry">
+      <div class="changelog-header">
+        <span class="changelog-version">v1.0.0</span>
+        <span class="changelog-tag tag-feature">Feature</span>
+        <span class="changelog-date">1 de agosto de 2026</span>
+      </div>
+      <div class="changelog-section">
+        <div class="changelog-section-title">Novidades</div>
+        <ul>
+          <li class="li-feature">Tela de Relatórios Financeiros completa com 7 abas (Resumo, Categorias, Contas, Detalhes, Comparativo, Insights, Tabela)</li>
+          <li class="li-feature">Configurações redesenhadas com layout modular e sidebar (12 módulos)</li>
+          <li class="li-feature">Rodapé único com créditos Olinbyte Digital</li>
+          <li class="li-feature">Páginas de Política de Privacidade, Termos de Uso, Ajuda e Changelog</li>
+          <li class="li-feature">Gráficos SVG: Fluxo de Caixa, Barras Receitas×Despesas, Donut de categorias, Evolução por categoria</li>
+          <li class="li-feature">Insights automáticos com análises financeiras</li>
+          <li class="li-feature">Exportação de relatórios em PDF, CSV e JSON</li>
+          <li class="li-feature">Score de saúde financeira (0-100) com anel animado</li>
+          <li class="li-feature">Cartões de crédito com CRUD completo e barras de utilização</li>
+          <li class="li-feature">Transferências entre carteiras</li>
+          <li class="li-feature">Orçamentos mensais por categoria com progresso</li>
+          <li class="li-feature">Planejamento Financeiro com 7 abas (Resumo, Orçamento, Metas, Receitas, Despesas, Comparar, Simular)</li>
+          <li class="li-feature">Onboarding interativo com tour guiado de 5 steps</li>
+          <li class="li-feature">PWA instalável com banner de instalação</li>
+        </ul>
+      </div>
+      <div class="changelog-section">
+        <div class="changelog-section-title">Melhorias</div>
+        <ul>
+          <li class="li-improve">Layout de fixas/parceladas redesenhado com status colorido</li>
+          <li class="li-improve">Filtros avançados com lógica AND (tipo + status + categoria)</li>
+          <li class="li-improve">Agrupamento por data expandido (Hoje, Ontem, Esta semana, Semana passada, Este mês, Mês passado, Mais antigo)</li>
+          <li class="li-improve">Colapso/expandir grupos de data preservado na sessão</li>
+          <li class="li-improve">Debounce de 250ms na busca</li>
+          <li class="li-improve">Importação em lote com Promise.allSettled</li>
+          <li class="li-improve">N+1 queries otimizadas com GROUP BY em metas e planos</li>
+          <li class="li-improve">App renomeada de "Caderno de Contas" para "Gestor Financeiro"</li>
+          <li class="li-improve">Fonts reduzidas para 2 (IBM Plex Sans + Mono)</li>
+          <li class="li-improve">Estado vazio com ícone, mensagem e CTA</li>
+        </ul>
+      </div>
+      <div class="changelog-section">
+        <div class="changelog-section-title">Correções</div>
+        <ul>
+          <li class="li-fix">Correção de contraste WCAA AA (--cor-texto-suave ajustado para 5.2:1)</li>
+          <li class="li-fix">XSS protegido com sanitização de URLs e remoção de onclick inline</li>
+          <li class="li-fix">Mensagens de erro não vazam mais para o frontend</li>
+          <li class="li-fix">Content Security Policy configurado via _headers</li>
+          <li class="li-fix">Offline fallback page funcionando sem rede</li>
+          <li class="li-fix">Service Worker com cache v4 e stale-while-revalidate</li>
+        </ul>
+      </div>
+      <div class="changelog-section">
+        <div class="changelog-section-title">Segurança</div>
+        <ul>
+          <li class="li-improve">Trapping de foco em todos os modais (23+)</li>
+          <li class="li-improve">ARIA role="dialog" e aria-modal="true" em modais</li>
+          <li class="li-improve">Visibilidade por criado_por (superadmin vê todos os usuários)</li>
+          <li class="li-improve">Sistema de convites com link expirante (3 horas)</li>
+          <li class="li-improve">PBKDF2 com 100.000 iterações para senhas</li>
+        </ul>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="page-footer">
+    <p>&copy; 2026 Cadimus — <a href="https://olinbytedigital.pages.dev/" target="_blank">Olinbyte Digital</a></p>
+  </footer>
+</body>
+</html>

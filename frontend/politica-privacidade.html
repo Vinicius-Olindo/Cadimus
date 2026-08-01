@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Política de Privacidade — Gestor Financeiro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cor-fundo: #f7f8f7;
+      --cor-fundo-card: #ffffff;
+      --cor-texto: #1a1a1a;
+      --cor-texto-suave: #3d4d3f;
+      --cor-marca: #a97a2f;
+      --cor-pauta-fraca: #e4e8e4;
+      --cor-receita: #2e7d32;
+      --cor-despesa: #c62828;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --cor-fundo: #111311;
+        --cor-fundo-card: #1a1c1a;
+        --cor-texto: #e8e8e8;
+        --cor-texto-suave: #a8b8aa;
+        --cor-pauta-fraca: #2a2e2a;
+      }
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'IBM Plex Sans', -apple-system, sans-serif;
+      background: var(--cor-fundo);
+      color: var(--cor-texto);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .page-header {
+      border-bottom: 1px solid var(--cor-pauta-fraca);
+      padding: 16px 24px;
+      background: var(--cor-fundo-card);
+    }
+    .page-header-inner {
+      max-width: 800px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .page-header a {
+      color: var(--cor-texto-suave);
+      text-decoration: none;
+      font-size: 0.85rem;
+    }
+    .page-header a:hover { color: var(--cor-marca); }
+    .page-header h1 {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    .page-content {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 32px 24px 60px;
+      flex: 1;
+    }
+    .page-content h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 28px 0 10px;
+      color: var(--cor-texto);
+    }
+    .page-content h2:first-child { margin-top: 0; }
+    .page-content p, .page-content li {
+      font-size: 0.9rem;
+      color: var(--cor-texto-suave);
+      margin-bottom: 10px;
+    }
+    .page-content ul { padding-left: 20px; margin-bottom: 12px; }
+    .page-content li { margin-bottom: 6px; }
+    .page-content strong { color: var(--cor-texto); }
+    .page-content a { color: var(--cor-marca); }
+    .page-footer {
+      border-top: 1px solid var(--cor-pauta-fraca);
+      padding: 16px 24px;
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--cor-texto-suave);
+    }
+    .page-footer a { color: var(--cor-marca); text-decoration: none; }
+  </style>
+</head>
+<body>
+  <header class="page-header">
+    <div class="page-header-inner">
+      <a href="/">&larr; Voltar</a>
+      <h1>Política de Privacidade</h1>
+    </div>
+  </header>
+
+  <main class="page-content">
+    <p><strong>Última atualização:</strong> 1 de agosto de 2026</p>
+
+    <h2>1. Introdução</h2>
+    <p>A sua privacidade é importante para nós. Esta Política de Privacidade descreve como o <strong>Gestor Financeiro</strong> ("Aplicação", "nós") coleta, usa, armazena e protege as informações dos seus usuários.</p>
+    <p>Ao utilizar a Aplicação, você concorda com as práticas descritas nesta política.</p>
+
+    <h2>2. Dados Coletados</h2>
+    <p>Coletamos apenas os dados necessários para o funcionamento da Aplicação:</p>
+    <ul>
+      <li><strong>Dados de cadastro:</strong> nome, e-mail, telefone, nome de usuário e senha (armazenada de forma criptografada).</li>
+      <li><strong>Dados financeiros:</strong> lançamentos, receitas, despesas, carteiras, categorias, metas, orçamentos e cartões de crédito cadastrados pelo usuário.</li>
+      <li><strong>Dados de perfil:</strong> salário, foto de perfil e preferências.</li>
+      <li><strong>Dados de uso:</strong> informações de login, data/hora de acessos e preferências de tema.</li>
+    </ul>
+
+    <h2>3. Uso dos Dados</h2>
+    <p>Os dados coletados são utilizados exclusivamente para:</p>
+    <ul>
+      <li>Fornecer e manter os serviços da Aplicação.</li>
+      <li>Gerar relatórios, indicadores e análises financeiras pessoais.</li>
+      <li>Autenticar usuários e garantir a segurança da conta.</li>
+      <li>Enviar notificações relevantes (vencimentos, metas, lembretes).</li>
+      <li>Melhorar a experiência de uso da Aplicação.</li>
+    </ul>
+
+    <h2>4. Armazenamento e Segurança</h2>
+    <p>Seus dados são armazenados em servidores seguros da <strong>Cloudflare</strong> (D1 Database) com as seguintes proteções:</p>
+    <ul>
+      <li>Senhas criptografadas com <strong>PBKDF2</strong> (100.000 iterações).</li>
+      <li>Comunicação protegida via <strong>HTTPS/TLS</strong>.</li>
+      <li>Content Security Policy (CSP) configurado.</li>
+      <li>Sessões com expiração automática de 24 horas.</li>
+      <li>Rate limiting para prevenir ataques de força bruta.</li>
+    </ul>
+
+    <h2>5. Compartilhamento de Dados</h2>
+    <p><strong>Não vendemos, alugamos ou compartilhamos</strong> seus dados pessoais com terceiros para fins de marketing.</p>
+    <p>Os dados podem ser compartilhados apenas nas seguintes situações:</p>
+    <ul>
+      <li>Quando o usuário opta por compartilhar carteiras com outros usuários da Aplicação.</li>
+      <li>Quando exigido por lei ou ordem judicial.</li>
+      <li>Para proteger os direitos, a segurança ou a propriedade da Aplicação e seus usuários.</li>
+    </ul>
+
+    <h2>6. Serviços de Terceiros</h2>
+    <p>A Aplicação utiliza os seguintes serviços de terceiros:</p>
+    <ul>
+      <li><strong>Cloudflare:</strong> hospedagem, banco de dados e proteção DDoS.</li>
+      <li><strong>Resend:</strong> envio de e-mails (recuperação de senha, notificações).</li>
+    </ul>
+    <p>Cada serviço有自己的 políticas de privacidade. Recomendamos a leitura dos termos de cada provedor.</p>
+
+    <h2>7. Seus Direitos</h2>
+    <p>Você tem direito a:</p>
+    <ul>
+      <li><strong>Acessar</strong> todos os seus dados armazenados na Aplicação.</li>
+      <li><strong>Exportar</strong> seus dados em formato CSV, JSON ou PDF.</li>
+      <li><strong>Corrigir</strong> dados pessoais a qualquer momento.</li>
+      <li><strong>Excluir</strong> sua conta e todos os dados associados.</li>
+      <li><strong>Solicitar</strong> uma cópia de todos os seus dados.</li>
+    </ul>
+
+    <h2>8. Retenção de Dados</h2>
+    <p>Seus dados são mantidos enquanto sua conta estiver ativa. Ao solicitar a exclusão da conta, todos os dados são removidos permanentemente do nosso banco de dados em até 30 dias.</p>
+
+    <h2>9. Cookies e Armazenamento Local</h2>
+    <p>A Aplicação utiliza o <strong>localStorage</strong> do navegador para:</p>
+    <ul>
+      <li>Manter a sessão do usuário ativa.</li>
+      <li>Armazenar preferências (tema escuro/claro).</li>
+      <li>Controlar o onboarding e avisos.</li>
+    </ul>
+    <p>Não utilizamos cookies de rastreamento ou analytics de terceiros.</p>
+
+    <h2>10. Menores de Idade</h2>
+    <p>A Aplicação não é direcionada a menores de 18 anos. Não coletamos dados de conscientemente de menores de idade.</p>
+
+    <h2>11. Alterações nesta Política</h2>
+    <p>Podemos atualizar esta política periodicamente. Notificaremos os usuários sobre alterações significativas por e-mail ou dentro da Aplicação.</p>
+
+    <h2>12. Contato</h2>
+    <p>Se você tiver dúvidas sobre esta Política de Privacidade, entre em contato:</p>
+    <ul>
+      <li><strong>E-mail:</strong> contato@olinbytedigital.pages.dev</li>
+      <li><strong>Site:</strong> <a href="https://olinbytedigital.pages.dev/" target="_blank">Olinbyte Digital</a></li>
+    </ul>
+  </main>
+
+  <footer class="page-footer">
+    <p>&copy; 2026 Cadimus — <a href="https://olinbytedigital.pages.dev/" target="_blank">Olinbyte Digital</a></p>
+  </footer>
+</body>
+</html>
