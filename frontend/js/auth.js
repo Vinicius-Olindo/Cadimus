@@ -185,6 +185,11 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("btn-exportar-extrato")?.click();
     });
 
+    document.getElementById("dropdown-btn-relatorio")?.addEventListener("click", () => {
+      dropdownAvatar.style.display = "none";
+      document.getElementById("btn-relatorio-pdf")?.click();
+    });
+
     document.getElementById("dropdown-btn-sair")?.addEventListener("click", async () => {
       dropdownAvatar.style.display = "none";
       const token = obterToken();
