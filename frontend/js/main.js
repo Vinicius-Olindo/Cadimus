@@ -4366,14 +4366,61 @@ function gerarRelatorioPDF() {
 
       .footer { margin-top: 40px; padding-top: 16px; border-top: 2px solid #e8e8e8; display: flex; justify-content: space-between; font-size: 0.7rem; color: #aaa; }
 
+      .print-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #fff;
+        border-top: 1px solid #e0e0e0;
+        padding: 16px 48px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
+        z-index: 100;
+      }
+      .print-bar-texto { font-size: 0.82rem; color: #666; }
+      .print-bar-texto strong { color: #333; }
+      .print-bar-btn {
+        background: #a97a2f;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 28px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap;
+      }
+      .print-bar-btn:hover { background: #8c6520; }
+      .print-bar-btn svg { flex-shrink: 0; }
+      .print-bar-dica { font-size: 0.7rem; color: #999; }
+      body { padding-bottom: 80px; }
+
       @media print {
-        body { padding: 24px; background: #fff; }
+        body { padding: 24px; padding-bottom: 0; background: #fff; }
         .card { break-inside: avoid; }
         tr { break-inside: avoid; }
+        .print-bar { display: none !important; }
       }
     </style>
   </head>
   <body>
+    <div class="print-bar">
+      <div>
+        <div class="print-bar-texto"><strong>Salvo como PDF:</strong> clique em "Imprimir" e selecione <strong>"Salvar como PDF"</strong> no destino.</div>
+        <div class="print-bar-dica">No Chrome: Destino → Salvar como PDF · No Firefox: Configurações → PDF</div>
+      </div>
+      <button class="print-bar-btn" onclick="window.print()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Imprimir / Salvar PDF
+      </button>
+    </div>
     <div class="header">
       <div class="header-left">
         <h1>Relatório Financeiro</h1>
@@ -4466,7 +4513,6 @@ function gerarRelatorioPDF() {
   if (janela) {
     janela.document.write(html);
     janela.document.close();
-    setTimeout(() => janela.print(), 600);
   } else {
     mostrarToast("Permita pop-ups para gerar o relatório.", "aviso");
   }
