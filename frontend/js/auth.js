@@ -102,14 +102,18 @@ function alternarTelas(estaLogado) {
   const sDash = document.getElementById("dashboard-section");
   const sAdmin = document.getElementById("admin-section");
   const bAdmin = document.getElementById("btn-admin");
+  const footer = document.getElementById("app-footer");
+  const footerUsuario = document.getElementById("footer-usuario");
 
   if (estaLogado) {
     sLogin.style.display = "none";
     sDash.style.display = "block";
     sAdmin.style.display = "none";
+    if (footer) footer.style.display = "flex";
 
     const u = obterUsuarioLogado();
     if (bAdmin) bAdmin.style.display = u.perfil === "superadmin" ? "inline-block" : "none";
+    if (footerUsuario && u) footerUsuario.textContent = u.nome || u.usuario || "";
     atualizarAvatarTopo(u);
     if (window.carregarCarteiras) window.carregarCarteiras();
 
@@ -121,6 +125,7 @@ function alternarTelas(estaLogado) {
     sLogin.style.display = "flex"; // Garante o centro da tela
     sDash.style.display = "none";
     sAdmin.style.display = "none";
+    if (footer) footer.style.display = "none";
   }
 }
 

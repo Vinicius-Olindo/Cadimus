@@ -25,6 +25,8 @@ body {
   font-family: var(--fonte-corpo);
   font-size: 15px;
   line-height: 1.5;
+  display: flex;
+  flex-direction: column;
   transition:
     background-color 0.25s ease,
     color 0.25s ease;
@@ -48,7 +50,8 @@ button {
    LAYOUT GERAL
    ========================================== */
 .app-container {
-  padding: 28px 20px 60px;
+  padding: 28px 20px 20px;
+  flex: 1;
 }
 
 /* Dashboard é o painel de controle de verdade — precisa de espaço pra duas colunas */
@@ -5950,4 +5953,66 @@ textarea::placeholder {
   .settings-nav-item.ativo::before { display: none; }
   .settings-conteudo { padding: 16px 14px 32px; }
   .settings-campo-grid { grid-template-columns: 1fr; }
+}
+
+/* ======================== RODAPÉ ======================== */
+.app-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  border-top: 1px solid var(--cor-pauta-fraca);
+  background: var(--cor-fundo);
+  font-size: 0.75rem;
+  color: var(--cor-texto-suave);
+  flex-shrink: 0;
+  gap: 12px;
+}
+.footer-esquerda {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 600;
+  color: var(--cor-texto);
+}
+.footer-brand svg { color: var(--cor-marca); }
+.footer-versao {
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--cor-pauta-forte);
+  font-size: 0.65rem;
+  font-weight: 500;
+}
+.footer-centro {
+  color: var(--cor-texto-suave);
+}
+.footer-direita {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.footer-link {
+  color: var(--cor-texto-suave);
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-size: inherit;
+  font-family: inherit;
+  transition: color 0.15s;
+}
+.footer-link:hover { color: var(--cor-marca); }
+.footer-sep { color: var(--cor-pauta-fraca); }
+.footer-copy { color: var(--cor-texto-suave); }
+
+@media (max-width: 600px) {
+  .app-footer { flex-direction: column; gap: 6px; padding: 10px 14px; text-align: center; }
+  .footer-esquerda, .footer-direita { justify-content: center; }
+  .footer-centro { display: none; }
 }
