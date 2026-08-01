@@ -4931,6 +4931,96 @@ textarea::placeholder {
   color: var(--cor-pendente, #a97a2f);
 }
 
+/* ==========================================
+   ONBOARDING INTERATIVO
+   ========================================== */
+
+.onboarding-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 99998;
+}
+
+.onboarding-highlight {
+  position: fixed;
+  border: 2px solid var(--cor-marca, #a97a2f);
+  border-radius: 8px;
+  z-index: 99999;
+  pointer-events: none;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+}
+
+.onboarding-tooltip {
+  position: fixed;
+  background: var(--cor-fundo-card, #fff);
+  border-radius: 12px;
+  padding: 16px;
+  width: 280px;
+  z-index: 100000;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+}
+
+.onboarding-tooltip-titulo {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: var(--cor-texto, #333);
+}
+
+.onboarding-tooltip-texto {
+  font-size: 0.82rem;
+  color: var(--cor-texto-suave, #666);
+  line-height: 1.4;
+  margin-bottom: 12px;
+}
+
+.onboarding-tooltip-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.onboarding-progresso {
+  font-size: 0.7rem;
+  color: var(--cor-texto-suave, #999);
+}
+
+.onboarding-botoes {
+  display: flex;
+  gap: 8px;
+}
+
+.onboarding-btn {
+  border: none;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.onboarding-pular {
+  background: none;
+  color: var(--cor-texto-suave, #666);
+}
+
+.onboarding-proximo {
+  background: var(--cor-marca, #a97a2f);
+  color: #fff;
+}
+
+@media (max-width: 480px) {
+  .onboarding-tooltip {
+    left: 16px !important;
+    right: 16px;
+    width: auto;
+  }
+}
+
 @media (max-width: 480px) {
   .pwa-install-banner {
     flex-direction: column;

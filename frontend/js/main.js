@@ -297,6 +297,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // PWA: instalação na tela inicial
   configurarInstallBanner();
+
+  // Onboarding: tour guiado para novos usuários
+  iniciarOnboarding();
 });
 
 // --- PWA INSTALL BANNER ---
@@ -358,6 +361,79 @@ function ocultarBannerInstalacao() {
   const banner = document.getElementById("pwa-install-banner");
   if (banner) banner.remove();
 }
+
+// --- ONBOARDING INTERATIVO (Tour Guiado) ---
+const ONBOARDING_STEPS = [
+  { alvo: ".seletor-mes", titulo: "Navegue pelos meses", texto: "Use as setas para ver lançamentos de outros meses." },
+  { alvo: ".carteira-tabs", titulo: "Suas carteiras", texto: "Clique para trocar de conta ou criar uma nova." },
+  { alvo: "#btn-novo-gasto", titulo: "Novo lançamento", texto: "Adicione receitas e despesas aqui." },
+  { alvo: "#btn-transferencia", titulo: "Transferências", texto: "Transfira valores entre suas carteiras." },
+  { alvo: "#btn-notificacoes", titulo: "Alertas", texto: "Notificações de vencimentos aparecem aqui." },
+];
+
+function iniciarOnboarding() {
+  if (localStorage.getItem("cadimus_onboarding_done") === "1") return;
+  const usuario = obterUsuarioLogado();
+  if (!usuario) return;
+
+  const firstLogin = !localStorage.getItem("cadimus_onboarding_seen_" + usuario.id);
+  if (!firstLogin && localStorage.getItem("cadimus_onboarding_done") !== "0") return;
+
+  localStorage.setItem("cadimus_onboarding_seen_" + usuario.id, "1");
+  localStorage.setItem("cadimus_onboarding_done", "0");
+
+  let stepIdx = 0;
+
+  function showStep(idx) {
+    removerOnboarding();
+
+    if (idx >= ONBOARDING_STEPS.length) {
+      localStorage.setItem("cadimus_onboarding_done", "1");
+      removerOnboarding();
+      return;
+    }
+
+    const step = ONBOARDING_STEPS[idx];
+    const alvo = document.querySelector(step.alvo);
+    if (!alvo) { showStep(idx + 1); return; }
+
+    const rect = alvo.getBoundingClientRect();
+    const overlay = document.createElement("div");
+    overlay.className = "onboarding-overlay";
+    overlay.innerHTML = `
+      <div class="onboarding-tooltip" style="top:${rect.bottom + 10}px; left:${Math.min(rect.left, window.innerWidth - 300)}px;">
+        <div class="onboarding-tooltip-titulo">${step.titulo}</div>
+        <div class="onboarding-tooltip-texto">${step.texto}</div>
+        <div class="onboarding-tooltip-nav">
+          <span class="onboarding-progresso">${idx + 1} / ${ONBOARDING_STEPS.length}</span>
+          <div class="onboarding-botoes">
+            <button type="button" class="onboarding-btn onboarding-pular">Pular</button>
+            <button type="button" class="onboarding-btn onboarding-proximo">Próximo</button>
+          </div>
+        </div>
+      </div>
+      <div class="onboarding-highlight" style="top:${rect.top - 4}px; left:${rect.left - 4}px; width:${rect.width + 8}px; height:${rect.height + 8}px;"></div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    overlay.querySelector(".onboarding-proximo").addEventListener("click", () => showStep(idx + 1));
+    overlay.querySelector(".onboarding-pular").addEventListener("click", () => {
+      localStorage.setItem("cadimus_onboarding_done", "1");
+      removerOnboarding();
+    });
+  }
+
+  function removerOnboarding() {
+    document.querySelectorAll(".onboarding-overlay").forEach((el) => el.remove());
+  }
+
+  // Iniciar após um delay para garantir que o DOM está pronto
+  setTimeout(() => showStep(0), 800);
+}
+
+// Expor para chamada externa
+window.iniciarOnboarding = iniciarOnboarding;
 
 // --- SELETOR DE MÊS (setas, sem depender do calendário nativo do navegador) ---
 // ==========================================
