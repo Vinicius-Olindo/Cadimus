@@ -297,9 +297,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // PWA: instalação na tela inicial
   configurarInstallBanner();
-
-  // Onboarding: tour guiado para novos usuários
-  iniciarOnboarding();
 });
 
 // --- PWA INSTALL BANNER ---
@@ -376,6 +373,10 @@ function iniciarOnboarding() {
   const usuario = obterUsuarioLogado();
   if (!usuario) return;
 
+  // Só iniciar se estiver no dashboard (não na tela de login)
+  const dashboard = document.getElementById("dashboard-section");
+  if (!dashboard || dashboard.style.display === "none") return;
+
   const firstLogin = !localStorage.getItem("cadimus_onboarding_seen_" + usuario.id);
   if (!firstLogin && localStorage.getItem("cadimus_onboarding_done") !== "0") return;
 
@@ -395,7 +396,7 @@ function iniciarOnboarding() {
 
     const step = ONBOARDING_STEPS[idx];
     const alvo = document.querySelector(step.alvo);
-    if (!alvo) { showStep(idx + 1); return; }
+    if (!alvo || alvo.offsetParent === null) { showStep(idx + 1); return; }
 
     const rect = alvo.getBoundingClientRect();
     const overlay = document.createElement("div");
@@ -428,8 +429,8 @@ function iniciarOnboarding() {
     document.querySelectorAll(".onboarding-overlay").forEach((el) => el.remove());
   }
 
-  // Iniciar após um delay para garantir que o DOM está pronto
-  setTimeout(() => showStep(0), 800);
+  // Iniciar após a renderização do dashboard
+  setTimeout(() => showStep(0), 1200);
 }
 
 // Expor para chamada externa

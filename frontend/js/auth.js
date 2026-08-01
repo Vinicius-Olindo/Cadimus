@@ -112,6 +112,11 @@ function alternarTelas(estaLogado) {
     if (bAdmin) bAdmin.style.display = u.perfil === "superadmin" ? "inline-block" : "none";
     atualizarAvatarTopo(u);
     if (window.carregarCarteiras) window.carregarCarteiras();
+
+    // Onboarding: só após login bem-sucedido
+    if (window.iniciarOnboarding) {
+      setTimeout(() => window.iniciarOnboarding(), 1500);
+    }
   } else {
     sLogin.style.display = "flex"; // Garante o centro da tela
     sDash.style.display = "none";
