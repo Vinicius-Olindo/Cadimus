@@ -865,99 +865,392 @@
         </div>
       </section>
 
-      <!-- SEÇÃO ADMIN / CONFIGURAÇÕES -->
+      <!-- SEÇÃO CONFIGURAÇÕES -->
       <section id="admin-section" style="display: none">
         <header class="top-bar">
           <div class="top-bar-linha1">
             <h2>Configurações</h2>
-            <button id="btn-voltar-dashboard">Voltar</button>
+            <button id="btn-voltar-dashboard" class="btn-secundario">Voltar</button>
           </div>
         </header>
 
-        <div class="admin-tabs">
-          <button type="button" class="tab-admin ativo" data-painel="painel-usuarios">Usuários <span class="badge-contador" id="badge-usuarios"></span></button>
-          <button type="button" class="tab-admin" data-painel="painel-categorias">Categorias <span class="badge-contador" id="badge-categorias"></span></button>
-          <button type="button" class="tab-admin" data-painel="painel-recorrentes">Recorrências <span class="badge-contador" id="badge-recorrentes"></span></button>
-          <button type="button" class="tab-admin" data-painel="painel-sistema">Sistema</button>
-        </div>
+        <div class="settings-layout">
+          <!-- SIDEBAR -->
+          <nav class="settings-sidebar" role="navigation" aria-label="Configurações">
+            <div class="settings-search">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="settings-search" placeholder="Buscar configuração..." />
+            </div>
 
-        <!-- PAINEL: USUÁRIOS -->
-        <div id="painel-usuarios" class="painel-admin">
-          <div class="card">
-            <h3 id="titulo-form-usuario">Novo usuário</h3>
-            <form id="form-novo-usuario">
-              <input type="hidden" id="usuario-editando-id" value="" />
-              <input type="hidden" id="nova-foto-perfil" value="" />
+            <div class="settings-nav-grupo">
+              <span class="settings-nav-label">Perfil</span>
+              <button type="button" class="settings-nav-item ativo" data-settings-painel="sp-perfil">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                Perfil
+              </button>
+            </div>
 
-              <div class="campo-foto-perfil">
-                <img id="preview-foto-perfil" class="avatar-preview" src="" alt="" style="display: none" />
-                <div id="avatar-vazio" class="avatar-preview avatar-vazio">?</div>
-                <div class="campo-foto-acoes">
-                  <label for="input-foto-perfil" class="botao-arquivo">Escolher foto</label>
-                  <input type="file" id="input-foto-perfil" accept="image/*" hidden />
-                  <button type="button" id="btn-remover-foto" style="display: none">Remover foto</button>
+            <div class="settings-nav-grupo">
+              <span class="settings-nav-label">Financeiro</span>
+              <button type="button" class="settings-nav-item" data-settings-painel="sp-contas">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                Contas
+              </button>
+              <button type="button" class="settings-nav-item" data-settings-painel="sp-cartoes">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                Cartões
+              </button>
+              <button type="button" class="settings-nav-item" data-settings-painel="sp-categorias">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                Categorias
+              </button>
+              <button type="button" class="settings-nav-item" data-settings-painel="sp-metas">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                Metas
+              </button>
+              <button type="button" class="settings-nav-item" data-settings-painel="sp orcamentos">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+                Orçamentos
+              </button>
+              <button type="button" class="settings-nav-item" data-settings-painel="sp-recorrentes">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                Recorrências
+              </button>
+              <button type="button" class="settings-nav-item" data-settings-painel="sp-usuarios">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                Usuários
+                <span class="settings-badge" id="badge-usuarios"></span>
+              </button>
+            </div>
+
+            <div class="settings-nav-grupo">
+              <span class="settings-nav-label">Aparência</span>
+              <button type="button" class="settings-nav-item" data-settings-painel="sp-tema">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                Tema
+              </button>
+            </div>
+
+            <div class="settings-nav-grupo">
+              <span class="settings-nav-label">Dados</span>
+              <button type="button" class="settings-nav-item" data-settings-painel="sp-dados">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Importação / Exportação
+              </button>
+            </div>
+
+            <div class="settings-nav-grupo">
+              <span class="settings-nav-label">Sistema</span>
+              <button type="button" class="settings-nav-item" data-settings-painel="sp-sistema">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+                Sistema
+              </button>
+              <button type="button" class="settings-nav-item settings-nav-perigo" data-settings-painel="sp-perigo">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                Zona de perigo
+              </button>
+            </div>
+          </nav>
+
+          <!-- CONTEÚDO -->
+          <div class="settings-conteudo">
+
+            <!-- PERFIL -->
+            <div id="sp-perfil" class="settings-painel">
+              <div class="settings-painel-header">
+                <h3>Perfil</h3>
+                <p>Gerencie suas informações pessoais e preferências da conta.</p>
+              </div>
+              <div class="settings-card">
+                <h4>Foto de perfil</h4>
+                <div class="campo-foto-perfil">
+                  <img id="preview-foto-perfil" class="avatar-preview" src="" alt="" style="display: none" />
+                  <div id="avatar-vazio" class="avatar-preview avatar-vazio">?</div>
+                  <div class="campo-foto-acoes">
+                    <label for="input-foto-perfil" class="botao-arquivo">Escolher foto</label>
+                    <input type="file" id="input-foto-perfil" accept="image/*" hidden />
+                    <button type="button" id="btn-remover-foto" style="display: none">Remover foto</button>
+                  </div>
                 </div>
               </div>
-
-              <input type="text" id="novo-nome" placeholder="Nome completo" autocomplete="name" required />
-              <input type="text" id="novo-usuario" placeholder="Usuário (login)" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required />
-              <input type="email" id="novo-email" placeholder="E-mail" autocomplete="email" required />
-              <input type="tel" id="novo-telefone" placeholder="Telefone (com DDD)" autocomplete="tel" />
-              <input type="number" id="novo-salario" placeholder="Salário mensal" step="0.01" min="0" />
-              <input type="password" id="nova-senha" placeholder="Senha" />
-              <span class="dica-campo" id="dica-senha" style="display: none">Deixe em branco para manter a senha atual.</span>
-              <select id="novo-perfil">
-                <option value="comum">Comum</option>
-                <option value="superadmin">Admin</option>
-              </select>
-              <div class="form-usuario-acoes">
-                <button type="submit" id="btn-salvar-usuario">Criar</button>
-                <button type="button" id="btn-cancelar-edicao" style="display: none">Cancelar edição</button>
+              <div class="settings-card">
+                <h4>Informações pessoais</h4>
+                <form id="form-perfil-usuario">
+                  <input type="hidden" id="usuario-editando-id" value="" />
+                  <input type="hidden" id="nova-foto-perfil" value="" />
+                  <div class="settings-campo-grid">
+                    <div class="campo">
+                      <label for="novo-nome">Nome completo</label>
+                      <input type="text" id="novo-nome" autocomplete="name" required />
+                    </div>
+                    <div class="campo">
+                      <label for="novo-email">E-mail</label>
+                      <input type="email" id="novo-email" autocomplete="email" required />
+                    </div>
+                    <div class="campo">
+                      <label for="novo-telefone">Telefone</label>
+                      <input type="tel" id="novo-telefone" autocomplete="tel" />
+                    </div>
+                    <div class="campo">
+                      <label for="novo-usuario">Usuário (login)</label>
+                      <input type="text" id="novo-usuario" autocomplete="username" autocapitalize="none" required />
+                    </div>
+                    <div class="campo">
+                      <label for="novo-salario">Salário mensal</label>
+                      <input type="number" id="novo-salario" step="0.01" min="0" />
+                    </div>
+                    <div class="campo">
+                      <label for="novo-perfil">Perfil de acesso</label>
+                      <select id="novo-perfil">
+                        <option value="comum">Comum</option>
+                        <option value="superadmin">Admin</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="campo">
+                    <label for="nova-senha">Senha <span class="campo-optional">(deixe vazio para manter)</span></label>
+                    <input type="password" id="nova-senha" autocomplete="new-password" />
+                    <span class="dica-campo" id="dica-senha" style="display: none">Deixe em branco para manter a senha atual.</span>
+                  </div>
+                  <div class="settings-acoes">
+                    <button type="submit" id="btn-salvar-usuario">Salvar alterações</button>
+                    <button type="button" id="btn-cancelar-edicao" style="display: none" class="btn-secundario">Cancelar edição</button>
+                  </div>
+                </form>
               </div>
-            </form>
-          </div>
-          <div class="acoes-admin-usuarios">
-            <button type="button" id="btn-convidar-usuario" class="btn-convite">✉ Convidar usuário</button>
-          </div>
-          <div class="campo-busca-admin">
-            <input type="text" id="busca-usuarios" placeholder="Buscar por nome, @login ou e-mail..." />
-          </div>
-          <div class="lista-lancamentos" id="lista-usuarios"></div>
-        </div>
+              <div class="settings-card">
+                <h4>Conta</h4>
+                <div class="settings-card-linha">
+                  <div>
+                    <strong>Alterar senha</strong>
+                    <p class="settings-desc">Última alteração: verifique sua senha regularmente</p>
+                  </div>
+                  <button type="button" class="btn-secundario" onclick="document.getElementById('nova-senha').focus()">Alterar</button>
+                </div>
+              </div>
+            </div>
 
-        <!-- PAINEL: CATEGORIAS -->
-        <div id="painel-categorias" class="painel-admin" style="display: none">
-          <div class="card">
-            <h3>Nova categoria</h3>
-            <form id="form-nova-categoria">
-              <input type="text" id="nome-nova-categoria" placeholder="Ex: Assinaturas" required />
-              <button type="submit">Adicionar</button>
-            </form>
-          </div>
-          <div class="campo-busca-admin">
-            <input type="text" id="busca-categorias" placeholder="Buscar categoria..." />
-          </div>
-          <div class="lista-lancamentos" id="lista-categorias"></div>
-        </div>
+            <!-- CONTAS FINANCEIRAS -->
+            <div id="sp-contas" class="settings-painel" style="display:none">
+              <div class="settings-painel-header">
+                <h3>Contas Financeiras</h3>
+                <p>Gerencie todas as contas utilizadas no sistema.</p>
+              </div>
+              <div class="settings-card">
+                <div class="settings-card-topo">
+                  <h4>Carteiras</h4>
+                </div>
+                <div id="lista-carteiras-settings"></div>
+                <div class="acoes-admin-usuarios">
+                  <button type="button" id="btn-nova-carteira-settings" class="btn-link-adicionar">+ Adicionar carteira</button>
+                </div>
+              </div>
+            </div>
 
-        <!-- PAINEL: RECORRÊNCIAS -->
-        <div id="painel-recorrentes" class="painel-admin" style="display: none">
-          <div class="card">
-            <h3>Nova recorrência</h3>
-            <button type="button" id="btn-nova-recorrencia-admin" class="btn-link-adicionar">+ Nova recorrência</button>
-          </div>
-          <div id="lista-recorrentes-admin"></div>
-        </div>
+            <!-- CARTÕES -->
+            <div id="sp-cartoes" class="settings-painel" style="display:none">
+              <div class="settings-painel-header">
+                <h3>Cartões de Crédito</h3>
+                <p>Gerencie seus cartões de crédito.</p>
+              </div>
+              <div class="settings-card">
+                <div id="lista-cartoes-settings"></div>
+                <div class="acoes-admin-usuarios">
+                  <button type="button" id="btn-novo-cartao-settings" class="btn-link-adicionar">+ Novo cartão</button>
+                </div>
+              </div>
+            </div>
 
-        <!-- PAINEL: SISTEMA (zona de perigo) -->
-        <div id="painel-sistema" class="painel-admin" style="display: none">
-          <div class="card card-zona-perigo">
-            <h3 class="titulo-zona-perigo">Zona de perigo</h3>
-            <p class="modal-subtitulo">
-              Apaga permanentemente todos os lançamentos, despesas fixas, compras parceladas e metas de todas as carteiras. As categorias voltam para a lista padrão. Usuários, carteiras e permissões
-              de acesso não são afetados.
-            </p>
-            <button type="button" id="btn-abrir-zerar-dados" class="btn-excluir-conta">Apagar todos os dados financeiros</button>
+            <!-- CATEGORIAS -->
+            <div id="sp-categorias" class="settings-painel" style="display:none">
+              <div class="settings-painel-header">
+                <h3>Categorias</h3>
+                <p>Organize seus lançamentos por categorias.</p>
+              </div>
+              <div class="settings-card">
+                <h4>Nova categoria</h4>
+                <form id="form-nova-categoria">
+                  <div class="settings-campo-inline">
+                    <input type="text" id="nome-nova-categoria" placeholder="Ex: Assinaturas" required />
+                    <button type="submit">Adicionar</button>
+                  </div>
+                </form>
+              </div>
+              <div class="settings-card">
+                <div class="campo-busca-admin">
+                  <input type="text" id="busca-categorias" placeholder="Buscar categoria..." />
+                </div>
+                <div id="lista-categorias"></div>
+              </div>
+            </div>
+
+            <!-- METAS -->
+            <div id="sp-metas" class="settings-painel" style="display:none">
+              <div class="settings-painel-header">
+                <h3>Metas Financeiras</h3>
+                <p>Defina objetivos e acompanhe seu progresso.</p>
+              </div>
+              <div class="settings-card">
+                <div id="lista-metas-settings"></div>
+                <div class="acoes-admin-usuarios">
+                  <button type="button" id="btn-nova-meta-settings" class="btn-link-adicionar">+ Nova meta</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- ORÇAMENTOS -->
+            <div id="sp-orcamentos" class="settings-painel" style="display:none">
+              <div class="settings-painel-header">
+                <h3>Orçamentos</h3>
+                <p>Controle seus gastos por categoria.</p>
+              </div>
+              <div class="settings-card">
+                <div id="lista-orcamentos-settings"></div>
+                <div class="acoes-admin-usuarios">
+                  <button type="button" id="btn-novo-orcamento-settings" class="btn-link-adicionar">+ Novo orçamento</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- RECORRÊNCIAS -->
+            <div id="sp-recorrentes" class="settings-painel" style="display:none">
+              <div class="settings-painel-header">
+                <h3>Lançamentos Recorrentes</h3>
+                <p>Gerencie seus lançamentos que se repetem.</p>
+              </div>
+              <div class="settings-card">
+                <div id="lista-recorrentes-admin"></div>
+                <div class="acoes-admin-usuarios">
+                  <button type="button" id="btn-nova-recorrencia-admin" class="btn-link-adicionar">+ Nova recorrência</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- USUÁRIOS -->
+            <div id="sp-usuarios" class="settings-painel" style="display:none">
+              <div class="settings-painel-header">
+                <h3>Usuários</h3>
+                <p>Gerencie os usuários do sistema.</p>
+              </div>
+              <div class="settings-card">
+                <div class="acoes-admin-usuarios">
+                  <button type="button" id="btn-convidar-usuario" class="btn-convite">✉ Convidar usuário</button>
+                </div>
+              </div>
+              <div class="settings-card">
+                <div class="campo-busca-admin">
+                  <input type="text" id="busca-usuarios" placeholder="Buscar por nome, @login ou e-mail..." />
+                </div>
+                <div id="lista-usuarios"></div>
+              </div>
+            </div>
+
+            <!-- TEMA -->
+            <div id="sp-tema" class="settings-painel" style="display:none">
+              <div class="settings-painel-header">
+                <h3>Aparência</h3>
+                <p>Personalize a interface do sistema.</p>
+              </div>
+              <div class="settings-card">
+                <h4>Tema</h4>
+                <div class="settings-tema-opcoes">
+                  <button type="button" class="settings-tema-btn" data-tema="claro">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                    Claro
+                  </button>
+                  <button type="button" class="settings-tema-btn" data-tema="escuro">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                    Escuro
+                  </button>
+                  <button type="button" class="settings-tema-btn" data-tema="auto">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                    Automático
+                  </button>
+                </div>
+              </div>
+              <div class="settings-card">
+                <h4>Interface</h4>
+                <div class="settings-card-linha">
+                  <span>Mostrar animações</span>
+                  <label class="settings-toggle">
+                    <input type="checkbox" id="toggle-animacoes" checked />
+                    <span class="settings-toggle-slider"></span>
+                  </label>
+                </div>
+                <div class="settings-card-linha">
+                  <span>Ocultar valores financeiros</span>
+                  <label class="settings-toggle">
+                    <input type="checkbox" id="toggle-ocultar-valores" />
+                    <span class="settings-toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- DADOS -->
+            <div id="sp-dados" class="settings-painel" style="display:none">
+              <div class="settings-painel-header">
+                <h3>Importação / Exportação</h3>
+                <p>Importe e exporte seus dados financeiros.</p>
+              </div>
+              <div class="settings-card">
+                <h4>Importar dados</h4>
+                <p class="settings-desc">Importe extratos bancários em formato OFX, CSV ou XLSX.</p>
+                <div class="settings-acoes">
+                  <button type="button" id="btn-importar-dados-settings" class="btn-primario" onclick="document.getElementById('dropdown-btn-importar')?.click()">Importar extrato</button>
+                </div>
+              </div>
+              <div class="settings-card">
+                <h4>Exportar dados</h4>
+                <p class="settings-desc">Exporte seus lançamentos para diferentes formatos.</p>
+                <div class="settings-acoes">
+                  <button type="button" id="btn-exportar-dados-settings" class="btn-secundario" onclick="document.getElementById('dropdown-btn-exportar')?.click()">Exportar lançamentos</button>
+                  <button type="button" class="btn-secundario" onclick="document.getElementById('btn-relatorios')?.click()">Relatório completo</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- SISTEMA -->
+            <div id="sp-sistema" class="settings-painel" style="display:none">
+              <div class="settings-painel-header">
+                <h3>Sistema</h3>
+                <p>Informações do sistema.</p>
+              </div>
+              <div class="settings-card">
+                <div class="settings-card-linha">
+                  <span>Versão</span>
+                  <span class="settings-valor">1.0.0</span>
+                </div>
+                <div class="settings-card-linha">
+                  <span>Banco de dados</span>
+                  <span class="settings-valor">D1 (Cloudflare)</span>
+                </div>
+                <div class="settings-card-linha">
+                  <span>Hospedagem</span>
+                  <span class="settings-valor">Cloudflare Pages</span>
+                </div>
+                <div class="settings-card-linha">
+                  <span>Backend</span>
+                  <span class="settings-valor">Cloudflare Workers</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- ZONA DE PERIGO -->
+            <div id="sp-perigo" class="settings-painel" style="display:none">
+              <div class="settings-painel-header">
+                <h3>Zona de Perigo</h3>
+                <p>Ações irreversíveis. Tenha cuidado.</p>
+              </div>
+              <div class="settings-card settings-card-perigo">
+                <h4>Apagar todos os dados financeiros</h4>
+                <p class="settings-desc">Remove permanentemente todos os lançamentos, despesas fixas, compras parceladas e metas. Categorias voltam ao padrão. Usuários e carteiras não são afetados.</p>
+                <div class="settings-acoes">
+                  <button type="button" id="btn-abrir-zerar-dados" class="btn-excluir-conta">Apagar todos os dados financeiros</button>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
       </section>

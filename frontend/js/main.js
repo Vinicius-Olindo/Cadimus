@@ -5504,21 +5504,87 @@ function renderizarMetasPlano() {
 }
 
 function configurarSubAbasAdmin() {
-  const tabs = document.querySelectorAll(".tab-admin");
+  const navItems = document.querySelectorAll(".settings-nav-item");
 
-  tabs.forEach((tab) => {
-    tab.addEventListener("click", () => {
-      tabs.forEach((t) => t.classList.remove("ativo"));
-      tab.classList.add("ativo");
+  navItems.forEach((item) => {
+    item.addEventListener("click", () => {
+      navItems.forEach((t) => t.classList.remove("ativo"));
+      item.classList.add("ativo");
 
-      document.querySelectorAll(".painel-admin").forEach((p) => (p.style.display = "none"));
-      const painel = document.getElementById(tab.dataset.painel);
+      document.querySelectorAll(".settings-painel").forEach((p) => (p.style.display = "none"));
+      const painel = document.getElementById(item.dataset.settingsPainel);
       if (painel) painel.style.display = "block";
 
-      if (tab.dataset.painel === "painel-categorias") carregarListaCategorias();
-      if (tab.dataset.painel === "painel-usuarios") carregarUsuarios();
-      if (tab.dataset.painel === "painel-recorrentes") carregarPainelRecorrentes();
+      const painelId = item.dataset.settingsPainel;
+      if (painelId === "sp-categorias") carregarListaCategorias();
+      if (painelId === "sp-usuarios") carregarUsuarios();
+      if (painelId === "sp-recorrentes") carregarPainelRecorrentes();
+      if (painelId === "sp-perfil") preencherPerfilAtual();
+      if (painelId === "sp-tema") sincronizarToggleTema();
     });
+  });
+
+  const searchInput = document.getElementById("settings-search");
+  if (searchInput) {
+    searchInput.addEventListener("input", () => {
+      const q = searchInput.value.toLowerCase();
+      navItems.forEach((item) => {
+        const texto = item.textContent.toLowerCase();
+        item.style.display = texto.includes(q) || q === "" ? "" : "none";
+      });
+    });
+  }
+
+  document.querySelectorAll(".settings-tema-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const tema = btn.dataset.tema;
+      if (tema === "escuro") {
+        document.body.classList.add("dark-mode");
+        localStorage.setItem("cadimus_tema", "dark");
+      } else if (tema === "claro") {
+        document.body.classList.remove("dark-mode");
+        localStorage.setItem("cadimus_tema", "light");
+      } else {
+        localStorage.removeItem("cadimus_tema");
+        if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+          document.body.classList.add("dark-mode");
+        } else {
+          document.body.classList.remove("dark-mode");
+        }
+      }
+      sincronizarToggleTema();
+      const btnTheme = document.getElementById("btn-theme-toggle");
+      if (btnTheme) {
+        const estaEscuro = document.body.classList.contains("dark-mode");
+        btnTheme.innerHTML = estaEscuro ? ICONE_SOL : ICONE_LUA;
+      }
+    });
+  });
+}
+
+function preencherPerfilAtual() {
+  const usuario = obterUsuarioLogado();
+  if (!usuario) return;
+  const el = (id) => document.getElementById(id);
+  if (el("novo-nome")) el("novo-nome").value = usuario.nome || "";
+  if (el("novo-email")) el("novo-email").value = usuario.email || "";
+  if (el("novo-telefone")) el("novo-telefone").value = usuario.telefone || "";
+  if (el("novo-usuario")) el("novo-usuario").value = usuario.usuario || "";
+  if (el("novo-salario")) el("novo-salario").value = usuario.salario || "";
+  if (el("novo-perfil")) el("novo-perfil").value = usuario.perfil || "comum";
+  if (el("usuario-editando-id")) el("usuario-editando-id").value = usuario.id;
+  if (el("nova-senha")) el("nova-senha").value = "";
+  if (el("dica-senha")) el("dica-senha").style.display = "none";
+  if (el("btn-cancelar-edicao")) el("btn-cancelar-edicao").style.display = "none";
+}
+
+function sincronizarToggleTema() {
+  const darkMode = localStorage.getItem("darkMode");
+  document.querySelectorAll(".settings-tema-btn").forEach((btn) => {
+    btn.classList.remove("ativo");
+    if (darkMode === "true" && btn.dataset.tema === "escuro") btn.classList.add("ativo");
+    else if (darkMode === "false" && btn.dataset.tema === "claro") btn.classList.add("ativo");
+    else if (!darkMode && btn.dataset.tema === "auto") btn.classList.add("ativo");
   });
 }
 
@@ -5644,7 +5710,7 @@ function definirPreviewFoto(dataUrl) {
 
 // --- FORMULÁRIO DE USUÁRIO (criar E editar no mesmo formulário) ---
 function configurarFormularioUsuario() {
-  const form = document.getElementById("form-novo-usuario");
+  const form = document.getElementById("form-perfil-usuario");
   const btnCancelar = document.getElementById("btn-cancelar-edicao");
   const inputFoto = document.getElementById("input-foto-perfil");
   const btnRemoverFoto = document.getElementById("btn-remover-foto");
@@ -5915,6 +5981,20 @@ function configurarFormularioCadastroConvite(token) {
 }
 
 function entrarModoEdicaoUsuario(usuario) {
+  const secaoAdmin = document.getElementById("admin-section");
+  const secaoDash = document.getElementById("dashboard-section");
+  if (secaoAdmin && secaoDash) {
+    secaoDash.style.display = "none";
+    secaoAdmin.style.display = "flex";
+    secaoAdmin.style.flexDirection = "column";
+  }
+  document.querySelectorAll(".settings-nav-item").forEach((t) => t.classList.remove("ativo"));
+  const navPerfil = document.querySelector('[data-settings-painel="sp-perfil"]');
+  if (navPerfil) navPerfil.classList.add("ativo");
+  document.querySelectorAll(".settings-painel").forEach((p) => (p.style.display = "none"));
+  const painelPerfil = document.getElementById("sp-perfil");
+  if (painelPerfil) painelPerfil.style.display = "block";
+
   document.getElementById("usuario-editando-id").value = usuario.id;
   document.getElementById("novo-nome").value = usuario.nome || "";
   document.getElementById("novo-usuario").value = usuario.nome_usuario;
@@ -5925,20 +6005,19 @@ function entrarModoEdicaoUsuario(usuario) {
   document.getElementById("novo-perfil").value = usuario.perfil;
   definirPreviewFoto(usuario.foto_perfil || null);
   document.getElementById("dica-senha").style.display = "inline-block";
-  document.getElementById("titulo-form-usuario").innerText = `Editando "${usuario.nome_usuario}"`;
   document.getElementById("btn-salvar-usuario").innerText = "Salvar edição";
   document.getElementById("btn-cancelar-edicao").style.display = "inline-block";
-  document.getElementById("painel-usuarios").scrollIntoView({ behavior: "smooth", block: "start" });
+  document.getElementById("sp-perfil").scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 function sairModoEdicaoUsuario() {
-  const form = document.getElementById("form-novo-usuario");
-  form.reset();
+  const form = document.getElementById("form-perfil-usuario");
+  if (form) form.reset();
   document.getElementById("usuario-editando-id").value = "";
   definirPreviewFoto(null);
   document.getElementById("dica-senha").style.display = "none";
-  document.getElementById("titulo-form-usuario").innerText = "Novo usuário";
-  document.getElementById("btn-salvar-usuario").innerText = "Criar";
+  document.getElementById("titulo-form-usuario").innerText = "Perfil";
+  document.getElementById("btn-salvar-usuario").innerText = "Salvar alterações";
   document.getElementById("btn-cancelar-edicao").style.display = "none";
 }
 
