@@ -284,8 +284,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnCartoesCredito = document.getElementById("btn-cartoes-credito");
   if (btnCartoesCredito) {
     btnCartoesCredito.addEventListener("click", () => {
-      const card = document.getElementById("card-cartoes-credito");
-      if (card) card.scrollIntoView({ behavior: "smooth" });
+      // Se já tem cartões, scrolla para o painel; senão abre modal de novo
+      if (cartoesCreditoCarregados.length > 0) {
+        const card = document.getElementById("card-cartoes-credito");
+        if (card && card.style.display !== "none") {
+          card.scrollIntoView({ behavior: "smooth" });
+          return;
+        }
+      }
+      window.abrirModalCartao();
     });
   }
 
