@@ -111,6 +111,13 @@
                 <span class="btn-topo-label">Planejamento</span>
               </button>
               <div class="acoes-topo-divider"></div>
+              <button id="btn-relatorios" class="btn-topo-icone" title="Relatórios financeiros">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/>
+                  <path d="M22 12A10 10 0 0 0 12 2v10z"/>
+                </svg>
+                <span class="btn-topo-label">Relatórios</span>
+              </button>
               <button id="btn-notificacoes" class="btn-topo-icone" title="Notificações">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
@@ -595,6 +602,264 @@
                 <button type="button" id="btn-simular" class="btn-primario">Simular</button>
               </div>
               <div id="plano-resultado-simulacao"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SEÇÃO RELATÓRIOS FINANCEIROS -->
+      <section id="relatorios-section" style="display: none">
+        <header class="top-bar">
+          <div class="top-bar-linha1">
+            <h2>Relatórios Financeiros</h2>
+            <div class="acoes-topo">
+              <button id="btn-relatorio-exportar" class="btn-secundario" title="Exportar relatório">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Exportar
+              </button>
+              <button id="btn-relatorio-compartilhar" class="btn-secundario" title="Compartilhar">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                Compartilhar
+              </button>
+              <button id="btn-relatorio-salvar" class="btn-primario" title="Salvar relatório">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                Salvar
+              </button>
+              <button id="btn-voltar-dashboard-relatorio" class="btn-secundario">Voltar</button>
+            </div>
+          </div>
+          <div class="relatorio-filtros">
+            <div class="relatorio-filtro-grupo">
+              <label>Período</label>
+              <select id="relatorio-periodo">
+                <option value="hoje">Hoje</option>
+                <option value="semana">Esta semana</option>
+                <option value="mes" selected>Este mês</option>
+                <option value="3meses">Últimos 3 meses</option>
+                <option value="6meses">Últimos 6 meses</option>
+                <option value="ano">Este ano</option>
+                <option value="personalizado">Personalizado</option>
+              </select>
+            </div>
+            <div class="relatorio-filtro-grupo relatorio-periodo-personalizado" style="display:none">
+              <label>De</label>
+              <input type="date" id="relatorio-data-inicio" />
+              <label>Até</label>
+              <input type="date" id="relatorio-data-fim" />
+            </div>
+            <div class="relatorio-filtro-grupo">
+              <label>Carteira</label>
+              <select id="relatorio-filtro-carteira"><option value="">Todas</option></select>
+            </div>
+            <div class="relatorio-filtro-grupo">
+              <label>Categoria</label>
+              <select id="relatorio-filtro-categoria"><option value="">Todas</option></select>
+            </div>
+            <div class="relatorio-filtro-grupo">
+              <label>Tipo</label>
+              <select id="relatorio-filtro-tipo">
+                <option value="">Todos</option>
+                <option value="receita">Receita</option>
+                <option value="despesa">Despesa</option>
+                <option value="transferencia">Transferência</option>
+              </select>
+            </div>
+          </div>
+        </header>
+
+        <!-- TABS DO RELATÓRIO -->
+        <div class="relatorio-tabs">
+          <button type="button" class="relatorio-tab ativo" data-painel="rel-resumo">Resumo</button>
+          <button type="button" class="relatorio-tab" data-painel="rel-categorias">Categorias</button>
+          <button type="button" class="relatorio-tab" data-painel="rel-contas">Contas</button>
+          <button type="button" class="relatorio-tab" data-painel="rel-detalhes">Detalhes</button>
+          <button type="button" class="relatorio-tab" data-painel="rel-comparativo">Comparativo</button>
+          <button type="button" class="relatorio-tab" data-painel="rel-insights">Insights</button>
+          <button type="button" class="relatorio-tab" data-painel="rel-tabela">Tabela</button>
+        </div>
+
+        <!-- PAINEL: RESUMO -->
+        <div id="rel-resumo" class="relatorio-painel">
+          <div class="relatorio-container">
+            <!-- KPI Cards -->
+            <div class="rel-kpi-grid">
+              <div class="card rel-kpi rel-kpi-receita">
+                <span class="rel-kpi-rotulo">Receitas</span>
+                <span class="rel-kpi-valor" id="rel-kpi-receitas">R$ 0,00</span>
+                <span class="rel-kpi-tendencia" id="rel-kpi-receitas-tendencia"></span>
+              </div>
+              <div class="card rel-kpi rel-kpi-despesa">
+                <span class="rel-kpi-rotulo">Despesas</span>
+                <span class="rel-kpi-valor" id="rel-kpi-despesas">R$ 0,00</span>
+                <span class="rel-kpi-tendencia" id="rel-kpi-despesas-tendencia"></span>
+              </div>
+              <div class="card rel-kpi">
+                <span class="rel-kpi-rotulo">Saldo</span>
+                <span class="rel-kpi-valor" id="rel-kpi-saldo">R$ 0,00</span>
+              </div>
+              <div class="card rel-kpi">
+                <span class="rel-kpi-rotulo">Economia</span>
+                <span class="rel-kpi-valor" id="rel-kpi-economia">0%</span>
+              </div>
+              <div class="card rel-kpi">
+                <span class="rel-kpi-rotulo">Maior gasto</span>
+                <span class="rel-kpi-valor rel-kpi-menor" id="rel-kpi-maior-gasto">—</span>
+                <span class="rel-kpi-detalhe" id="rel-kpi-maior-gasto-valor"></span>
+              </div>
+              <div class="card rel-kpi">
+                <span class="rel-kpi-rotulo">Transações</span>
+                <span class="rel-kpi-valor" id="rel-kpi-transacoes">0</span>
+              </div>
+            </div>
+
+            <!-- Fluxo de Caixa -->
+            <div class="card">
+              <h3 class="relatorio-subtitulo">Fluxo de Caixa</h3>
+              <div id="rel-grafico-fluxo" class="rel-grafico-container"></div>
+            </div>
+
+            <!-- Receitas × Despesas -->
+            <div class="card">
+              <h3 class="relatorio-subtitulo">Receitas × Despesas</h3>
+              <div id="rel-grafico-barras" class="rel-grafico-container"></div>
+            </div>
+
+            <!-- Gastos por Categoria (Donut) -->
+            <div class="card">
+              <h3 class="relatorio-subtitulo">Gastos por Categoria</h3>
+              <div id="rel-grafico-donut" class="rel-donut-area">
+                <div class="rel-donut-svg" id="rel-donut-svg"></div>
+                <div class="rel-donut-legenda" id="rel-donut-legenda"></div>
+              </div>
+            </div>
+
+            <!-- Indicadores Financeiros -->
+            <div class="card">
+              <h3 class="relatorio-subtitulo">Indicadores Financeiros</h3>
+              <div id="rel-indicadores" class="rel-indicadores-grid"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAINEL: CATEGORIAS -->
+        <div id="rel-categorias" class="relatorio-painel" style="display:none">
+          <div class="relatorio-container">
+            <!-- Evolução por Categoria -->
+            <div class="card">
+              <h3 class="relatorio-subtitulo">Evolução por Categoria</h3>
+              <div id="rel-grafico-evolucao-categorias" class="rel-grafico-container"></div>
+            </div>
+            <!-- Ranking de categorias -->
+            <div class="card">
+              <h3 class="relatorio-subtitulo">Ranking de Categorias</h3>
+              <div id="rel-ranking-categorias"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAINEL: CONTAS -->
+        <div id="rel-contas" class="relatorio-painel" style="display:none">
+          <div class="relatorio-container">
+            <div class="card">
+              <h3 class="relatorio-subtitulo">Relatório por Conta</h3>
+              <div id="rel-tabela-contas"></div>
+            </div>
+            <div class="card">
+              <h3 class="relatorio-subtitulo">Relatório por Forma de Pagamento</h3>
+              <div id="rel-tabela-formas"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAINEL: DETALHES -->
+        <div id="rel-detalhes" class="relatorio-painel" style="display:none">
+          <div class="relatorio-container">
+            <div class="card">
+              <h3 class="relatorio-subtitulo">Maiores Despesas</h3>
+              <div id="rel-tabela-maiores-despesas"></div>
+            </div>
+            <div class="card">
+              <h3 class="relatorio-subtitulo">Maiores Receitas</h3>
+              <div id="rel-tabela-maiores-receitas"></div>
+            </div>
+            <div class="card">
+              <h3 class="relatorio-subtitulo">Gastos Recorrentes</h3>
+              <div id="rel-tabela-recorrentes"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAINEL: COMPARATIVO -->
+        <div id="rel-comparativo" class="relatorio-painel" style="display:none">
+          <div class="relatorio-container">
+            <div class="card">
+              <h3 class="relatorio-subtitulo">Comparativo entre Períodos</h3>
+              <div id="rel-comparacao-periodos"></div>
+            </div>
+            <div class="card">
+              <h3 class="relatorio-subtitulo">Metas</h3>
+              <div id="rel-metas-progresso"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAINEL: INSIGHTS -->
+        <div id="rel-insights" class="relatorio-painel" style="display:none">
+          <div class="relatorio-container">
+            <div class="card">
+              <h3 class="relatorio-subtitulo">Insights Automáticos</h3>
+              <div id="rel-insights-lista"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAINEL: TABELA COMPLETA -->
+        <div id="rel-tabela" class="relatorio-painel" style="display:none">
+          <div class="relatorio-container">
+            <div class="card">
+              <h3 class="relatorio-subtitulo">Todas as Transações</h3>
+              <div class="relatorio-tabela-filtros">
+                <input type="text" id="rel-busca-transacoes" placeholder="Buscar..." />
+                <select id="rel-ordem-tabela">
+                  <option value="data-desc">Data (recente)</option>
+                  <option value="data-asc">Data (antiga)</option>
+                  <option value="valor-desc">Maior valor</option>
+                  <option value="valor-asc">Menor valor</option>
+                  <option value="desc-alf">Descrição (A-Z)</option>
+                </select>
+              </div>
+              <div id="rel-tabela-transacoes"></div>
+              <div id="rel-tabela-paginacao" class="rel-paginacao"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal: Exportar -->
+        <div id="modal-relatorio-exportar" class="modal" style="display:none">
+          <div class="modal-conteudo modal-medio">
+            <div class="modal-cabecalho">
+              <h3>Exportar Relatório</h3>
+              <button type="button" class="modal-fechar" data-fechar-modal="modal-relatorio-exportar">&times;</button>
+            </div>
+            <div class="modal-corpo">
+              <div class="rel-exportar-opcoes">
+                <button type="button" class="rel-exportar-btn" data-formato="pdf">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                  <span>PDF</span>
+                </button>
+                <button type="button" class="rel-exportar-btn" data-formato="csv">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                  <span>CSV</span>
+                </button>
+                <button type="button" class="rel-exportar-btn" data-formato="json">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                  <span>JSON</span>
+                </button>
+                <button type="button" class="rel-exportar-btn" data-formato="imprimir">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                  <span>Imprimir</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>

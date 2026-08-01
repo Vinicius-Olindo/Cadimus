@@ -261,6 +261,7 @@ document.addEventListener("DOMContentLoaded", () => {
   configurarModalTransferencia();
   configurarModalOrcamento();
   configurarModalCartaoCredito();
+  configurarRelatorios();
 
   // Botão de transferência
   const btnTransferencia = document.getElementById("btn-transferencia");
@@ -6305,4 +6306,868 @@ function configurarModalRenomearCategoria() {
       btnSalvar.innerText = "Renomear";
     }
   });
+}
+
+/* ======================== RELATÓRIOS FINANCEIROS ======================== */
+let relatorioDados = { lancamentos: [], periodo: {}, filtros: {} };
+const relatorioPagina = { atual: 1, porPagina: 20 };
+const CORES_GRAFICO = ["#2e7d32","#c62828","#1565c0","#e65100","#6a1b9a","#00838f","#4e342e","#ad1457","#827717","#00695c","#d84315","#283593"];
+
+function configurarRelatorios() {
+  const btnRel = document.getElementById("btn-relatorios");
+  const btnVoltar = document.getElementById("btn-voltar-dashboard-relatorio");
+  const secaoDash = document.getElementById("dashboard-section");
+  const secaoRel = document.getElementById("relatorios-section");
+
+  if (btnRel) {
+    btnRel.addEventListener("click", () => {
+      secaoDash.style.display = "none";
+      secaoRel.style.display = "flex";
+      secaoRel.style.flexDirection = "column";
+      inicializarFiltrosRelatorio();
+      carregarDadosRelatorio();
+    });
+  }
+  if (btnVoltar) {
+    btnVoltar.addEventListener("click", () => {
+      secaoRel.style.display = "none";
+      secaoDash.style.display = "block";
+      carregarLancamentos();
+    });
+  }
+
+  configurarTabsRelatorio();
+  configurarPeriodoRelatorio();
+  configurarExportarRelatorio();
+}
+
+function configurarTabsRelatorio() {
+  document.querySelectorAll(".relatorio-tab").forEach((tab) => {
+    tab.addEventListener("click", () => {
+      document.querySelectorAll(".relatorio-tab").forEach((t) => t.classList.remove("ativo"));
+      document.querySelectorAll(".relatorio-painel").forEach((p) => (p.style.display = "none"));
+      tab.classList.add("ativo");
+      const painel = document.getElementById(tab.dataset.painel);
+      if (painel) painel.style.display = "block";
+    });
+  });
+}
+
+function configurarPeriodoRelatorio() {
+  const sel = document.getElementById("relatorio-periodo");
+  const grupoData = document.querySelector(".relatorio-periodo-personalizado");
+  if (sel) {
+    sel.addEventListener("change", () => {
+      if (grupoData) grupoData.style.display = sel.value === "personalizado" ? "flex" : "none";
+      carregarDadosRelatorio();
+    });
+  }
+  const dtInicio = document.getElementById("relatorio-data-inicio");
+  const dtFim = document.getElementById("relatorio-data-fim");
+  if (dtInicio) dtInicio.addEventListener("change", carregarDadosRelatorio);
+  if (dtFim) dtFim.addEventListener("change", carregarDadosRelatorio);
+
+  ["relatorio-filtro-carteira", "relatorio-filtro-categoria", "relatorio-filtro-tipo"].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener("change", carregarDadosRelatorio);
+  });
+}
+
+function inicializarFiltrosRelatorio() {
+  popularSelectRelatorio("relatorio-filtro-carteira", "carteiras", "Todas");
+  popularSelectRelatorio("relatorio-filtro-categoria", "categorias", "Todas");
+}
+
+function popularSelectRelatorio(selectId, tipo, labelPadrao) {
+  const sel = document.getElementById(selectId);
+  if (!sel) return;
+  const valorAtual = sel.value;
+  sel.innerHTML = `<option value="">${labelPadrao}</option>`;
+  const dados = tipo === "carteiras" ? (typeof carteirasCarregadas !== "undefined" ? carteirasCarregadas : []) :
+    tipo === "categorias" ? (typeof categoriasCarregadas !== "undefined" ? categoriasCarregadas.map((c) => ({ id: c, nome: c })) : []) : [];
+  dados.forEach((d) => {
+    const opt = document.createElement("option");
+    opt.value = tipo === "categorias" ? d.nome || d : d.id;
+    opt.textContent = tipo === "categorias" ? (d.nome || d) : (d.nome || d.id);
+    sel.appendChild(opt);
+  });
+  sel.value = valorAtual;
+}
+
+function obterPeriodoRelatorio() {
+  const sel = document.getElementById("relatorio-periodo");
+  const tipo = sel ? sel.value : "mes";
+  const hoje = new Date();
+  let inicio, fim;
+
+  switch (tipo) {
+    case "hoje":
+      inicio = fim = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
+      break;
+    case "semana": {
+      const dia = hoje.getDay();
+      inicio = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() - dia);
+      fim = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() + (6 - dia));
+      break;
+    }
+    case "mes":
+      inicio = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+      fim = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0);
+      break;
+    case "3meses":
+      inicio = new Date(hoje.getFullYear(), hoje.getMonth() - 2, 1);
+      fim = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0);
+      break;
+    case "6meses":
+      inicio = new Date(hoje.getFullYear(), hoje.getMonth() - 5, 1);
+      fim = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0);
+      break;
+    case "ano":
+      inicio = new Date(hoje.getFullYear(), 0, 1);
+      fim = new Date(hoje.getFullYear(), 11, 31);
+      break;
+    case "personalizado": {
+      const di = document.getElementById("relatorio-data-inicio");
+      const df = document.getElementById("relatorio-data-fim");
+      inicio = di && di.value ? new Date(di.value + "T12:00:00") : new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+      fim = df && df.value ? new Date(df.value + "T12:00:00") : hoje;
+      break;
+    }
+    default:
+      inicio = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+      fim = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0);
+  }
+
+  return {
+    inicio: inicio.toISOString().split("T")[0],
+    fim: fim.toISOString().split("T")[0],
+    inicioDate: inicio,
+    fimDate: fim,
+    tipo
+  };
+}
+
+async function carregarDadosRelatorio() {
+  const periodo = obterPeriodoRelatorio();
+  const filtroCarteira = document.getElementById("relatorio-filtro-carteira")?.value || "";
+  const filtroCategoria = document.getElementById("relatorio-filtro-categoria")?.value || "";
+  const filtroTipo = document.getElementById("relatorio-filtro-tipo")?.value || "";
+
+  const usuario = obterUsuarioLogado();
+  const params = new URLSearchParams({
+    data_inicio: periodo.inicio,
+    data_fim: periodo.fim,
+    usuario_id: usuario.id
+  });
+  if (filtroCarteira) params.set("carteira_id", filtroCarteira);
+  if (filtroCategoria) params.set("categoria", filtroCategoria);
+  if (filtroTipo) params.set("tipo", filtroTipo);
+
+  try {
+    const resposta = await fetch(`${API_URL}/api/lancamentos?${params}`, { headers: headersAutenticados() });
+    if (tratarSessaoExpirada(resposta)) return;
+    if (!resposta.ok) throw new Error("Erro ao carregar");
+    relatorioDados.lancamentos = await resposta.json();
+    relatorioDados.periodo = periodo;
+    relatorioDados.filtros = { filtroCarteira, filtroCategoria, filtroTipo };
+
+    renderizarRelatorioCompleto();
+  } catch (erro) {
+    mostrarToast("Erro ao carregar dados do relatório", "erro");
+  }
+}
+
+function renderizarRelatorioCompleto() {
+  const { lancamentos, periodo } = relatorioDados;
+  const mesAnterior = obterPeriodoMesAnterior(periodo);
+
+  renderizarKPIsRelatorio(lancamentos, mesAnterior);
+  renderizarFluxoCaixa(lancamentos, periodo);
+  renderizarBarrasReceitasDespesas(lancamentos, periodo);
+  renderizarDonutCategorias(lancamentos);
+  renderizarIndicadoresFinanceiros(lancamentos, periodo);
+  renderizarEvolucaoCategorias(lancamentos, periodo);
+  renderizarRankingCategorias(lancamentos);
+  renderizarTabelaContas(lancamentos);
+  renderizarTabelaFormasPagamento(lancamentos);
+  renderizarMaioresDespesas(lancamentos);
+  renderizarMaioresReceitas(lancamentos);
+  renderizarRecorrentesRelatorio(lancamentos);
+  renderizarComparativoPeriodos(lancamentos, mesAnterior);
+  renderizarMetasRelatorio();
+  renderizarInsights(lancamentos, mesAnterior);
+  renderizarTabelaTransacoes(lancamentos);
+}
+
+function obterPeriodoMesAnterior(periodo) {
+  const ini = new Date(periodo.inicioDate);
+  const fim = new Date(periodo.fimDate);
+  const diff = Math.round((fim - ini) / (1000 * 60 * 60 * 24)) + 1;
+  const antInicio = new Date(ini);
+  antInicio.setDate(antInicio.getDate() - diff);
+  const antFim = new Date(ini);
+  antFim.setDate(antFim.getDate() - 1);
+  return { inicio: antInicio.toISOString().split("T")[0], fim: antFim.toISOString().split("T")[0] };
+}
+
+async function carregarLancamentosPeriodo(inicio, fim) {
+  const usuario = obterUsuarioLogado();
+  const params = new URLSearchParams({ data_inicio: inicio, data_fim: fim, usuario_id: usuario.id });
+  try {
+    const resposta = await fetch(`${API_URL}/api/lancamentos?${params}`, { headers: headersAutenticados() });
+    if (!resposta.ok) return [];
+    return await resposta.json();
+  } catch { return []; }
+}
+
+/* --- KPIs --- */
+function renderizarKPIsRelatorio(lancamentos, mesAnterior) {
+  const receitas = lancamentos.filter((l) => l.tipo === "receita").reduce((s, l) => s + (l.valor || 0), 0);
+  const despesas = lancamentos.filter((l) => l.tipo === "despesa").reduce((s, l) => s + (l.valor || 0), 0);
+  const saldo = receitas - despesas;
+  const economia = receitas > 0 ? Math.round((saldo / receitas) * 100) : 0;
+
+  const el = (id) => document.getElementById(id);
+  if (el("rel-kpi-receitas")) el("rel-kpi-receitas").textContent = formatadorBRL.format(receitas);
+  if (el("rel-kpi-despesas")) el("rel-kpi-despesas").textContent = formatadorBRL.format(despesas);
+  if (el("rel-kpi-saldo")) {
+    el("rel-kpi-saldo").textContent = formatadorBRL.format(saldo);
+    el("rel-kpi-saldo").style.color = saldo >= 0 ? "var(--cor-receita)" : "var(--cor-despesa)";
+  }
+  if (el("rel-kpi-economia")) el("rel-kpi-economia").textContent = `${economia}%`;
+
+  // Maior gasto
+  const porCategoria = {};
+  lancamentos.filter((l) => l.tipo === "despesa").forEach((l) => {
+    porCategoria[l.categoria] = (porCategoria[l.categoria] || 0) + (l.valor || 0);
+  });
+  const maior = Object.entries(porCategoria).sort((a, b) => b[1] - a[1])[0];
+  if (el("rel-kpi-maior-gasto") && maior) {
+    el("rel-kpi-maior-gasto").textContent = maior[0];
+    el("rel-kpi-maior-gasto-valor").textContent = formatadorBRL.format(maior[1]);
+  }
+
+  if (el("rel-kpi-transacoes")) el("rel-kpi-transacoes").textContent = lancamentos.length;
+
+  // Tendências
+  carregarLancamentosPeriodo(mesAnterior.inicio, mesAnterior.fim).then((ant) => {
+    const recAnt = ant.filter((l) => l.tipo === "receita").reduce((s, l) => s + (l.valor || 0), 0);
+    const despAnt = ant.filter((l) => l.tipo === "despesa").reduce((s, l) => s + (l.valor || 0), 0);
+    if (el("rel-kpi-receitas-tendencia") && recAnt > 0) {
+      const pct = ((receitas - recAnt) / recAnt * 100).toFixed(0);
+      const cls = pct >= 0 ? "tendencia-positiva" : "tendencia-negativa";
+      el("rel-kpi-receitas-tendencia").textContent = `${pct >= 0 ? "↑" : "↓"} ${Math.abs(pct)}%`;
+      el("rel-kpi-receitas-tendencia").className = `rel-kpi-tendencia ${cls}`;
+    }
+    if (el("rel-kpi-despesas-tendencia") && despAnt > 0) {
+      const pct = ((despesas - despAnt) / despAnt * 100).toFixed(0);
+      const cls = pct <= 0 ? "tendencia-positiva" : "tendencia-negativa";
+      el("rel-kpi-despesas-tendencia").textContent = `${pct >= 0 ? "↑" : "↓"} ${Math.abs(pct)}%`;
+      el("rel-kpi-despesas-tendencia").className = `rel-kpi-tendencia ${cls}`;
+    }
+  });
+}
+
+/* --- Fluxo de Caixa (SVG) --- */
+function renderizarFluxoCaixa(lancamentos, periodo) {
+  const container = document.getElementById("rel-grafico-fluxo");
+  if (!container) return;
+
+  const meses = obterMesesPeriodo(periodo);
+  const dados = meses.map((m) => {
+    const rec = lancamentos.filter((l) => l.tipo === "receita" && l.data_compra?.startsWith(m.key)).reduce((s, l) => s + (l.valor || 0), 0);
+    const desp = lancamentos.filter((l) => l.tipo === "despesa" && l.data_compra?.startsWith(m.key)).reduce((s, l) => s + (l.valor || 0), 0);
+    return { ...m, receitas: rec, despesas: desp, saldo: rec - desp };
+  });
+
+  if (dados.length < 2) { container.innerHTML = '<div class="plano-vazio">Período muito curto para gráfico.</div>'; return; }
+
+  const W = 600, H = 200, P = 40;
+  const vals = dados.flatMap((d) => [d.receitas, d.despesas, d.saldo]);
+  const maxV = Math.max(...vals, 1);
+  const minV = Math.min(...vals, 0);
+  const escala = (v) => P + ((v - minV) / (maxV - minV || 1)) * (H - 2 * P);
+  const x = (i) => P + (i / (dados.length - 1)) * (W - 2 * P);
+
+  const pathRec = dados.map((d, i) => `${i === 0 ? "M" : "L"}${x(i)},${escala(d.receitas)}`).join(" ");
+  const pathDesp = dados.map((d, i) => `${i === 0 ? "M" : "L"}${x(i)},${escala(d.despesas)}`).join(" ");
+  const pathSaldo = dados.map((d, i) => `${i === 0 ? "M" : "L"}${x(i)},${escala(d.saldo)}`).join(" ");
+
+  let svg = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+  svg += `<line x1="${P}" y1="${escala(0)}" x2="${W - P}" y2="${escala(0)}" stroke="var(--cor-pauta-fraca)" stroke-dasharray="4"/>`;
+  dados.forEach((d, i) => {
+    svg += `<text x="${x(i)}" y="${H - 8}" text-anchor="middle" fill="var(--cor-texto-suave)" font-size="10">${d.label}</text>`;
+  });
+  svg += `<path d="${pathRec}" fill="none" stroke="var(--cor-receita)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+  svg += `<path d="${pathDesp}" fill="none" stroke="var(--cor-despesa)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+  svg += `<path d="${pathSaldo}" fill="none" stroke="var(--cor-marca)" stroke-width="2" stroke-dasharray="6,3" stroke-linecap="round" stroke-linejoin="round"/>`;
+  dados.forEach((d, i) => {
+    svg += `<circle cx="${x(i)}" cy="${escala(d.receitas)}" r="3.5" fill="var(--cor-receita)"/>`;
+    svg += `<circle cx="${x(i)}" cy="${escala(d.despesas)}" r="3.5" fill="var(--cor-despesa)"/>`;
+  });
+  svg += `<text x="${W - P + 5}" y="${escala(dados[dados.length - 1]?.receitas || 0) + 4}" fill="var(--cor-receita)" font-size="9">Receitas</text>`;
+  svg += `<text x="${W - P + 5}" y="${escala(dados[dados.length - 1]?.despesas || 0) + 4}" fill="var(--cor-despesa)" font-size="9">Despesas</text>`;
+  svg += `<text x="${W - P + 5}" y="${escala(dados[dados.length - 1]?.saldo || 0) + 4}" fill="var(--cor-marca)" font-size="9">Saldo</text>`;
+  svg += `</svg>`;
+  container.innerHTML = svg;
+}
+
+/* --- Barras Receitas × Despesas --- */
+function renderizarBarrasReceitasDespesas(lancamentos, periodo) {
+  const container = document.getElementById("rel-grafico-barras");
+  if (!container) return;
+
+  const meses = obterMesesPeriodo(periodo);
+  const dados = meses.map((m) => {
+    const rec = lancamentos.filter((l) => l.tipo === "receita" && l.data_compra?.startsWith(m.key)).reduce((s, l) => s + (l.valor || 0), 0);
+    const desp = lancamentos.filter((l) => l.tipo === "despesa" && l.data_compra?.startsWith(m.key)).reduce((s, l) => s + (l.valor || 0), 0);
+    return { ...m, receitas: rec, despesas: desp };
+  });
+
+  const maxV = Math.max(...dados.flatMap((d) => [d.receitas, d.despesas]), 1);
+  const W = 600, H = 180, P = 40;
+  const barW = Math.min(30, (W - 2 * P) / (dados.length * 3));
+  const centro = (i) => P + (i + 0.5) * ((W - 2 * P) / dados.length);
+
+  let svg = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+  svg += `<line x1="${P}" y1="${H - P}" x2="${W - P}" y2="${H - P}" stroke="var(--cor-pauta-fraca)"/>`;
+  dados.forEach((d, i) => {
+    const cx = centro(i);
+    const hRec = (d.receitas / maxV) * (H - 2 * P);
+    const hDesp = (d.despesas / maxV) * (H - 2 * P);
+    svg += `<rect x="${cx - barW - 1}" y="${H - P - hRec}" width="${barW}" height="${hRec}" fill="var(--cor-receita)" rx="2"/>`;
+    svg += `<rect x="${cx + 1}" y="${H - P - hDesp}" width="${barW}" height="${hDesp}" fill="var(--cor-despesa)" rx="2"/>`;
+    svg += `<text x="${cx}" y="${H - 8}" text-anchor="middle" fill="var(--cor-texto-suave)" font-size="9">${d.label}</text>`;
+  });
+  svg += `</svg>`;
+  container.innerHTML = svg;
+}
+
+/* --- Donut Categorias --- */
+function renderizarDonutCategorias(lancamentos) {
+  const svgEl = document.getElementById("rel-donut-svg");
+  const legEl = document.getElementById("rel-donut-legenda");
+  if (!svgEl || !legEl) return;
+
+  const despesas = lancamentos.filter((l) => l.tipo === "despesa");
+  if (despesas.length === 0) { svgEl.innerHTML = '<div class="plano-vazio">Sem despesas no período.</div>'; legEl.innerHTML = ""; return; }
+
+  const porCategoria = {};
+  despesas.forEach((l) => { porCategoria[l.categoria] = (porCategoria[l.categoria] || 0) + (l.valor || 0); });
+  const total = Object.values(porCategoria).reduce((s, v) => s + v, 0);
+  const categorias = Object.entries(porCategoria).sort((a, b) => b[1] - a[1]);
+
+  const R = 70, cx = 90, cy = 90, stroke = 24;
+  let svg = `<svg width="180" height="180" viewBox="0 0 180 180" xmlns="http://www.w3.org/2000/svg">`;
+  let angulo = -90;
+  categorias.forEach(([nome, valor], i) => {
+    const pct = valor / total;
+    const comprimento = pct * 2 * Math.PI * R;
+    const cor = CORES_GRAFICO[i % CORES_GRAFICO.length];
+    svg += `<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="${cor}" stroke-width="${stroke}" stroke-dasharray="${comprimento} ${2 * Math.PI * R}" stroke-dashoffset="${-angulo * Math.PI * R / 180}" transform="rotate(0 ${cx} ${cy})"/>`;
+    angulo += pct * 360;
+  });
+  svg += `<text x="${cx}" y="${cy - 6}" text-anchor="middle" fill="var(--cor-texto)" font-size="13" font-weight="700">${formatadorBRL.format(total)}</text>`;
+  svg += `<text x="${cx}" y="${cy + 10}" text-anchor="middle" fill="var(--cor-texto-suave)" font-size="9">Total</text>`;
+  svg += `</svg>`;
+  svgEl.innerHTML = svg;
+
+  legEl.innerHTML = categorias.map(([nome, valor], i) => {
+    const pct = ((valor / total) * 100).toFixed(1);
+    const cor = CORES_GRAFICO[i % CORES_GRAFICO.length];
+    return `<div class="rel-donut-item"><span class="rel-donut-cor" style="background:${cor}"></span><span class="rel-donut-nome">${escaparHtml(nome)}</span><span class="rel-donut-pct">${pct}%</span><span class="rel-donut-valor">${formatadorBRL.format(valor)}</span></div>`;
+  }).join("");
+}
+
+/* --- Indicadores Financeiros --- */
+function renderizarIndicadoresFinanceiros(lancamentos, periodo) {
+  const container = document.getElementById("rel-indicadores");
+  if (!container) return;
+
+  const rec = lancamentos.filter((l) => l.tipo === "receita");
+  const desp = lancamentos.filter((l) => l.tipo === "despesa");
+  const totalRec = rec.reduce((s, l) => s + (l.valor || 0), 0);
+  const totalDesp = desp.reduce((s, l) => s + (l.valor || 0), 0);
+  const meses = Math.max(1, obterMesesPeriodo(periodo).length);
+  const ticketRec = rec.length > 0 ? totalRec / rec.length : 0;
+  const ticketDesp = desp.length > 0 ? totalDesp / desp.length : 0;
+  const diasNegativos = calcularDiasNegativos(lancamentos);
+  const rendaComprometida = totalRec > 0 ? ((totalDesp / totalRec) * 100).toFixed(0) : 0;
+
+  const itens = [
+    { nome: "Receita média mensal", valor: formatadorBRL.format(totalRec / meses), icone: "📊", cor: "var(--cor-receita)" },
+    { nome: "Despesa média mensal", valor: formatadorBRL.format(totalDesp / meses), icone: "📉", cor: "var(--cor-despesa)" },
+    { nome: "Saldo médio", valor: formatadorBRL.format((totalRec - totalDesp) / meses), icone: "💰", cor: "var(--cor-marca)" },
+    { nome: "Maior gasto do período", valor: formatadorBRL.format(Math.max(...desp.map((l) => l.valor || 0), 0)), icone: "🔺", cor: "var(--cor-despesa)" },
+    { nome: "Maior receita", valor: formatadorBRL.format(Math.max(...rec.map((l) => l.valor || 0), 0)), icone: "🔺", cor: "var(--cor-receita)" },
+    { nome: "Ticket médio despesas", valor: formatadorBRL.format(ticketDesp), icone: "🧾", cor: "var(--cor-texto)" },
+    { nome: "Ticket médio receitas", valor: formatadorBRL.format(ticketRec), icone: "🧾", cor: "var(--cor-texto)" },
+    { nome: "Total transações", valor: String(lancamentos.length), icone: "📋", cor: "var(--cor-marca)" },
+    { nome: "Dias com saldo negativo", valor: String(diasNegativos), icone: "⚠️", cor: "var(--cor-despesa)" },
+    { nome: "Renda comprometida", valor: `${rendaComprometida}%`, icone: "📌", cor: "var(--cor-texto)" },
+  ];
+
+  container.innerHTML = itens.map((item) => `
+    <div class="rel-ind-item">
+      <div class="rel-ind-icone" style="background:${item.cor}15;color:${item.cor}">${item.icone}</div>
+      <div class="rel-ind-info">
+        <span class="rel-ind-nome">${item.nome}</span>
+        <span class="rel-ind-valor">${item.valor}</span>
+      </div>
+    </div>
+  `).join("");
+}
+
+function calcularDiasNegativos(lancamentos) {
+  const porDia = {};
+  lancamentos.forEach((l) => {
+    if (!l.data_compra) return;
+    if (!porDia[l.data_compra]) porDia[l.data_compra] = 0;
+    porDia[l.data_compra] += (l.tipo === "receita" ? 1 : -1) * (l.valor || 0);
+  });
+  return Object.values(porDia).filter((v) => v < 0).length;
+}
+
+/* --- Evolução por Categoria --- */
+function renderizarEvolucaoCategorias(lancamentos, periodo) {
+  const container = document.getElementById("rel-grafico-evolucao-categorias");
+  if (!container) return;
+
+  const meses = obterMesesPeriodo(periodo);
+  const categoriasSet = new Set();
+  lancamentos.filter((l) => l.tipo === "despesa").forEach((l) => categoriasSet.add(l.categoria));
+  const cats = [...categoriasSet].slice(0, 6);
+  if (cats.length === 0) { container.innerHTML = '<div class="plano-vazio">Sem categorias para exibir.</div>'; return; }
+
+  const W = 600, H = 200, P = 40;
+  const dados = meses.map((m) => {
+    const obj = { label: m.label };
+    cats.forEach((c) => { obj[c] = lancamentos.filter((l) => l.tipo === "despesa" && l.categoria === c && l.data_compra?.startsWith(m.key)).reduce((s, l) => s + (l.valor || 0), 0); });
+    return obj;
+  });
+
+  const maxV = Math.max(...dados.flatMap((d) => cats.map((c) => d[c] || 0)), 1);
+  const x = (i) => P + (i / (dados.length - 1 || 1)) * (W - 2 * P);
+  const escala = (v) => H - P - (v / maxV) * (H - 2 * P);
+
+  let svg = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+  dados.forEach((d, i) => {
+    svg += `<text x="${x(i)}" y="${H - 8}" text-anchor="middle" fill="var(--cor-texto-suave)" font-size="9">${d.label}</text>`;
+  });
+
+  cats.forEach((cat, ci) => {
+    const cor = CORES_GRAFICO[ci % CORES_GRAFICO.length];
+    const path = dados.map((d, i) => `${i === 0 ? "M" : "L"}${x(i)},${escala(d[cat] || 0)}`).join(" ");
+    svg += `<path d="${path}" fill="none" stroke="${cor}" stroke-width="2" stroke-linecap="round"/>`;
+    dados.forEach((d, i) => {
+      if (d[cat] > 0) svg += `<circle cx="${x(i)}" cy="${escala(d[cat])}" r="2.5" fill="${cor}"/>`;
+    });
+  });
+  svg += `</svg>`;
+
+  const legenda = cats.map((c, i) => `<span style="display:inline-flex;align-items:center;gap:4px;font-size:0.75rem;margin-right:12px"><span style="width:10px;height:10px;border-radius:50%;background:${CORES_GRAFICO[i % CORES_GRAFICO.length]};display:inline-block"></span>${escaparHtml(c)}</span>`).join("");
+  container.innerHTML = svg + `<div style="margin-top:8px">${legenda}</div>`;
+}
+
+/* --- Ranking Categorias --- */
+function renderizarRankingCategorias(lancamentos) {
+  const container = document.getElementById("rel-ranking-categorias");
+  if (!container) return;
+
+  const porCategoria = {};
+  lancamentos.filter((l) => l.tipo === "despesa").forEach((l) => {
+    porCategoria[l.categoria] = (porCategoria[l.categoria] || 0) + (l.valor || 0);
+  });
+  const total = Object.values(porCategoria).reduce((s, v) => s + v, 0);
+  const ranking = Object.entries(porCategoria).sort((a, b) => b[1] - a[1]);
+
+  if (ranking.length === 0) { container.innerHTML = '<div class="plano-vazio">Sem dados.</div>'; return; }
+
+  container.innerHTML = ranking.map(([nome, valor], i) => {
+    const pct = total > 0 ? (valor / total * 100) : 0;
+    const cor = CORES_GRAFICO[i % CORES_GRAFICO.length];
+    return `
+      <div class="rel-ranking-item">
+        <span class="rel-ranking-pos">${i + 1}</span>
+        <div class="rel-ranking-info">
+          <span class="rel-ranking-nome">${escaparHtml(nome)}</span>
+          <div class="rel-ranking-barra"><div class="rel-ranking-barra-fill" style="width:${pct}%;background:${cor}"></div></div>
+        </div>
+        <div class="rel-ranking-valores">
+          <div class="rel-ranking-valor-principal">${formatadorBRL.format(valor)}</div>
+          <div class="rel-ranking-valor-secundario">${pct.toFixed(1)}%</div>
+        </div>
+      </div>`;
+  }).join("");
+}
+
+/* --- Tabelas --- */
+function renderizarTabelaContas(lancamentos) {
+  const container = document.getElementById("rel-tabela-contas");
+  if (!container) return;
+
+  const porConta = {};
+  lancamentos.forEach((l) => {
+    const conta = l.carteira_nome || l.carteira_id || "Sem conta";
+    if (!porConta[conta]) porConta[conta] = { entradas: 0, saidas: 0 };
+    if (l.tipo === "receita") porConta[conta].entradas += l.valor || 0;
+    else if (l.tipo === "despesa") porConta[conta].saidas += l.valor || 0;
+  });
+
+  const contas = Object.entries(porConta);
+  if (contas.length === 0) { container.innerHTML = '<div class="plano-vazio">Sem dados.</div>'; return; }
+
+  container.innerHTML = `<table class="rel-tabela"><thead><tr><th>Conta</th><th class="col-valor">Entradas</th><th class="col-valor">Saídas</th><th class="col-valor">Saldo</th></tr></thead><tbody>${
+    contas.map(([nome, d]) => {
+      const saldo = d.entradas - d.saidas;
+      return `<tr><td>${escaparHtml(nome)}</td><td class="col-valor tipo-receita">${formatadorBRL.format(d.entradas)}</td><td class="col-valor tipo-despesa">${formatadorBRL.format(d.saidas)}</td><td class="col-valor" style="color:${saldo >= 0 ? "var(--cor-receita)" : "var(--cor-despesa)"}">${formatadorBRL.format(saldo)}</td></tr>`;
+    }).join("")
+  }</tbody></table>`;
+}
+
+function renderizarTabelaFormasPagamento(lancamentos) {
+  const container = document.getElementById("rel-tabela-formas");
+  if (!container) return;
+
+  const porForma = {};
+  lancamentos.filter((l) => l.tipo === "despesa").forEach((l) => {
+    const forma = l.forma_pagamento || "Não informado";
+    porForma[forma] = (porForma[forma] || 0) + (l.valor || 0);
+  });
+
+  const total = Object.values(porForma).reduce((s, v) => s + v, 0);
+  const formas = Object.entries(porForma).sort((a, b) => b[1] - a[1]);
+
+  if (formas.length === 0) { container.innerHTML = '<div class="plano-vazio">Sem dados.</div>'; return; }
+
+  container.innerHTML = `<table class="rel-tabela"><thead><tr><th>Forma</th><th class="col-valor">Valor</th><th class="col-valor">%</th><th style="width:40%">Proporção</th></tr></thead><tbody>${
+    formas.map(([nome, valor]) => {
+      const pct = total > 0 ? (valor / total * 100) : 0;
+      return `<tr><td>${escaparHtml(nome)}</td><td class="col-valor">${formatadorBRL.format(valor)}</td><td class="col-valor">${pct.toFixed(1)}%</td><td><div class="rel-barra-progresso"><div class="rel-barra-trilho"><div class="rel-barra-preenchimento" style="width:${pct}%;background:var(--cor-marca)"></div></div></div></td></tr>`;
+    }).join("")
+  }</tbody></table>`;
+}
+
+function renderizarMaioresDespesas(lancamentos) {
+  const container = document.getElementById("rel-tabela-maiores-despesas");
+  if (!container) return;
+
+  const despesas = lancamentos.filter((l) => l.tipo === "despesa").sort((a, b) => (b.valor || 0) - (a.valor || 0)).slice(0, 15);
+  if (despesas.length === 0) { container.innerHTML = '<div class="plano-vazio">Sem despesas.</div>'; return; }
+
+  container.innerHTML = `<table class="rel-tabela"><thead><tr><th>Descrição</th><th>Categoria</th><th>Data</th><th class="col-valor">Valor</th></tr></thead><tbody>${
+    despesas.map((l) => `<tr><td>${escaparHtml(l.descricao || l.categoria)}</td><td><span class="rel-tabela col-categoria" style="background:var(--cor-despesa)15;color:var(--cor-despesa)">${escaparHtml(l.categoria || "")}</span></td><td>${l.data_compra ? new Date(l.data_compra + "T12:00:00").toLocaleDateString("pt-BR") : "—"}</td><td class="col-valor tipo-despesa">${formatadorBRL.format(l.valor)}</td></tr>`).join("")
+  }</tbody></table>`;
+}
+
+function renderizarMaioresReceitas(lancamentos) {
+  const container = document.getElementById("rel-tabela-maiores-receitas");
+  if (!container) return;
+
+  const receitas = lancamentos.filter((l) => l.tipo === "receita").sort((a, b) => (b.valor || 0) - (a.valor || 0)).slice(0, 15);
+  if (receitas.length === 0) { container.innerHTML = '<div class="plano-vazio">Sem receitas.</div>'; return; }
+
+  container.innerHTML = `<table class="rel-tabela"><thead><tr><th>Descrição</th><th>Categoria</th><th>Data</th><th class="col-valor">Valor</th></tr></thead><tbody>${
+    receitas.map((l) => `<tr><td>${escaparHtml(l.descricao || l.categoria)}</td><td><span class="rel-tabela col-categoria" style="background:var(--cor-receita)15;color:var(--cor-receita)">${escaparHtml(l.categoria || "")}</span></td><td>${l.data_compra ? new Date(l.data_compra + "T12:00:00").toLocaleDateString("pt-BR") : "—"}</td><td class="col-valor tipo-receita">${formatadorBRL.format(l.valor)}</td></tr>`).join("")
+  }</tbody></table>`;
+}
+
+function renderizarRecorrentesRelatorio(lancamentos) {
+  const container = document.getElementById("rel-tabela-recorrentes");
+  if (!container) return;
+
+  const fixas = typeof despesasFixasCarregadas !== "undefined" ? despesasFixasCarregadas.filter((f) => f.ativo) : [];
+  if (fixas.length === 0) { container.innerHTML = '<div class="plano-vazio">Sem despesas recorrentes.</div>'; return; }
+
+  container.innerHTML = `<table class="rel-tabela"><thead><tr><th>Despesa</th><th>Frequência</th><th class="col-valor">Valor</th></tr></thead><tbody>${
+    fixas.map((f) => `<tr><td>${escaparHtml(f.descricao)}</td><td>Mensal</td><td class="col-valor">${formatadorBRL.format(f.valor)}</td></tr>`).join("")
+  }</tbody></table>`;
+}
+
+/* --- Comparativo --- */
+function renderizarComparativoPeriodos(lancamentos, mesAnterior) {
+  const container = document.getElementById("rel-comparacao-periodos");
+  if (!container) return;
+
+  const recAtual = lancamentos.filter((l) => l.tipo === "receita").reduce((s, l) => s + (l.valor || 0), 0);
+  const despAtual = lancamentos.filter((l) => l.tipo === "despesa").reduce((s, l) => s + (l.valor || 0), 0);
+
+  carregarLancamentosPeriodo(mesAnterior.inicio, mesAnterior.fim).then((ant) => {
+    const recAnt = ant.filter((l) => l.tipo === "receita").reduce((s, l) => s + (l.valor || 0), 0);
+    const despAnt = ant.filter((l) => l.tipo === "despesa").reduce((s, l) => s + (l.valor || 0), 0);
+    const ecoAtual = recAtual - despAtual;
+    const ecoAnt = recAnt - despAnt;
+
+    const calcPct = (atual, anterior) => anterior > 0 ? ((atual - anterior) / anterior * 100).toFixed(0) : "—";
+
+    container.innerHTML = `
+      <div class="rel-comp-linha rel-comp-header"><span>Métrica</span><span style="text-align:right">Período atual</span><span style="text-align:right">Período anterior</span><span style="text-align:right">Variação</span></div>
+      <div class="rel-comp-linha"><span>Receitas</span><span class="rel-comp-valor">${formatadorBRL.format(recAtual)}</span><span class="rel-comp-valor">${formatadorBRL.format(recAnt)}</span><span class="rel-comp-diferenca ${recAtual >= recAnt ? "positivo" : "negativo"}">${calcPct(recAtual, recAnt)}%</span></div>
+      <div class="rel-comp-linha"><span>Despesas</span><span class="rel-comp-valor">${formatadorBRL.format(despAtual)}</span><span class="rel-comp-valor">${formatadorBRL.format(despAnt)}</span><span class="rel-comp-diferenca ${despAtual <= despAnt ? "positivo" : "negativo"}">${calcPct(despAtual, despAnt)}%</span></div>
+      <div class="rel-comp-linha"><span>Economia</span><span class="rel-comp-valor">${formatadorBRL.format(ecoAtual)}</span><span class="rel-comp-valor">${formatadorBRL.format(ecoAnt)}</span><span class="rel-comp-diferenca ${ecoAtual >= ecoAnt ? "positivo" : "negativo"}">${calcPct(ecoAtual, ecoAnt)}%</span></div>
+    `;
+  });
+}
+
+/* --- Metas --- */
+function renderizarMetasRelatorio() {
+  const container = document.getElementById("rel-metas-progresso");
+  if (!container) return;
+
+  if (typeof metasCarregadas === "undefined" || metasCarregadas.length === 0) {
+    container.innerHTML = '<div class="plano-vazio">Nenhuma meta configurada.</div>';
+    return;
+  }
+
+  container.innerHTML = metasCarregadas.map((meta) => {
+    const pct = meta.valor_limite > 0 ? Math.min(100, Math.round((meta.total_depositado / meta.valor_limite) * 100)) : 0;
+    const cor = pct >= 80 ? "var(--cor-receita)" : pct >= 40 ? "var(--cor-marca)" : "var(--cor-despesa)";
+    return `
+      <div class="rel-ranking-item">
+        <div class="rel-ranking-info">
+          <span class="rel-ranking-nome">${escaparHtml(meta.categoria)}</span>
+          <div class="rel-barra-progresso" style="margin-top:4px">
+            <div class="rel-barra-trilho"><div class="rel-barra-preenchimento" style="width:${pct}%;background:${cor}"></div></div>
+            <span class="rel-barra-pct" style="color:${cor}">${pct}%</span>
+          </div>
+          <span class="rel-ranking-valor-secundario">${formatadorBRL.format(meta.total_depositado)} / ${formatadorBRL.format(meta.valor_limite)}</span>
+        </div>
+      </div>`;
+  }).join("");
+}
+
+/* --- Insights Automáticos --- */
+function renderizarInsights(lancamentos, mesAnterior) {
+  const container = document.getElementById("rel-insights-lista");
+  if (!container) return;
+
+  const insights = [];
+  const desp = lancamentos.filter((l) => l.tipo === "despesa");
+  const rec = lancamentos.filter((l) => l.tipo === "receita");
+  const totalDesp = desp.reduce((s, l) => s + (l.valor || 0), 0);
+  const totalRec = rec.reduce((s, l) => s + (l.valor || 0), 0);
+
+  // Insight: despesas maiores que receitas
+  if (totalDesp > totalRec && totalRec > 0) {
+    insights.push({ tipo: "alerta", texto: `Suas despesas (${formatadorBRL.format(totalDesp)}) ultrapassam as receitas (${formatadorBRL.format(totalRec)}) neste período.` });
+  }
+
+  // Insight: categoria com maior aumento
+  carregarLancamentosPeriodo(mesAnterior.inicio, mesAnterior.fim).then((ant) => {
+    const despAnt = ant.filter((l) => l.tipo === "despesa");
+    const catAtual = {}, catAnt = {};
+    desp.forEach((l) => { catAtual[l.categoria] = (catAtual[l.categoria] || 0) + (l.valor || 0); });
+    despAnt.forEach((l) => { catAnt[l.categoria] = (catAnt[l.categoria] || 0) + (l.valor || 0); });
+
+    Object.keys(catAtual).forEach((cat) => {
+      if (catAnt[cat] && catAtual[cat] > catAnt[cat] * 1.15) {
+        const pct = ((catAtual[cat] - catAnt[cat]) / catAnt[cat] * 100).toFixed(0);
+        insights.push({ tipo: "alerta", texto: `Você gastou ${pct}% mais com ${cat} em relação ao período anterior.` });
+      }
+    });
+
+    Object.keys(catAtual).forEach((cat) => {
+      if (catAnt[cat] && catAtual[cat] < catAnt[cat] * 0.85) {
+        const pct = ((catAnt[cat] - catAtual[cat]) / catAnt[cat] * 100).toFixed(0);
+        insights.push({ tipo: "ok", texto: `Redução de ${pct}% nos gastos com ${cat}. Continue assim!` });
+      }
+    });
+
+    // Economia
+    const ecoAtual = totalRec - totalDesp;
+    const ecoAnt = rec.reduce((s, l) => s + (l.valor || 0), 0) - despAnt.reduce((s, l) => s + (l.valor || 0), 0);
+    if (ecoAtual > ecoAnt && ecoAnt > 0) {
+      insights.push({ tipo: "ok", texto: `Sua economia cresceu ${((ecoAtual - ecoAnt) / ecoAnt * 100).toFixed(0)}% em relação ao período anterior.` });
+    }
+
+    // Fixas > 60% renda
+    const fixas = typeof despesasFixasCarregadas !== "undefined" ? despesasFixasCarregadas.filter((f) => f.ativo).reduce((s, f) => s + (f.valor || 0), 0) : 0;
+    if (totalRec > 0 && fixas / totalRec > 0.6) {
+      insights.push({ tipo: "alerta", texto: `As despesas fixas representam ${((fixas / totalRec) * 100).toFixed(0)}% da sua renda.` });
+    }
+
+    // Ticket médio
+    if (desp.length > 0) {
+      const ticket = totalDesp / desp.length;
+      insights.push({ tipo: "info", texto: `Ticket médio das despesas: ${formatadorBRL.format(ticket)}. Considere analisar transações acima deste valor.` });
+    }
+
+    // Zero insights = mensagem padrão
+    if (insights.length === 0) {
+      insights.push({ tipo: "ok", texto: "Seus indicadores estão dentro do esperado. Continue monitorando!" });
+    }
+
+    container.innerHTML = insights.map((ins) => {
+      const cls = ins.tipo === "alerta" ? "insight-alerta" : ins.tipo === "ok" ? "insight-ok" : "insight-info";
+      const icone = ins.tipo === "alerta" ? "⚠️" : ins.tipo === "ok" ? "✅" : "ℹ️";
+      return `<div class="rel-insight-item"><div class="rel-insight-icone ${cls}">${icone}</div><span class="rel-insight-texto">${ins.texto}</span></div>`;
+    }).join("");
+  });
+}
+
+/* --- Tabela Completa --- */
+function renderizarTabelaTransacoes(lancamentos) {
+  const container = document.getElementById("rel-tabela-transacoes");
+  const pagContainer = document.getElementById("rel-tabela-paginacao");
+  if (!container) return;
+
+  const busca = document.getElementById("rel-busca-transacoes")?.value?.toLowerCase() || "";
+  const ordem = document.getElementById("rel-ordem-tabela")?.value || "data-desc";
+
+  let filtrados = lancamentos.filter((l) => {
+    if (busca && !(l.descricao || "").toLowerCase().includes(busca) && !(l.categoria || "").toLowerCase().includes(busca)) return false;
+    return true;
+  });
+
+  filtrados.sort((a, b) => {
+    switch (ordem) {
+      case "data-desc": return (b.data_compra || "").localeCompare(a.data_compra || "");
+      case "data-asc": return (a.data_compra || "").localeCompare(b.data_compra || "");
+      case "valor-desc": return (b.valor || 0) - (a.valor || 0);
+      case "valor-asc": return (a.valor || 0) - (b.valor || 0);
+      case "desc-alf": return (a.descricao || "").localeCompare(b.descricao || "");
+      default: return 0;
+    }
+  });
+
+  const totalPaginas = Math.ceil(filtrados.length / relatorioPagina.porPagina);
+  if (relatorioPagina.atual > totalPaginas) relatorioPagina.atual = 1;
+  const inicio = (relatorioPagina.atual - 1) * relatorioPagina.porPagina;
+  const pagina = filtrados.slice(inicio, inicio + relatorioPagina.porPagina);
+
+  container.innerHTML = `<table class="rel-tabela"><thead><tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Tipo</th><th class="col-valor">Valor</th></tr></thead><tbody>${
+    pagina.map((l) => {
+      const tipoCor = l.tipo === "receita" ? "tipo-receita" : l.tipo === "despesa" ? "tipo-despesa" : "tipo-transferencia";
+      return `<tr><td>${l.data_compra ? new Date(l.data_compra + "T12:00:00").toLocaleDateString("pt-BR") : "—"}</td><td>${escaparHtml(l.descricao || "")}</td><td>${escaparHtml(l.categoria || "")}</td><td class="${tipoCor}">${l.tipo || ""}</td><td class="col-valor">${formatadorBRL.format(l.valor)}</td></tr>`;
+    }).join("")
+  }</tbody></table>`;
+
+  if (pagContainer) {
+    if (totalPaginas <= 1) { pagContainer.innerHTML = ""; return; }
+    let html = `<button ${relatorioPagina.atual <= 1 ? "disabled" : ""} onclick="relatorioPagina.atual--;renderizarTabelaTransacoes(relatorioDados.lancamentos)">‹</button>`;
+    for (let i = 1; i <= totalPaginas; i++) {
+      if (totalPaginas > 7 && i > 3 && i < totalPaginas - 1 && Math.abs(i - relatorioPagina.atual) > 1) { if (i === 4 || i === totalPaginas - 2) html += `<button disabled>…</button>`; continue; }
+      html += `<button class="${i === relatorioPagina.atual ? "ativo" : ""}" onclick="relatorioPagina.atual=${i};renderizarTabelaTransacoes(relatorioDados.lancamentos)">${i}</button>`;
+    }
+    html += `<button ${relatorioPagina.atual >= totalPaginas ? "disabled" : ""} onclick="relatorioPagina.atual++;renderizarTabelaTransacoes(relatorioDados.lancamentos)">›</button>`;
+    pagContainer.innerHTML = html;
+  }
+}
+
+/* --- Helpers --- */
+function obterMesesPeriodo(periodo) {
+  const meses = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+  const resultado = [];
+  const ini = new Date(periodo.inicioDate);
+  const fim = new Date(periodo.fimDate);
+  const atual = new Date(ini);
+  while (atual <= fim) {
+    resultado.push({ key: `${atual.getFullYear()}-${String(atual.getMonth() + 1).padStart(2, "0")}`, label: `${meses[atual.getMonth()]}${periodo.tipo === "ano" ? "" : " " + (atual.getMonth() + 1)}` });
+    atual.setMonth(atual.getMonth() + 1);
+  }
+  return resultado;
+}
+
+/* --- Exportar --- */
+function configurarExportarRelatorio() {
+  const btnExp = document.getElementById("btn-relatorio-exportar");
+  const modal = document.getElementById("modal-relatorio-exportar");
+  if (btnExp && modal) {
+    btnExp.addEventListener("click", () => { modal.style.display = "flex"; modal.classList.add("modal-aberto"); });
+  }
+
+  document.querySelectorAll(".rel-exportar-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const formato = btn.dataset.formato;
+      if (formato === "csv") exportarRelatorioCSV();
+      else if (formato === "json") exportarRelatorioJSON();
+      else if (formato === "imprimir") window.print();
+      else if (formato === "pdf") exportarRelatorioPDF();
+      if (modal) { modal.style.display = "none"; modal.classList.remove("modal-aberto"); }
+    });
+  });
+
+  // Busca e ordenação da tabela
+  const busca = document.getElementById("rel-busca-transacoes");
+  const ordem = document.getElementById("rel-ordem-tabela");
+  if (busca) busca.addEventListener("input", () => { relatorioPagina.atual = 1; renderizarTabelaTransacoes(relatorioDados.lancamentos); });
+  if (ordem) ordem.addEventListener("change", () => { relatorioPagina.atual = 1; renderizarTabelaTransacoes(relatorioDados.lancamentos); });
+
+  // Botão compartilhar
+  const btnComp = document.getElementById("btn-relatorio-compartilhar");
+  if (btnComp) btnComp.addEventListener("click", () => {
+    if (navigator.share) navigator.share({ title: "Relatório Financeiro", text: "Meu relatório financeiro - Gestor Financeiro" });
+    else mostrarToast("Função de compartilhar não disponível neste navegador", "aviso");
+  });
+
+  // Botão salvar
+  const btnSalvar = document.getElementById("btn-relatorio-salvar");
+  if (btnSalvar) btnSalvar.addEventListener("click", () => exportarRelatorioPDF());
+}
+
+function exportarRelatorioCSV() {
+  const { lancamentos } = relatorioDados;
+  if (lancamentos.length === 0) { mostrarToast("Sem dados para exportar", "aviso"); return; }
+
+  const linhas = [["Data", "Descrição", "Categoria", "Tipo", "Valor", "Conta", "Forma Pagamento"]];
+  lancamentos.forEach((l) => {
+    linhas.push([l.data_compra || "", l.descricao || "", l.categoria || "", l.tipo || "", l.valor || 0, l.carteira_nome || "", l.forma_pagamento || ""]);
+  });
+
+  const csv = linhas.map((l) => l.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
+  const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+  baixarArquivo(blob, `relatorio_financeiro_${new Date().toISOString().split("T")[0]}.csv`);
+}
+
+function exportarRelatorioJSON() {
+  const { lancamentos, periodo } = relatorioDados;
+  const json = JSON.stringify({ periodo, lancamentos }, null, 2);
+  const blob = new Blob([json], { type: "application/json" });
+  baixarArquivo(blob, `relatorio_financeiro_${new Date().toISOString().split("T")[0]}.json`);
+}
+
+function exportarRelatorioPDF() {
+  const { lancamentos, periodo } = relatorioDados;
+  const totalRec = lancamentos.filter((l) => l.tipo === "receita").reduce((s, l) => s + (l.valor || 0), 0);
+  const totalDesp = lancamentos.filter((l) => l.tipo === "despesa").reduce((s, l) => s + (l.valor || 0), 0);
+  const saldo = totalRec - totalDesp;
+
+  let html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Relatório Financeiro</title><style>
+    body{font-family:'IBM Plex Sans',sans-serif;max-width:800px;margin:0 auto;padding:20px;color:#1a1a1a}
+    h1{font-size:1.3rem;border-bottom:2px solid #2e7d32;padding-bottom:8px}
+    .kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}
+    .kpi{padding:12px;border:1px solid #e0e0e0;border-radius:8px;text-align:center}
+    .kpi-rotulo{font-size:0.75rem;color:#666;text-transform:uppercase}
+    .kpi-valor{font-size:1.2rem;font-weight:700;margin-top:4px}
+    table{width:100%;border-collapse:collapse;margin:16px 0;font-size:0.85rem}
+    th,td{padding:8px;border-bottom:1px solid #e0e0e0;text-align:left}
+    th{background:#f5f5f5;font-weight:600;font-size:0.75rem;text-transform:uppercase}
+    .footer{margin-top:32px;padding-top:12px;border-top:1px solid #e0e0e0;font-size:0.7rem;color:#999;text-align:center}
+  </style></head><body>
+    <h1>Relatório Financeiro — Gestor Financeiro</h1>
+    <p style="color:#666;font-size:0.85rem">Período: ${periodo.inicio} a ${periodo.fim}</p>
+    <div class="kpi-grid">
+      <div class="kpi"><div class="kpi-rotulo">Receitas</div><div class="kpi-valor" style="color:#2e7d32">${formatadorBRL.format(totalRec)}</div></div>
+      <div class="kpi"><div class="kpi-rotulo">Despesas</div><div class="kpi-valor" style="color:#c62828">${formatadorBRL.format(totalDesp)}</div></div>
+      <div class="kpi"><div class="kpi-rotulo">Saldo</div><div class="kpi-valor" style="color:${saldo >= 0 ? "#2e7d32" : "#c62828"}">${formatadorBRL.format(saldo)}</div></div>
+    </div>
+    <h2>Transações</h2>
+    <table><thead><tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Tipo</th><th style="text-align:right">Valor</th></tr></thead><tbody>${
+      lancamentos.map((l) => `<tr><td>${l.data_compra ? new Date(l.data_compra + "T12:00:00").toLocaleDateString("pt-BR") : "—"}</td><td>${escaparHtml(l.descricao || "")}</td><td>${escaparHtml(l.categoria || "")}</td><td>${l.tipo || ""}</td><td style="text-align:right">${formatadorBRL.format(l.valor)}</td></tr>`).join("")
+    }</tbody></table>
+    <div class="footer">Gerado em ${new Date().toLocaleString("pt-BR")} — Gestor Financeiro</div></body></html>`;
+
+  const janela = window.open("", "_blank");
+  if (janela) { janela.document.write(html); janela.document.close(); janela.print(); }
+}
+
+function baixarArquivo(blob, nome) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = nome;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
