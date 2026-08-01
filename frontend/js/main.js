@@ -4790,8 +4790,6 @@ function renderizarPlano() {
     salarioDisplay.textContent = salario > 0 ? formatadorBRL.format(salario) : "Não definido";
   }
 
-  renderizarGuardaPlano(salario);
-  renderizarDistribuicaoPlano(salario);
   renderizarKPIsPlano(salario);
   renderizarIndicadoresPlano(salario);
   renderizarAlertasPlano(salario);
@@ -4801,7 +4799,6 @@ function renderizarPlano() {
   renderizarDespesasPlano();
   renderizarComparacaoPlano();
   configurarSimulacaoPlano();
-  carregarPlanos().then(() => renderizarListaPlanos());
 }
 
 function renderizarGuardaPlano(salario) {
@@ -5457,7 +5454,7 @@ function configurarMetaPlano() {
 }
 
 function renderizarMetasPlano() {
-  const container = document.getElementById("lista-metas-plano");
+  const container = document.getElementById("plano-lista-metas");
   if (!container) return;
 
   if (typeof metasCarregadas === "undefined" || metasCarregadas.length === 0) {
