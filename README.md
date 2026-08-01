@@ -137,7 +137,15 @@ PWA completa para controle financeiro pessoal e familiar. Construída com Cloudf
 - Modais customizados (substitui alert/confirm do navegador)
 - Debounce de 250ms na busca
 - Fonts reduzidas (IBM Plex Sans + IBM Plex Mono)
-- Rodapé único com brand, versão, usuário e links
+- Rodapé único com créditos Olinbyte Digital
+
+### Páginas Estáticas
+- **Política de Privacidade**: 12 seções (dados, uso, segurança, compartilhamento, direitos, etc.)
+- **Termos de Uso**: 12 seções (aceitação, elegibilidade, responsabilidades, propriedade intelectual, etc.)
+- **Ajuda**: FAQ completo com perguntas e respostas sobre todas as funcionalidades
+- **Changelog**: Histórico de versões com tags coloridas (feature/fix/improve)
+- Design consistente com suporte automático a dark mode
+- Acessíveis via rodapé em todas as páginas
 
 ---
 
@@ -179,6 +187,10 @@ Cadimus/
 ├── frontend/
 │   ├── index.html              # SPA principal
 │   ├── offline.html            # Fallback offline
+│   ├── politica-privacidade.html
+│   ├── termos-uso.html
+│   ├── ajuda.html
+│   ├── changelog.html
 │   ├── _headers                # CSP + security headers
 │   ├── manifest.json           # PWA manifest
 │   ├── sw.js                   # Service Worker (cache v4)
