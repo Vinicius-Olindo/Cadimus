@@ -5576,6 +5576,7 @@ function preencherPerfilAtual() {
   if (el("nova-senha")) el("nova-senha").value = "";
   if (el("dica-senha")) el("dica-senha").style.display = "none";
   if (el("btn-cancelar-edicao")) el("btn-cancelar-edicao").style.display = "none";
+  definirPreviewFoto(usuario.foto_perfil || null);
 }
 
 function sincronizarToggleTema() {
@@ -5780,6 +5781,21 @@ function configurarFormularioUsuario() {
       if (resposta.ok) {
         sairModoEdicaoUsuario();
         carregarUsuarios();
+        if (idEdicao) {
+          const usuarioLogado = obterUsuarioLogado();
+          if (String(idEdicao) === String(usuarioLogado.id)) {
+            const dadosAtualizados = { ...usuarioLogado };
+            if (nome) dadosAtualizados.nome = nome;
+            if (fotoPerfil !== undefined) dadosAtualizados.foto_perfil = fotoPerfil || null;
+            if (email !== undefined) dadosAtualizados.email = email;
+            if (telefone !== undefined) dadosAtualizados.telefone = telefone;
+            if (salario !== undefined) dadosAtualizados.salario = salario;
+            const token = obterToken();
+            sessaoMemoria.usuario = dadosAtualizados;
+            sessionStorage.setItem("sessao", JSON.stringify({ token, usuario: dadosAtualizados }));
+            atualizarAvatarTopo(dadosAtualizados);
+          }
+        }
         mostrarToast(idEdicao ? "Usuário atualizado" : "Usuário criado");
       } else {
         const erro = await resposta.json();

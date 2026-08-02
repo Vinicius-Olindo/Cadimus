@@ -168,11 +168,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    document.getElementById("dropdown-btn-perfil")?.addEventListener("click", () => {
-      dropdownAvatar.style.display = "none";
-      abrirPerfilUsuario();
-    });
-
     document.getElementById("dropdown-btn-config")?.addEventListener("click", () => {
       dropdownAvatar.style.display = "none";
       abrirConfiguracoesAdmin();
