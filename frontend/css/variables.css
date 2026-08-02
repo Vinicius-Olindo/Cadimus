@@ -24,6 +24,7 @@
 
   /* --- Modo Papel (padrão) --- */
   --cor-fundo: #e7e3d6;
+  --cor-fundo-card: #f5f2e8;
   --cor-superficie: #f8f6ee;
   --cor-superficie-alta: #fffdf6;
   --cor-texto: #1c2620;
@@ -48,6 +49,7 @@
 .dark-mode {
   /* --- Modo Tinta (escuro) --- */
   --cor-fundo: #101b15;
+  --cor-fundo-card: #1a2b1d;
   --cor-superficie: #172519;
   --cor-superficie-alta: #1c2c1e;
   --cor-texto: #ece7d6;
