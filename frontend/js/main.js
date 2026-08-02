@@ -7202,9 +7202,6 @@ function configurarExportarRelatorio() {
     else mostrarToast("Função de compartilhar não disponível neste navegador", "aviso");
   });
 
-  // Botão salvar
-  const btnSalvar = document.getElementById("btn-relatorio-salvar");
-  if (btnSalvar) btnSalvar.addEventListener("click", () => exportarRelatorioPDF());
 }
 
 function exportarRelatorioCSV() {
