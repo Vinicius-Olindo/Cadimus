@@ -1233,6 +1233,7 @@ button:active {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 4px;
 }
 
 .btn-link-adicionar {
@@ -1250,10 +1251,11 @@ button:active {
   text-decoration: underline;
 }
 
-#lista-despesas-fixas-painel {
+#lista-despesas-fixas-painel,
+#lista-compras-parceladas-painel {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 0;
 }
 
 .categoria-barra-linha {
@@ -2302,7 +2304,7 @@ textarea::placeholder {
 }
 
 .modal-content {
-  background: var(--cor-superficie);
+  background: var(--cor-fundo-card);
   padding: 28px;
   border-radius: var(--raio-lg);
   width: 100%;
@@ -3006,9 +3008,15 @@ textarea::placeholder {
 #lista-despesas-fixas-painel .linha-item,
 #lista-compras-parceladas-painel .linha-item {
   display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  padding: 16px;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--cor-pauta-fraca);
+}
+
+#lista-despesas-fixas-painel .linha-item:last-child,
+#lista-compras-parceladas-painel .linha-item:last-child {
+  border-bottom: none;
 }
 
 .fixa-conteudo {
@@ -3016,25 +3024,26 @@ textarea::placeholder {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 
 .fixa-conteudo .item-descricao {
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
+  color: var(--cor-texto);
 }
 
 .fixa-conteudo .item-categoria {
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   color: var(--cor-texto-suave);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  font-family: var(--fonte-mono);
+  letter-spacing: 0.2px;
 }
 
 .fixa-botoes {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
   margin-top: 4px;
 }
@@ -3065,42 +3074,72 @@ textarea::placeholder {
 
 /* Botões de despesas fixas */
 .fixa-btn-toggle {
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: var(--borda) solid var(--cor-pauta-forte);
-  background: transparent;
+  border: 1.5px solid var(--cor-pauta-fraca);
+  background: var(--cor-fundo-card);
   color: var(--cor-texto-suave);
   cursor: pointer;
   transition: all 0.15s;
   padding: 0;
   flex-shrink: 0;
-  align-self: center;
 }
 
 .fixa-btn-toggle.fixa-ativa {
-  background: color-mix(in srgb, var(--cor-receita) 15%, transparent);
+  background: color-mix(in srgb, var(--cor-receita) 12%, transparent);
   border-color: var(--cor-receita);
   color: var(--cor-receita);
 }
 
 .fixa-btn-toggle.fixa-pausada {
-  background: color-mix(in srgb, var(--cor-texto-suave) 10%, transparent);
+  background: var(--cor-fundo-card);
+  border-color: var(--cor-pauta-fraca);
+  color: var(--cor-texto-suave);
 }
 
 .fixa-btn-toggle:hover {
-  transform: scale(1.1);
+  transform: scale(1.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .fixa-btn {
-  font-size: 0.72rem;
-  padding: 6px 12px;
-  border-radius: var(--raio-sm);
-  border: var(--borda) solid var(--cor-pauta-forte);
-  background: transparent;
+  font-size: 0.7rem;
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--cor-pauta-fraca);
+  background: var(--cor-fundo-card);
+  color: var(--cor-texto-suave);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+
+.fixa-btn:hover {
+  border-color: var(--cor-marca);
+  color: var(--cor-marca-forte);
+  background: color-mix(in srgb, var(--cor-marca) 6%, transparent);
+}
+
+.fixa-btn-excluir {
+  font-size: 0.7rem;
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid color-mix(in srgb, var(--cor-despesa) 30%, transparent);
+  background: color-mix(in srgb, var(--cor-despesa) 6%, transparent);
+  color: var(--cor-despesa);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+
+.fixa-btn-excluir:hover {
+  background: color-mix(in srgb, var(--cor-despesa) 14%, transparent);
+  border-color: var(--cor-despesa);
+}
   color: var(--cor-texto-suave);
   cursor: pointer;
   transition: all 0.12s;
