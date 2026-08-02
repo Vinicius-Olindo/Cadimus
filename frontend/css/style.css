@@ -1382,13 +1382,14 @@ button:active {
   display: flex;
   flex-direction: column;
   gap: 0;
-  padding-top: 6px;
+  padding-top: 8px;
 }
 
 .comparativo-barras-container {
   display: flex;
   align-items: flex-end;
-  gap: 8px;
+  gap: 6px;
+  padding: 0 4px;
 }
 
 .comparativo-coluna {
@@ -1396,62 +1397,76 @@ button:active {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   min-width: 0;
 }
 
 .comparativo-barras {
   width: 100%;
-  height: 90px;
+  height: 120px;
   display: flex;
   align-items: flex-end;
-  gap: 2px;
-  background: var(--cor-pauta-forte);
-  border-radius: 4px 4px 0 0;
+  gap: 3px;
+  border-radius: 6px 6px 0 0;
   overflow: hidden;
 }
 
 .comparativo-barra {
   flex: 1;
   height: 0%;
-  border-radius: 2px 2px 0 0;
+  border-radius: 4px 4px 0 0;
   transition: height 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  position: relative;
 }
 
 .comparativo-barra-receita {
-  background: var(--cor-receita);
+  background: linear-gradient(to top, color-mix(in srgb, var(--cor-receita) 70%, transparent), var(--cor-receita));
 }
 
 .comparativo-barra-despesa {
-  background: var(--cor-despesa);
+  background: linear-gradient(to top, color-mix(in srgb, var(--cor-despesa) 70%, transparent), var(--cor-despesa));
+}
+
+.comparativo-barra-receita.comparativo-barra-atual {
+  background: linear-gradient(to top, var(--cor-receita), color-mix(in srgb, var(--cor-receita) 90%, white));
+  box-shadow: 0 -2px 8px color-mix(in srgb, var(--cor-receita) 30%, transparent);
+}
+
+.comparativo-barra-despesa.comparativo-barra-atual {
+  background: linear-gradient(to top, var(--cor-despesa), color-mix(in srgb, var(--cor-despesa) 90%, white));
+  box-shadow: 0 -2px 8px color-mix(in srgb, var(--cor-despesa) 30%, transparent);
 }
 
 .comparativo-rotulo {
-  font-size: 0.64rem;
+  font-size: 0.66rem;
   color: var(--cor-texto-suave);
   text-transform: uppercase;
-  letter-spacing: 0.4px;
+  letter-spacing: 0.5px;
+  font-family: var(--fonte-mono);
 }
 
 .comparativo-legenda {
   display: flex;
-  gap: 12px;
+  gap: 16px;
   justify-content: center;
-  margin-top: 10px;
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid var(--cor-pauta-fraca);
 }
 
 .comparativo-legenda-item {
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 0.68rem;
+  gap: 6px;
+  font-size: 0.7rem;
   color: var(--cor-texto-suave);
+  font-weight: 500;
 }
 
 .comparativo-legenda-dot {
   width: 8px;
   height: 8px;
-  border-radius: 2px;
+  border-radius: 50%;
 }
 
 .busca-lancamentos {

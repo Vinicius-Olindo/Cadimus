@@ -4055,8 +4055,8 @@ function renderizarComparativo6Meses(meses, dados, mesAtualIdx, anoAtual) {
     coluna.className = "comparativo-coluna";
     coluna.innerHTML = `
       <div class="comparativo-barras">
-        <div class="comparativo-barra comparativo-barra-receita ${ehMesAtual ? "comparativo-barra-atual" : ""}" data-altura="${alturaRec}"></div>
-        <div class="comparativo-barra comparativo-barra-despesa ${ehMesAtual ? "comparativo-barra-atual" : ""}" data-altura="${alturaDesp}"></div>
+        <div class="comparativo-barra comparativo-barra-receita ${ehMesAtual ? "comparativo-barra-atual" : ""}" data-altura="${alturaRec}" title="Saldo: ${formatadorBRL.format(dados[i].receitas)}"></div>
+        <div class="comparativo-barra comparativo-barra-despesa ${ehMesAtual ? "comparativo-barra-atual" : ""}" data-altura="${alturaDesp}" title="Despesas: ${formatadorBRL.format(dados[i].despesas)}"></div>
       </div>
       <span class="comparativo-rotulo">${NOMES_MESES_ABREV[mes]}</span>
     `;
