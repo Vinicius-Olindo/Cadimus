@@ -66,19 +66,20 @@ button {
   margin: 0 auto;
 }
 
-/* Cabeçalho: capa do caderno, em duas linhas */
+/* ==========================================
+   TOP BAR — cabeçalho principal
+   ========================================== */
 .top-bar {
-  padding-bottom: 16px;
+  padding: 0 0 12px;
   margin-bottom: 20px;
-  border-bottom: 2px solid var(--cor-texto);
+  border-bottom: 1px solid var(--cor-pauta-fraca);
 }
 
 .top-bar-linha1 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 14px;
-  flex-wrap: wrap;
+  margin-bottom: 10px;
   gap: 8px;
 }
 
@@ -90,18 +91,34 @@ button {
   flex-wrap: wrap;
 }
 
-.top-bar h2 {
+.header-logo-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.header-logo-wrapper img {
+  height: 26px;
+  filter: invert(1) brightness(1.4);
+}
+
+.dark-mode .header-logo-wrapper img {
+  filter: invert(1) brightness(1.2);
+}
+
+.header-logo-wrapper span {
   font-family: var(--fonte-display);
   font-style: italic;
-  font-weight: 400;
-  font-size: 2rem;
-  letter-spacing: 0.2px;
+  font-weight: 500;
+  font-size: 1.25rem;
+  color: var(--cor-texto);
 }
 
 .acoes-topo,
 .user-controls {
   display: flex;
-  gap: 8px;
+  gap: 2px;
   align-items: center;
   flex-wrap: wrap;
   position: relative;
@@ -135,8 +152,8 @@ button {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: var(--cor-superficie-alta);
-  border: var(--borda) solid var(--cor-pauta-forte);
+  background: var(--cor-fundo-card);
+  border: 1px solid var(--cor-pauta-fraca);
   border-radius: 999px;
   padding: 3px 6px;
   flex-shrink: 0;
@@ -210,7 +227,6 @@ button:active {
 #btn-despesas-fixas,
 #btn-compras-parceladas,
 #btn-cartoes-credito,
-#btn-relatorio-pdf,
 #btn-planejamento,
 #btn-notificacoes,
 #btn-voltar-dashboard,
@@ -231,7 +247,6 @@ button:active {
 #btn-despesas-fixas:hover,
 #btn-compras-parceladas:hover,
 #btn-cartoes-credito:hover,
-#btn-relatorio-pdf:hover,
 #btn-planejamento:hover,
 #btn-notificacoes:hover,
 #btn-voltar-dashboard:hover,
@@ -250,11 +265,18 @@ button:active {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 6px 10px;
+  padding: 5px 10px;
   font-size: 0.75rem;
   font-weight: 500;
   letter-spacing: 0.1px;
   position: relative;
+  border-radius: 8px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.btn-topo-icone:hover {
+  background: color-mix(in srgb, var(--cor-marca) 10%, transparent);
+  color: var(--cor-marca-forte);
 }
 
 .btn-topo-icone svg {
@@ -425,9 +447,10 @@ button:active {
 /* Divisor vertical entre grupos de botões */
 .acoes-topo-divider {
   width: 1px;
-  height: 20px;
-  background: var(--cor-pauta-forte);
+  height: 16px;
+  background: var(--cor-pauta-fraca);
   flex-shrink: 0;
+  margin: 0 4px;
 }
 
 /* Avatar como botão clicável */
@@ -573,8 +596,8 @@ button:active {
   display: inline-flex;
   gap: 2px;
   padding: 3px;
-  background: var(--cor-superficie);
-  border: var(--borda) solid var(--cor-pauta-forte);
+  background: var(--cor-fundo-card);
+  border: 1px solid var(--cor-pauta-fraca);
   border-radius: 999px;
   overflow-x: auto;
   max-width: 100%;
@@ -2072,21 +2095,6 @@ button.item-status:active {
   letter-spacing: -0.5px;
 }
 
-.header-logo-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.header-logo-wrapper img {
-  height: 32px;
-  width: auto;
-}
-
-.dark-mode .header-logo-wrapper img {
-  filter: invert(1) brightness(1.4);
-}
-
 .login-logo-wrapper img {
   height: 72px;
   width: auto;
@@ -2094,14 +2102,6 @@ button.item-status:active {
 
 .dark-mode .login-logo-wrapper img {
   filter: invert(1) brightness(1.4);
-}
-
-.header-logo-wrapper span {
-  font-family: var(--fonte-corpo);
-  font-weight: 700;
-  font-size: 1.15rem;
-  color: var(--cor-texto);
-  letter-spacing: -0.3px;
 }
 
 .login-box .subtitulo {
@@ -3440,16 +3440,12 @@ textarea::placeholder {
     grid-template-columns: repeat(3, 1fr);
   }
 
-  .top-bar h2 {
-    font-size: 1.5rem;
-  }
-
   .btn-topo-label {
     display: none;
   }
 
   .btn-topo-icone {
-    padding: 8px;
+    padding: 6px;
   }
 }
 
@@ -3459,16 +3455,12 @@ textarea::placeholder {
     padding: 20px 14px 48px;
   }
 
-  .top-bar h2 {
-    font-size: 1.3rem;
-  }
-
   .btn-topo-label {
     display: none;
   }
 
   .btn-topo-icone {
-    padding: 8px;
+    padding: 6px;
   }
 
   .top-bar-linha2 {
