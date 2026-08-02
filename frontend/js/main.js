@@ -7167,8 +7167,15 @@ function obterMesesPeriodo(periodo) {
 function configurarExportarRelatorio() {
   const btnExp = document.getElementById("btn-relatorio-exportar");
   const modal = document.getElementById("modal-relatorio-exportar");
+  const btnFechar = document.getElementById("btn-fechar-modal-relatorio-exportar");
   if (btnExp && modal) {
     btnExp.addEventListener("click", () => { modal.style.display = "flex"; modal.classList.add("modal-aberto"); });
+  }
+  if (btnFechar && modal) {
+    btnFechar.addEventListener("click", () => { modal.style.display = "none"; modal.classList.remove("modal-aberto"); });
+  }
+  if (modal) {
+    modal.addEventListener("click", (e) => { if (e.target === modal) { modal.style.display = "none"; modal.classList.remove("modal-aberto"); } });
   }
 
   document.querySelectorAll(".rel-exportar-btn").forEach((btn) => {
