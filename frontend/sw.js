@@ -1,24 +1,14 @@
 // ==========================================
 // sw.js - Service Worker do CADIMUS
-// Cacheia só o "esqueleto" do app (HTML/CSS/JS estáticos).
+// Cacheia o "esqueleto" do app (HTML/CSS/JS estáticos).
 // NUNCA intercepta chamadas à API — dados financeiros sempre vêm da rede.
+// Estratégia: network-first para arquivos do app (sempre pega versão nova),
+//            cache-first para ícones e logos (raramente mudam).
 // ==========================================
 
-const CACHE_NAME = "cadimus-cache-v4";
+const CACHE_NAME = "cadimus-cache-v6";
 
-const ARQUIVOS_PARA_CACHE = [
-  "./",
-  "./index.html",
-  "./offline.html",
-  "./manifest.json",
-  "./css/variables.css",
-  "./css/style.css",
-  "./js/auth.js",
-  "./js/components.js",
-  "./js/importar.js",
-  "./js/exportar.js",
-  "./js/recorrentes.js",
-  "./js/main.js",
+const RECURSOS_ESTATISCOS = [
   "./assets/icon-192.png",
   "./assets/icon-512.png",
   "./assets/logo.png",
@@ -28,8 +18,8 @@ self.addEventListener("install", (evento) => {
   evento.waitUntil(
     caches
       .open(CACHE_NAME)
-      .then((cache) => cache.addAll(ARQUIVOS_PARA_CACHE))
-      .catch((erro) => console.error("Erro ao pré-cachear o app shell:", erro)),
+      .then((cache) => cache.addAll(RECURSOS_ESTATISCOS))
+      .catch((erro) => console.error("Erro ao pré-cachear recursos estáticos:", erro)),
   );
   self.skipWaiting();
 });
@@ -46,29 +36,38 @@ self.addEventListener("activate", (evento) => {
 self.addEventListener("fetch", (evento) => {
   const url = new URL(evento.request.url);
 
-  // Só GET, e só do mesmo domínio do app (nunca intercepta a API do backend,
-  // que fica em outro domínio — dado financeiro nunca deve vir do cache)
   if (evento.request.method !== "GET" || url.origin !== self.location.origin) {
     return;
   }
 
-  // Stale-while-revalidate: responde rápido com o cache, mas já busca uma versão
-  // nova em segundo plano pra próxima vez — assim não fica preso a uma versão velha.
-  // Se a rede falhar e não tiver cache, serve a página offline.
-  evento.respondWith(
-    caches.open(CACHE_NAME).then((cache) =>
-      cache.match(evento.request).then((respostaCache) => {
-        const buscaRede = fetch(evento.request)
-          .then((respostaRede) => {
+  const isRecursoEstatico = RECURSOS_ESTATISCOS.some((r) => url.pathname.endsWith(r.replace("./", "/")));
+
+  if (isRecursoEstatico) {
+    evento.respondWith(
+      caches.open(CACHE_NAME).then((cache) =>
+        cache.match(evento.request).then((respostaCache) => {
+          if (respostaCache) return respostaCache;
+          return fetch(evento.request).then((respostaRede) => {
             if (respostaRede && respostaRede.status === 200) {
               cache.put(evento.request, respostaRede.clone());
             }
             return respostaRede;
-          })
-          .catch(() => null);
+          });
+        }),
+      ),
+    );
+    return;
+  }
 
-        return respostaCache || buscaRede || cache.match("./offline.html");
-      }),
-    ),
+  evento.respondWith(
+    fetch(evento.request)
+      .then((respostaRede) => {
+        if (respostaRede && respostaRede.status === 200) {
+          const clone = respostaRede.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(evento.request, clone));
+        }
+        return respostaRede;
+      })
+      .catch(() => caches.match(evento.request).then((respostaCache) => respostaCache || caches.match("./offline.html"))),
   );
 });
