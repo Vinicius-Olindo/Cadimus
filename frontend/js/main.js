@@ -5760,21 +5760,29 @@ if (btnNovoOrcamentoSettings) {
   });
 }
 
-function preencherPerfilAtual() {
-  const usuario = obterUsuarioLogado();
-  if (!usuario) return;
+async function preencherPerfilAtual() {
   const el = (id) => document.getElementById(id);
-  if (el("novo-nome")) el("novo-nome").value = usuario.nome || "";
-  if (el("novo-email")) el("novo-email").value = usuario.email || "";
-  if (el("novo-telefone")) el("novo-telefone").value = usuario.telefone || "";
-  if (el("novo-usuario")) el("novo-usuario").value = usuario.usuario || "";
-  if (el("novo-salario")) el("novo-salario").value = usuario.salario || "";
-  if (el("novo-perfil")) el("novo-perfil").value = usuario.perfil || "comum";
-  if (el("usuario-editando-id")) el("usuario-editando-id").value = usuario.id;
-  if (el("nova-senha")) el("nova-senha").value = "";
-  if (el("dica-senha")) el("dica-senha").style.display = "none";
-  if (el("btn-cancelar-edicao")) el("btn-cancelar-edicao").style.display = "none";
-  definirPreviewFoto(usuario.foto_perfil || null);
+  try {
+    const token = obterToken();
+    const res = await fetch(`${API_URL}/usuarios/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) throw new Error("Erro ao buscar perfil");
+    const usuario = await res.json();
+    if (el("novo-nome")) el("novo-nome").value = usuario.nome || "";
+    if (el("novo-email")) el("novo-email").value = usuario.email || "";
+    if (el("novo-telefone")) el("novo-telefone").value = usuario.telefone || "";
+    if (el("novo-usuario")) el("novo-usuario").value = usuario.nome_usuario || "";
+    if (el("novo-salario")) el("novo-salario").value = usuario.salario || "";
+    if (el("novo-perfil")) el("novo-perfil").value = usuario.perfil || "comum";
+    if (el("usuario-editando-id")) el("usuario-editando-id").value = usuario.id;
+    if (el("nova-senha")) el("nova-senha").value = "";
+    if (el("dica-senha")) el("dica-senha").style.display = "none";
+    if (el("btn-cancelar-edicao")) el("btn-cancelar-edicao").style.display = "none";
+    definirPreviewFoto(usuario.foto_perfil || null);
+  } catch (erro) {
+    console.error("Erro ao preencher perfil:", erro);
+  }
 }
 
 function sincronizarToggleTema() {
