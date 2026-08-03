@@ -1012,7 +1012,7 @@
                     <strong>Alterar senha</strong>
                     <p class="settings-desc">Última alteração: verifique sua senha regularmente</p>
                   </div>
-                  <button type="button" class="btn-secundario" onclick="document.getElementById('nova-senha').focus()">Alterar</button>
+                  <button type="button" class="btn-secundario" onclick="document.querySelector('[data-settings-painel=&quot;sp-perfil&quot;]').click(); setTimeout(() => document.getElementById('nova-senha')?.focus(), 200)">Alterar</button>
                 </div>
               </div>
             </div>
