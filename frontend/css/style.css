@@ -6254,3 +6254,110 @@ textarea::placeholder {
   .footer-linha2 { font-size: 0.7rem; gap: 4px; }
   .footer-linha3 { font-size: 0.7rem; }
 }
+
+/* ==========================================
+   OCULTAR VALORES FINANCEIROS
+   ========================================== */
+body.ocultar-valores .stat-valor,
+body.ocultar-valores .kpi-valor,
+body.ocultar-valores .item-valor,
+body.ocultar-valores .item-categoria,
+body.ocultar-valores .fixa-conteudo .item-categoria,
+body.ocultar-valores .resumo-valor,
+body.ocultar-valores .resumo-item span:last-child,
+body.ocultar-valores .plano-card-valores,
+body.ocultar-valores .plano-lista-valor,
+body.ocultar-valores .plano-dist-valor,
+body.ocultar-valores .plano-dist-restante,
+body.ocultar-valores .plano-comp-valor,
+body.ocultar-valores .plano-comp-diferenca,
+body.ocultar-valores .plano-kpi-valor,
+body.ocultar-valores .historico-fixa-valor,
+body.ocultar-valores .historico-deposito-valor,
+body.ocultar-valores .rel-kpi-valor,
+body.ocultar-valores .rel-donut-valor,
+body.ocultar-valores .rel-ranking-valor-principal,
+body.ocultar-valores .col-valor,
+body.ocultar-valores .orcamento-gasto,
+body.ocultar-valores .orcamento-saldo,
+body.ocultar-valores .periodo-valor,
+body.ocultar-valores .comparativo-barra,
+body.ocultar-valores .taxa-poupanca-valor,
+body.ocultar-valores .cat-bar-valor {
+  font-size: 0.85rem !important;
+  letter-spacing: 1px;
+  color: var(--cor-texto-suave) !important;
+}
+
+body.ocultar-valores .stat-valor::after,
+body.ocultar-valores .kpi-valor::after { content: "••••"; }
+
+body.ocultar-valores .stat-valor,
+body.ocultar-valores .kpi-valor {
+  visibility: hidden;
+  position: relative;
+}
+
+body.ocultar-valores .stat-valor::after,
+body.ocultar-valores .kpi-valor::after {
+  content: "••••••";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  visibility: visible;
+  font-size: inherit;
+  font-family: var(--fonte-mono);
+}
+
+body.ocultar-valores .item-valor,
+body.ocultar-valores .item-categoria,
+body.ocultar-valores .fixa-conteudo .item-categoria,
+body.ocultar-valores .historico-fixa-valor,
+body.ocultar-valores .historico-deposito-valor,
+body.ocultar-valores .plano-card-valores,
+body.ocultar-valores .plano-lista-valor,
+body.ocultar-valores .plano-dist-valor,
+body.ocultar-valores .plano-dist-restante,
+body.ocultar-valores .plano-comp-valor,
+body.ocultar-valores .plano-comp-diferenca,
+body.ocultar-valores .resumo-valor,
+body.ocultar-valores .resumo-item span:last-child,
+body.ocultar-valores .orcamento-gasto,
+body.ocultar-valores .orcamento-saldo,
+body.ocultar-valores .rel-donut-valor,
+body.ocultar-valores .rel-ranking-valor-principal,
+body.ocultar-valores .col-valor,
+body.ocultar-valores .cat-bar-valor {
+  color: transparent !important;
+  text-shadow: none !important;
+  position: relative;
+}
+
+body.ocultar-valores .item-valor::after,
+body.ocultar-valores .item-categoria::after,
+body.ocultar-valores .fixa-conteudo .item-categoria::after,
+body.ocultar-valores .historico-fixa-valor::after,
+body.ocultar-valores .historico-deposito-valor::after,
+body.ocultar-valores .plano-card-valores::after,
+body.ocultar-valores .plano-lista-valor::after,
+body.ocultar-valores .plano-dist-valor::after,
+body.ocultar-valores .plano-dist-restante::after,
+body.ocultar-valores .plano-comp-valor::after,
+body.ocultar-valores .plano-comp-diferenca::after,
+body.ocultar-valores .resumo-valor::after,
+body.ocultar-valores .resumo-item span:last-child::after,
+body.ocultar-valores .orcamento-gasto::after,
+body.ocultar-valores .orcamento-saldo::after,
+body.ocultar-valores .rel-donut-valor::after,
+body.ocultar-valores .rel-ranking-valor-principal::after,
+body.ocultar-valores .col-valor::after,
+body.ocultar-valores .cat-bar-valor::after {
+  content: "•••";
+  position: absolute;
+  left: 0;
+  color: var(--cor-texto-suave);
+  font-family: var(--fonte-mono);
+  font-size: 0.82rem;
+  letter-spacing: 1px;
+}

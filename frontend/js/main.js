@@ -5564,6 +5564,24 @@ function configurarSubAbasAdmin() {
       }
     });
   });
+
+  // Toggle: ocultar valores financeiros
+  const toggleOcultar = document.getElementById("toggle-ocultar-valores");
+  if (toggleOcultar) {
+    if (localStorage.getItem("cadimus_ocultar_valores") === "true") {
+      toggleOcultar.checked = true;
+      document.body.classList.add("ocultar-valores");
+    }
+    toggleOcultar.addEventListener("change", () => {
+      if (toggleOcultar.checked) {
+        document.body.classList.add("ocultar-valores");
+        localStorage.setItem("cadimus_ocultar_valores", "true");
+      } else {
+        document.body.classList.remove("ocultar-valores");
+        localStorage.setItem("cadimus_ocultar_valores", "false");
+      }
+    });
+  }
 }
 
 // --- Settings: Contas (Carteiras) ---
