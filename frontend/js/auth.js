@@ -10,11 +10,9 @@ function sanitizarUrl(url) {
 
   try {
     const parsed = new URL(trimada);
-    // Apenas http e https são permitidos
-    if (!["http:", "https:"].includes(parsed.protocol)) return "";
+    if (!["http:", "https:", "data:"].includes(parsed.protocol)) return "";
     return trimada;
   } catch {
-    // URL inválida — retorna vazio
     return "";
   }
 }
