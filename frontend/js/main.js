@@ -5542,6 +5542,7 @@ function configurarSubAbasAdmin() {
   document.querySelectorAll(".settings-tema-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       const tema = btn.dataset.tema;
+      const nomeTema = tema === "escuro" ? "Escuro" : tema === "claro" ? "Claro" : "Automático";
       if (tema === "escuro") {
         document.body.classList.add("dark-mode");
         localStorage.setItem("cadimus_tema", "dark");
@@ -5562,8 +5563,29 @@ function configurarSubAbasAdmin() {
         const estaEscuro = document.body.classList.contains("dark-mode");
         btnTheme.innerHTML = estaEscuro ? ICONE_SOL : ICONE_LUA;
       }
+      mostrarToast(`Tema "${nomeTema}" salvo`);
     });
   });
+
+  // Toggle: animações
+  const toggleAnimacoes = document.getElementById("toggle-animacoes");
+  if (toggleAnimacoes) {
+    if (localStorage.getItem("cadimus_animacoes") === "false") {
+      toggleAnimacoes.checked = false;
+      document.body.classList.add("sem-animacoes");
+    }
+    toggleAnimacoes.addEventListener("change", () => {
+      if (toggleAnimacoes.checked) {
+        document.body.classList.remove("sem-animacoes");
+        localStorage.setItem("cadimus_animacoes", "true");
+        mostrarToast("Animações ativadas");
+      } else {
+        document.body.classList.add("sem-animacoes");
+        localStorage.setItem("cadimus_animacoes", "false");
+        mostrarToast("Animações desativadas");
+      }
+    });
+  }
 
   // Toggle: ocultar valores financeiros
   const toggleOcultar = document.getElementById("toggle-ocultar-valores");
@@ -5576,9 +5598,11 @@ function configurarSubAbasAdmin() {
       if (toggleOcultar.checked) {
         document.body.classList.add("ocultar-valores");
         localStorage.setItem("cadimus_ocultar_valores", "true");
+        mostrarToast("Valores ocultos com sucesso");
       } else {
         document.body.classList.remove("ocultar-valores");
         localStorage.setItem("cadimus_ocultar_valores", "false");
+        mostrarToast("Valores visíveis novamente");
       }
     });
   }
