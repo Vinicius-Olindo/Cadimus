@@ -5521,6 +5521,10 @@ function configurarSubAbasAdmin() {
       if (painelId === "sp-recorrentes") carregarPainelRecorrentes();
       if (painelId === "sp-perfil") preencherPerfilAtual();
       if (painelId === "sp-tema") sincronizarToggleTema();
+      if (painelId === "sp-contas") carregarSettingsContas();
+      if (painelId === "sp-cartoes") carregarSettingsCartoes();
+      if (painelId === "sp-metas") carregarSettingsMetas();
+      if (painelId === "sp-orcamentos") carregarSettingsOrcamentos();
     });
   });
 
@@ -5559,6 +5563,158 @@ function configurarSubAbasAdmin() {
         btnTheme.innerHTML = estaEscuro ? ICONE_SOL : ICONE_LUA;
       }
     });
+  });
+}
+
+// --- Settings: Contas (Carteiras) ---
+async function carregarSettingsContas() {
+  const container = document.getElementById("lista-carteiras-settings");
+  if (!container) return;
+  container.innerHTML = '<span class="dica-campo">Carregando...</span>';
+  try {
+    const resposta = await fetch(`${API_URL}/api/carteiras`, { headers: headersAutenticados(false) });
+    if (tratarSessaoExpirada(resposta)) return;
+    if (!resposta.ok) return;
+    const carteiras = await resposta.json();
+    if (carteiras.length === 0) {
+      container.innerHTML = '<span class="dica-campo">Nenhuma carteira encontrada.</span>';
+      return;
+    }
+    container.innerHTML = carteiras.map(c => `
+      <div class="linha-item linha-usuario" style="border-bottom:1px solid var(--cor-pauta-fraca)">
+        <div class="fixa-conteudo">
+          <span class="item-descricao">${escaparHtml(c.nome)}</span>
+          <span class="item-categoria">${c.tipo === "compartilhada" ? "Compartilhada" : "Pessoal"}</span>
+        </div>
+      </div>
+    `).join("");
+  } catch (erro) {
+    container.innerHTML = '<span class="dica-campo">Erro ao carregar.</span>';
+  }
+}
+
+const btnNovaCarteiraSettings = document.getElementById("btn-nova-carteira-settings");
+if (btnNovaCarteiraSettings) {
+  btnNovaCarteiraSettings.addEventListener("click", () => {
+    abrirModalCarteira();
+  });
+}
+
+// --- Settings: Cartões ---
+async function carregarSettingsCartoes() {
+  const container = document.getElementById("lista-cartoes-settings");
+  if (!container) return;
+  container.innerHTML = '<span class="dica-campo">Carregando...</span>';
+  try {
+    const carteiraId = document.getElementById("seletor-carteira")?.value;
+    const url = carteiraId ? `${API_URL}/api/cartoes-credito?carteira_id=${carteiraId}` : `${API_URL}/api/cartoes-credito`;
+    const resposta = await fetch(url, { headers: headersAutenticados(false) });
+    if (tratarSessaoExpirada(resposta)) return;
+    if (!resposta.ok) return;
+    const cartoes = await resposta.json();
+    if (cartoes.length === 0) {
+      container.innerHTML = '<span class="dica-campo">Nenhum cartão cadastrado.</span>';
+      return;
+    }
+    container.innerHTML = cartoes.map(c => `
+      <div class="linha-item linha-usuario" style="border-bottom:1px solid var(--cor-pauta-fraca)">
+        <div class="fixa-conteudo">
+          <span class="item-descricao">${escaparHtml(c.nome)}</span>
+          <span class="item-categoria">Fecha dia ${c.dia_fechamento || "—"} · Vence dia ${c.dia_vencimento || "—"}</span>
+        </div>
+      </div>
+    `).join("");
+  } catch (erro) {
+    container.innerHTML = '<span class="dica-campo">Erro ao carregar.</span>';
+  }
+}
+
+const btnNovoCartaoSettings = document.getElementById("btn-novo-cartao-settings");
+if (btnNovoCartaoSettings) {
+  btnNovoCartaoSettings.addEventListener("click", () => {
+    abrirModalCartao(false);
+  });
+}
+
+// --- Settings: Metas ---
+async function carregarSettingsMetas() {
+  const container = document.getElementById("lista-metas-settings");
+  if (!container) return;
+  container.innerHTML = '<span class="dica-campo">Carregando...</span>';
+  try {
+    const carteiraId = document.getElementById("seletor-carteira")?.value;
+    const url = carteiraId ? `${API_URL}/api/metas?carteira_id=${carteiraId}` : `${API_URL}/api/metas`;
+    const resposta = await fetch(url, { headers: headersAutenticados(false) });
+    if (tratarSessaoExpirada(resposta)) return;
+    if (!resposta.ok) return;
+    const metas = await resposta.json();
+    if (metas.length === 0) {
+      container.innerHTML = '<span class="dica-campo">Nenhuma meta definida.</span>';
+      return;
+    }
+    container.innerHTML = metas.map(m => {
+      const pct = m.meta_valor > 0 ? Math.min(100, Math.round((m.valor_atual / m.meta_valor) * 100)) : 0;
+      return `
+        <div class="linha-item linha-usuario" style="border-bottom:1px solid var(--cor-pauta-fraca)">
+          <div class="fixa-conteudo">
+            <span class="item-descricao">${escaparHtml(m.categoria)}</span>
+            <span class="item-categoria">${formatadorBRL.format(m.valor_atual)} / ${formatadorBRL.format(m.meta_valor)} (${pct}%)</span>
+          </div>
+        </div>
+      `;
+    }).join("");
+  } catch (erro) {
+    container.innerHTML = '<span class="dica-campo">Erro ao carregar.</span>';
+  }
+}
+
+const btnNovaMetaSettings = document.getElementById("btn-nova-meta-settings");
+if (btnNovaMetaSettings) {
+  btnNovaMetaSettings.addEventListener("click", () => {
+    abrirModalMeta("", "", "");
+  });
+}
+
+// --- Settings: Orçamentos ---
+async function carregarSettingsOrcamentos() {
+  const container = document.getElementById("lista-orcamentos-settings");
+  if (!container) return;
+  container.innerHTML = '<span class="dica-campo">Carregando...</span>';
+  try {
+    const carteiraId = document.getElementById("seletor-carteira")?.value;
+    const hoje = new Date();
+    const mes = String(hoje.getMonth() + 1).padStart(2, "0");
+    const ano = hoje.getFullYear();
+    const url = carteiraId ? `${API_URL}/api/orcamentos?carteira_id=${carteiraId}&mes=${mes}&ano=${ano}` : `${API_URL}/api/orcamentos?mes=${mes}&ano=${ano}`;
+    const resposta = await fetch(url, { headers: headersAutenticados(false) });
+    if (tratarSessaoExpirada(resposta)) return;
+    if (!resposta.ok) return;
+    const orcamentos = await resposta.json();
+    if (orcamentos.length === 0) {
+      container.innerHTML = '<span class="dica-campo">Nenhum orçamento para este mês.</span>';
+      return;
+    }
+    container.innerHTML = orcamentos.map(o => {
+      const pct = o.limite > 0 ? Math.min(100, Math.round((o.gasto / o.limite) * 100)) : 0;
+      const cor = pct >= 90 ? "var(--cor-despesa)" : pct >= 70 ? "var(--cor-pendente)" : "var(--cor-receita)";
+      return `
+        <div class="linha-item linha-usuario" style="border-bottom:1px solid var(--cor-pauta-fraca)">
+          <div class="fixa-conteudo">
+            <span class="item-descricao">${escaparHtml(o.categoria)}</span>
+            <span class="item-categoria">${formatadorBRL.format(o.gasto)} / ${formatadorBRL.format(o.limite)} (${pct}%)</span>
+          </div>
+        </div>
+      `;
+    }).join("");
+  } catch (erro) {
+    container.innerHTML = '<span class="dica-campo">Erro ao carregar.</span>';
+  }
+}
+
+const btnNovoOrcamentoSettings = document.getElementById("btn-novo-orcamento-settings");
+if (btnNovoOrcamentoSettings) {
+  btnNovoOrcamentoSettings.addEventListener("click", () => {
+    abrirModalOrcamento();
   });
 }
 
