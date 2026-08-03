@@ -82,6 +82,27 @@ export async function processarUsuarios(request, env, ctx) {
   if (!usuarioLogado) {
     return new Response(JSON.stringify({ erro: "Não autenticado." }), { status: 401 });
   }
+
+  // ==========================================
+  // ROTA /me: retorna o perfil completo do usuário logado (qualquer perfil)
+  // ==========================================
+  if (url.pathname.endsWith("/me")) {
+    if (metodo !== "GET") {
+      return new Response(JSON.stringify({ erro: "Use GET." }), { status: 405 });
+    }
+    try {
+      const { results } = await env.DB.prepare(
+        `SELECT id, nome_usuario, perfil, nome, telefone, email, foto_perfil, salario, criado_em, ultimo_acesso FROM usuarios WHERE id = ?`
+      ).bind(usuarioLogado.id).all();
+      if (results.length === 0) {
+        return new Response(JSON.stringify({ erro: "Usuário não encontrado." }), { status: 404 });
+      }
+      return new Response(JSON.stringify(results[0]), { status: 200 });
+    } catch (erro) {
+      return new Response(JSON.stringify({ erro: "Erro ao buscar perfil." }), { status: 500 });
+    }
+  }
+
   if (usuarioLogado.perfil !== "superadmin") {
     return new Response(JSON.stringify({ erro: "Acesso restrito a administradores." }), { status: 403 });
   }
