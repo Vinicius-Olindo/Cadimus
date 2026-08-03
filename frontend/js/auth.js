@@ -113,6 +113,31 @@ function alternarTelas(estaLogado) {
     atualizarAvatarTopo(u);
     if (window.carregarCarteiras) window.carregarCarteiras();
 
+    // Busca dados completos do usuário para atualizar avatar (foto pode não estar na sessão)
+    async function atualizarAvatarCompleto() {
+      try {
+        const token = obterToken();
+        const res = await fetch(`${API_URL}/usuarios/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) return;
+        const dados = await res.json();
+        // Atualiza sessão com dados completos
+        const sessao = JSON.parse(sessionStorage.getItem("sessao") || "{}");
+        if (sessao.usuario) {
+          sessao.usuario.foto_perfil = dados.foto_perfil;
+          sessao.usuario.email = dados.email;
+          sessao.usuario.telefone = dados.telefone;
+          sessao.usuario.salario = dados.salario;
+          sessionStorage.setItem("sessao", JSON.stringify(sessao));
+        }
+        atualizarAvatarTopo(dados);
+      } catch (erro) {
+        console.error("Erro ao atualizar avatar:", erro);
+      }
+    }
+    atualizarAvatarCompleto();
+
     // Onboarding: só após login bem-sucedido
     if (window.iniciarOnboarding) {
       setTimeout(() => window.iniciarOnboarding(), 1500);
