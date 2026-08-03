@@ -5969,11 +5969,21 @@ function configurarFormularioUsuario() {
       if (senha) corpo.senha = senha;
 
       if (idEdicao) {
-        resposta = await fetch(`${API_URL}/api/usuarios?id=${idEdicao}`, {
-          method: "PUT",
-          headers: headersAutenticados(),
-          body: JSON.stringify(corpo),
-        });
+        const usuarioLogado = obterUsuarioLogado();
+        const ehProprioPerfil = String(idEdicao) === String(usuarioLogado.id);
+        if (ehProprioPerfil && usuarioLogado.perfil !== "superadmin") {
+          resposta = await fetch(`${API_URL}/api/usuarios/me`, {
+            method: "PUT",
+            headers: headersAutenticados(),
+            body: JSON.stringify({ nome, email, telefone, salario, foto_perfil: fotoPerfil, ...(senha ? { senha } : {}) }),
+          });
+        } else {
+          resposta = await fetch(`${API_URL}/api/usuarios?id=${idEdicao}`, {
+            method: "PUT",
+            headers: headersAutenticados(),
+            body: JSON.stringify(corpo),
+          });
+        }
       } else {
         resposta = await fetch(`${API_URL}/api/usuarios`, {
           method: "POST",

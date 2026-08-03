@@ -84,23 +84,67 @@ export async function processarUsuarios(request, env, ctx) {
   }
 
   // ==========================================
-  // ROTA /me: retorna o perfil completo do usuário logado (qualquer perfil)
+  // ROTA /me: perfil do usuário logado (qualquer perfil)
   // ==========================================
   if (url.pathname.endsWith("/me")) {
-    if (metodo !== "GET") {
-      return new Response(JSON.stringify({ erro: "Use GET." }), { status: 405 });
-    }
-    try {
-      const { results } = await env.DB.prepare(
-        `SELECT id, nome_usuario, perfil, nome, telefone, email, foto_perfil, salario, criado_em, ultimo_acesso FROM usuarios WHERE id = ?`
-      ).bind(usuarioLogado.id).all();
-      if (results.length === 0) {
-        return new Response(JSON.stringify({ erro: "Usuário não encontrado." }), { status: 404 });
+    // GET: retorna dados completos
+    if (metodo === "GET") {
+      try {
+        const { results } = await env.DB.prepare(
+          `SELECT id, nome_usuario, perfil, nome, telefone, email, foto_perfil, salario, criado_em, ultimo_acesso FROM usuarios WHERE id = ?`
+        ).bind(usuarioLogado.id).all();
+        if (results.length === 0) {
+          return new Response(JSON.stringify({ erro: "Usuário não encontrado." }), { status: 404 });
+        }
+        return new Response(JSON.stringify(results[0]), { status: 200 });
+      } catch (erro) {
+        return new Response(JSON.stringify({ erro: "Erro ao buscar perfil." }), { status: 500 });
       }
-      return new Response(JSON.stringify(results[0]), { status: 200 });
-    } catch (erro) {
-      return new Response(JSON.stringify({ erro: "Erro ao buscar perfil." }), { status: 500 });
     }
+
+    // PUT: editar próprio perfil (nome, email, telefone, salario, foto, senha)
+    if (metodo === "PUT") {
+      try {
+        const dados = await request.json();
+        const campos = [];
+        const valores = [];
+
+        const cadastrais = await validarDadosCadastrais(dados, env, usuarioLogado.id);
+        if (cadastrais.erro) {
+          return new Response(JSON.stringify({ erro: cadastrais.erro }), { status: 400 });
+        }
+        if (cadastrais.nome !== undefined) { campos.push("nome = ?"); valores.push(cadastrais.nome); }
+        if (cadastrais.email !== undefined) { campos.push("email = ?"); valores.push(cadastrais.email); }
+        if (cadastrais.telefone !== undefined) { campos.push("telefone = ?"); valores.push(cadastrais.telefone); }
+        if (cadastrais.foto_perfil !== undefined) { campos.push("foto_perfil = ?"); valores.push(cadastrais.foto_perfil); }
+
+        if (dados.salario !== undefined) {
+          campos.push("salario = ?");
+          valores.push(Number(dados.salario) || 0);
+        }
+
+        if (dados.senha) {
+          if (dados.senha.length < 6) {
+            return new Response(JSON.stringify({ erro: "A senha deve ter ao menos 6 caracteres." }), { status: 400 });
+          }
+          campos.push("senha_hash = ?");
+          valores.push(await hashSenha(dados.senha));
+        }
+
+        if (campos.length === 0) {
+          return new Response(JSON.stringify({ erro: "Nenhum dado para atualizar." }), { status: 400 });
+        }
+
+        valores.push(usuarioLogado.id);
+        await env.DB.prepare(`UPDATE usuarios SET ${campos.join(", ")} WHERE id = ?`).bind(...valores).run();
+
+        return new Response(JSON.stringify({ mensagem: "Perfil atualizado com sucesso!" }), { status: 200 });
+      } catch (erro) {
+        return new Response(JSON.stringify({ erro: "Erro ao atualizar perfil." }), { status: 500 });
+      }
+    }
+
+    return new Response(JSON.stringify({ erro: "Use GET ou PUT." }), { status: 405 });
   }
 
   if (usuarioLogado.perfil !== "superadmin") {
