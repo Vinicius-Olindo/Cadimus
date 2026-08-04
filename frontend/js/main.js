@@ -5764,7 +5764,7 @@ async function preencherPerfilAtual() {
   const el = (id) => document.getElementById(id);
   try {
     const token = obterToken();
-    const res = await fetch(`${API_URL}/usuarios/me`, {
+    const res = await fetch(`${API_URL}/api/usuarios/me`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) throw new Error("Erro ao buscar perfil");
@@ -6246,12 +6246,13 @@ function entrarModoEdicaoUsuario(usuario) {
 function sairModoEdicaoUsuario() {
   const form = document.getElementById("form-perfil-usuario");
   if (form) form.reset();
-  document.getElementById("usuario-editando-id").value = "";
+  const el = (id) => document.getElementById(id);
+  if (el("usuario-editando-id")) el("usuario-editando-id").value = "";
   definirPreviewFoto(null);
-  document.getElementById("dica-senha").style.display = "none";
-  document.getElementById("titulo-form-usuario").innerText = "Perfil";
-  document.getElementById("btn-salvar-usuario").innerText = "Salvar alterações";
-  document.getElementById("btn-cancelar-edicao").style.display = "none";
+  if (el("dica-senha")) el("dica-senha").style.display = "none";
+  if (el("titulo-form-usuario")) el("titulo-form-usuario").innerText = "Perfil";
+  if (el("btn-salvar-usuario")) el("btn-salvar-usuario").innerText = "Salvar alterações";
+  if (el("btn-cancelar-edicao")) el("btn-cancelar-edicao").style.display = "none";
 }
 
 

@@ -117,7 +117,7 @@ function alternarTelas(estaLogado) {
     async function atualizarAvatarCompleto() {
       try {
         const token = obterToken();
-        const res = await fetch(`${API_URL}/usuarios/me`, {
+        const res = await fetch(`${API_URL}/api/usuarios/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) return;
