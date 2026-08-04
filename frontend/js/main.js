@@ -6018,7 +6018,8 @@ function configurarFormularioUsuario() {
         await mostrarAviso(`Erro: ${erro.erro}`);
       }
     } catch (erro) {
-      await mostrarAviso("Erro de conexão ao salvar usuário.");
+      console.error("Erro ao salvar perfil:", erro);
+      await mostrarAviso(`Erro ao salvar: ${erro.message || "verifique sua conexão"}`);
     } finally {
       btnSalvar.disabled = false;
       btnSalvar.innerText = idEdicao ? "Salvar edição" : "Criar";
